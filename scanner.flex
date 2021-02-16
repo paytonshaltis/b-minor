@@ -34,7 +34,7 @@ void        { return TOKEN_VOID; }
 \^          { return TOKEN_CARROT; }
 \+          { return TOKEN_ADD; }
 -           { return TOKEN_SUBTRACT; }
-\++         { return TOKEN_INCREMENT; }
+\+\+         { return TOKEN_INCREMENT; }
 --          { return TOKEN_DECREMENT; }
 \*          { return TOKEN_MULTIPLY; }
 \/          { return TOKEN_DIVIDE; }
