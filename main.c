@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include <string.h>
 
 extern FILE *yyin;
 extern int yylex();
@@ -16,7 +17,7 @@ int main(int argc, char* argv[])
     int scan = 0;                           //flag that indicates the "-scan" option was used
     int opt = 0;                            //return value for getopt_long_only()
     int index = 0;                          //index of the option stored here by getopt_long_only()
-    char* tokenArray[TOKEN_ERROR + 1] = {  //array that maps token value to name (implicitly through index)
+    char* tokenArray[TOKEN_ERROR + 1] = {   //array that maps token value to name (implicitly through index)
         "EOF",
         "ARRAY",
         "BOOLEAN",
@@ -95,8 +96,67 @@ int main(int argc, char* argv[])
                 fprintf(stderr, "scan error: %s is not a valid token.\n", yytext);
                 exit(1);
             }
-            else if(t==TOKEN_IDENT || t==TOKEN_INTLIT || t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
+            else if(t==TOKEN_IDENT || t==TOKEN_INTLIT) {
                 printf("%s %s\n",tokenArray[t], yytext);
+            }
+            else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
+
+                //converts the char* into a char array so that I can manipulate first and last char
+                
+                //create a char array from the char* yytext
+                int stringsize = strlen(yytext) + 1;
+                char newstring[stringsize];
+                if(stringsize != 3) {
+                    char* curpos = yytext;
+                    int count = 0;
+                    while(*curpos != '\0') {
+                        newstring[count] = *curpos;
+                        count++;
+                        curpos += sizeof(char);
+                    }
+                    newstring[count] = '\0';
+
+                    //remove the quotes from the begining and end of the string
+                    for(int i = 1; i < stringsize; i++) {
+                        newstring[i - 1] = newstring[i];
+                    }
+                    newstring[stringsize - 3] = '\0';
+
+                    printf("%s ", tokenArray[t]);
+
+                    //scans each character in newstring for escape characters
+                    for(int i = 0; i < stringsize; i++) {
+                        if(newstring[i] == '\\') {
+                            if(newstring[i + 1] == 'n') {
+                                printf("\n");
+                                i++;
+                            }
+                            else if(newstring[i + 1] == '0') {
+                                break;
+                            }
+                            else {
+                                printf("%c", newstring[i + 1]);
+                                i++;
+                            }
+                        }
+                        else {
+                            printf("%c", newstring[i]);
+                        }
+                    }
+
+                    printf("\n");
+
+                }
+                
+                //if the string is empty (char will never end up here since scanner will not recognize '')
+                else {
+                    newstring[0] = '\0';
+                    newstring[1] = '\0';
+                    newstring[2] = '\0';
+                    
+                    printf("%s %s\n", tokenArray[t], newstring);
+                }
+                
             }
             else {
                 printf("%s\n",tokenArray[t]);

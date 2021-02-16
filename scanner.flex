@@ -46,9 +46,9 @@ void        { return TOKEN_VOID; }
 \>          { return TOKEN_GREATER; }
 !=          { return TOKEN_NEQUAL; }
 ({LETTER}|"_")({LETTER}|"_"|{DIGIT})*   { return TOKEN_IDENT; }
-("+"|"-")?{DIGIT}+    { return TOKEN_INTLIT; }
-'(\\?[^\\])'   { return TOKEN_CHARLIT; }
-\"(\\.|[^\\"\n])*\"  { return TOKEN_STRINGLIT; }
+("+"|"-")?{DIGIT}+                      { return TOKEN_INTLIT; }
+'((\\?[^\\])|(\\\\))'                   { return TOKEN_CHARLIT; }
+\"(\\.|[^\\"\n])*\"                     { return TOKEN_STRINGLIT; }
 \|\|        { return TOKEN_OR; }
 &&          { return TOKEN_AND; }
 !           { return TOKEN_NOT; }
@@ -62,7 +62,7 @@ void        { return TOKEN_VOID; }
                 else if(c == '*')
                     {
                     if((c = input()) == '/')
-                        break;
+                        goto escape;
                     else
                         unput(c);
                     }
