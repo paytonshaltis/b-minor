@@ -32,8 +32,8 @@ void        { return TOKEN_VOID; }
 \)          { return TOKEN_RPAREN; }
 =           { return TOKEN_ASSIGN; }
 \^          { return TOKEN_CARET; }
-\+          { return TOKEN_ADD; }
--           { return TOKEN_SUBTRACT; }
+\+          { return TOKEN_PLUS; }
+-           { return TOKEN_MINUS; }
 \+\+        { return TOKEN_INCREMENT; }
 --          { return TOKEN_DECREMENT; }
 \*          { return TOKEN_MULTIPLY; }
@@ -44,14 +44,14 @@ void        { return TOKEN_VOID; }
 \<=         { return TOKEN_LE; }
 \<          { return TOKEN_LESS; }
 \>          { return TOKEN_GREATER; }
-!=          { return TOKEN_NEQUAL; }
-({LETTER}|"_")({LETTER}|"_"|{DIGIT})*   { return TOKEN_IDENT; }
+\!=          { return TOKEN_NEQUAL; }
+({LETTER}|"_")({LETTER}|"_"|{DIGIT}){0,255}   { return TOKEN_IDENT; }
 {DIGIT}+                                { return TOKEN_INTLIT; }
 '((\\?[^\\])|(\\\\))'                   { return TOKEN_CHARLIT; }
 \"((\\.|[^\\"\n]){0,255})\"             { return TOKEN_STRINGLIT; }
 \|\|        { return TOKEN_OR; }
 &&          { return TOKEN_AND; }
-!           { return TOKEN_NOT; }
+\!           { return TOKEN_NOT; }
 "/*"        {
             int c;
             while((c = input()) != 0) {
