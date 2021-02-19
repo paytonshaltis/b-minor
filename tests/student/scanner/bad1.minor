@@ -1,0 +1,14 @@
+//tests multi-lined comments that do not end
+/* this is a comment
+
+that
+
+
+spans several lines
+
+
+and that
+
+
+does not            correctly close.
+

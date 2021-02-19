@@ -31,10 +31,10 @@ void        { return TOKEN_VOID; }
 \(          { return TOKEN_LPAREN; }
 \)          { return TOKEN_RPAREN; }
 =           { return TOKEN_ASSIGN; }
-\^          { return TOKEN_CARROT; }
+\^          { return TOKEN_CARET; }
 \+          { return TOKEN_ADD; }
 -           { return TOKEN_SUBTRACT; }
-\+\+         { return TOKEN_INCREMENT; }
+\+\+        { return TOKEN_INCREMENT; }
 --          { return TOKEN_DECREMENT; }
 \*          { return TOKEN_MULTIPLY; }
 \/          { return TOKEN_DIVIDE; }
@@ -46,21 +46,18 @@ void        { return TOKEN_VOID; }
 \>          { return TOKEN_GREATER; }
 !=          { return TOKEN_NEQUAL; }
 ({LETTER}|"_")({LETTER}|"_"|{DIGIT})*   { return TOKEN_IDENT; }
-("+"|"-")?{DIGIT}+                      { return TOKEN_INTLIT; }
+{DIGIT}+                                { return TOKEN_INTLIT; }
 '((\\?[^\\])|(\\\\))'                   { return TOKEN_CHARLIT; }
-\"(\\.|[^\\"\n])*\"                     { return TOKEN_STRINGLIT; }
+\"((\\.|[^\\"\n]){0,255})\"             { return TOKEN_STRINGLIT; }
 \|\|        { return TOKEN_OR; }
 &&          { return TOKEN_AND; }
 !           { return TOKEN_NOT; }
 "/*"        {
             int c;
-            printf("Value of C: %i\n", c);
-            while((c = input()) != 0)
-                {
+            while((c = input()) != 0) {
                 if(c == '\n')
                     ++mylineno;
-                else if(c == '*')
-                    {
+                else if(c == '*') {
                     if((c = input()) == '/')
                         goto escape;
                     else
@@ -68,7 +65,8 @@ void        { return TOKEN_VOID; }
                     }
                 }
                 return TOKEN_ERROR;
-                escape: {};
+                escape: 
+                break;
             }
 
 .           { return TOKEN_ERROR; }

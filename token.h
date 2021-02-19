@@ -27,7 +27,7 @@ typedef enum {
      TOKEN_LPAREN,
      TOKEN_RPAREN,
      TOKEN_ASSIGN,
-     TOKEN_CARROT,
+     TOKEN_CARET,
      TOKEN_ADD,
      TOKEN_SUBTRACT,
      TOKEN_INCREMENT,

@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
         "LEFT_PAREN",
         "RIGHT_PAREN",
         "ASSIGNMENT",
-        "CARROT",
+        "CARET",
         "ADD",
         "SUBTRACT",
         "INCREMENT",
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
         //tries to open the source file
         yyin = fopen(filename,"r");
         if(!yyin) {
-            printf("could not open program.c!\n");
+            printf("could not open %s!\n",filename);
             return 1;
         }
 
