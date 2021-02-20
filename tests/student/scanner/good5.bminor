@@ -1,0 +1,11 @@
+// testing recognition of keywords within identifiers and strings
+
+array               // keyword
+arrAy               // identifier
+variable_boolean    // identifier
+1973for             // int literal, keyword
+1973forward         // int literal, identifier
+int_variable        // identifier
+char123             // identifier
+"for , int , char"  // string literal
+" if "              // string literal

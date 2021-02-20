@@ -1,0 +1,16 @@
+// testing string and char escape characters, comment format within strings
+
+str: String = "In bmionr, strings have 3 escape character codes: \nfor a new line, any character which will just print the actual \"\c\h\a\r\a\c\t\e\r\s\", and the null terminator that ends the string \0 see, this part is gone."
+
+charTest: Char = '\n'
+'\0'
+'\\'
+'\''
+'\ '
+'\t' // bminor does not have tab escape characters! should be literal char 't'
+
+"This is a char: \'e\'";
+"This is a string: \"Hello World!\"";
+
+"Comments within strings? // I'm not quite sure";
+"How about these? /* Let's see... */";

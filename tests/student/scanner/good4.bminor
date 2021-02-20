@@ -1,0 +1,3 @@
+// testing lack of escape characters. Will still scan, but should split string up.
+
+bad_string: string = "Not using proper escape characters may cause "unexpected results", such as multiple strings and "identifiers". Be careful!";
