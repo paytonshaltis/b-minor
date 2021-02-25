@@ -1,0 +1,4 @@
+// testing escape characters used to create char single quotes
+
+char_test_success: char = 'A';      // proper way to initialize a char with single quotes
+char_test_failure: char = \'F\';    // chars must use single quotes without escape characters

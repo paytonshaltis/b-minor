@@ -1,0 +1,12 @@
+// testing the period character used within identifiers, doubles and other illegal expressions
+
+/* notice how the period works just fine within comments. */
+// and even in C++ style comments...
+
+please_decode_message: string = ".--. . .-. .. --- -.. ... / .-- --- .-. -.- / .. -. / ... - .-. .. -. --. ... .-.-.- .-.-.- .-.-.-";
+
+person_age: double = 19.5;
+person.eye.color: char = 'G';
+person_name: string = person.getName();
+
+// periods are only allowed in comments and string / char literals 

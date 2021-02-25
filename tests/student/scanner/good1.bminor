@@ -1,25 +1,10 @@
-// testing NOT, NOT_EQUAL, EQUAL, and ASSIGNMENT tokens
+// testing identifier length, since max length is 256
 
-    !! !! !===!!==!==!!==!=  &&
-//  _- _- __--_--_--_-__-__  --
-// underscores and hyphens 'underline' each token
+// identifier length of 256 should only scan as one identifier
+thisisalongstringoftextthatiamactuallytypingoutforthistestitistakingquitealotoutofmenottohitthespacebaraftereachwordsiceitisonlyhabitlookingatthebottomofvscodeitlookslikeiamabout181charactersinatthispointwhichmeansthatihavesometogostilliamactuallyattheendg
 
-/* tokens should scan as:
-NOT
-NOT
-NOT
-NOT
-NOT EQUAL
-EQUAL
-NOT
-NOT EQUAL
-ASSIGNMENT
-NOT EQUAL
-ASSIGNMENT
-NOT
-NOT EQUAL
-ASSIGNMENT
-NOT EQUAL
-AND
-*/
+// identifier length of 257 should scan as 2 identifiers
+thisisalongstringoftextthatiamactuallytypingoutforthistestitistakingquitealotoutofmenottohitthespacebaraftereachwordsiceitisonlyhabitlookingatthebottomofvscodeitlookslikeiamabout181charactersinatthispointwhichmeansthatihavesometogostilliamactuallyattheendgq
 
+// should scan as an identifier, int literal, identifier
+thisisalongstringoftextthatiamactuallytypingoutforthistestitistakingquitealotoutofmenottohitthespacebaraftereachwordsiceitisonlyhabitlookingatthebottomofvscodeitlookslikeiamabout181charactersinatthispointwhichmeansthatihavesometogostilliamactuallyattheend11960swasagooddecadeformusic

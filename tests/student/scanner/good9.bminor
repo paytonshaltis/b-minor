@@ -1,0 +1,14 @@
+// testing code that doesn't look like it should scan as their proper tokens, but does anyway
+
+' '' '' '' '' '" ' "" ' ' "' '" ' ' "       // several 'space' char literals and strings with single quotes in them
+_ = _ - _ ;                                 // identifier "_" sutracts itself from itself, should be 0 after this line of code
+_++;                                        // identifier "_" increments
+_--;                                        // identifier "_" decrements
+strIng: string = "string";                  // scanner recognizes identifiers since keywords are case sensitive
+trUe: boolean = false;                      // scanner recognizes identifiers since keywords are case sensitive
+
+
+/* the following unmatched C-style comment symbols do not
+cause error because of the dominating C++ comment symbols: */
+// */                                      
+// /*

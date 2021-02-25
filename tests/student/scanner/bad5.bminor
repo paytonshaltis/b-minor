@@ -1,0 +1,5 @@
+// testing comments that use the backslash instead of the forward slash
+
+x: int = 53;                    \* here we have integer x with value of 53 *\
+y: int = 52;                    \\ and here we have integer y with value of 52
+should_be_one: int = x - y;     \* now, should_be_one should be one *\

@@ -1,0 +1,25 @@
+// testing NOT, NOT_EQUAL, EQUAL, and ASSIGNMENT tokens
+
+    !! !! !===!!==!==!!==!=  &&
+//  _- _- __--_--_--_-__-__  --
+// underscores and hyphens 'underline' each token
+
+/* tokens should scan as:
+NOT
+NOT
+NOT
+NOT
+NOT EQUAL
+EQUAL
+NOT
+NOT EQUAL
+ASSIGNMENT
+NOT EQUAL
+ASSIGNMENT
+NOT
+NOT EQUAL
+ASSIGNMENT
+NOT EQUAL
+AND
+*/
+

@@ -1,0 +1,9 @@
+// testing brackets and braces within strings and chars
+
+bracket_test_string: string = "Strings with [brackets]. (parentheses), and {curly braces}? What about <angle brackets>?"
+
+bracket_test_char1: char = '[';
+bracket_test_char2: char = '}';
+bracket_test_char3: char = ')';
+bracket_test_char4: char = '<';
+bracket_test_char5: char = '\{';

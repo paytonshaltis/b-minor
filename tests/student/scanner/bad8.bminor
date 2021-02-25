@@ -1,0 +1,19 @@
+// testing the "\0" escape sequence in strings and in chars
+
+// strings can have the NULL escape sequence anywhere
+"This string should stop right now.\0";
+"This string should sto- \0 -p prematurely...";
+
+// these chars both print a space
+' ';               
+'\ ';
+
+// this char prints nothing; it is just the NULL terminator character
+'\0';
+
+// this is the proper way to represent the char literal 'e'
+'e';
+
+/* unlike strings, chars do NOT have NULL terminators; they 
+are single characters, so this should result in an error */
+'e\0';

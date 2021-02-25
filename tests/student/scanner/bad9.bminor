@@ -1,0 +1,10 @@
+// testing escape sequences in ints vs. strings and chars
+
+str_variable: string = "5";         // string literal 5
+chr_variable: char = '5';           // char literal 5
+int_variable: int = 5;              // int literal 5
+
+str_variable: string = "\5";        // according to bminor documentation, only strings and chars may utilize escape sequences
+chr_variable: char = '\5';          // according to bminor documentation, only strings and chars may utilize escape sequences
+int_variable: int = \5;             // the scanner would not even know how to treat this escaped 5, should result in error
+int_variable2: int = 5\n5;          // same as above, also cannot have new lines in an integer literal value

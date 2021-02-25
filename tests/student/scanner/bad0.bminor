@@ -1,0 +1,9 @@
+// testing string and char recognition
+
+    ""              // empty string, valid
+
+    " \'\"\'\"\' "  // the correct way to express this string w/ escape characters
+    " '"'"' "       // the incorrect way to express this string w/o escape characters, results in error
+//  ____--- _
+// underscores and hyphens 'underline' each token
+// 3 tokens; scans as a string literal " '", char literal '"', and an unmatched "

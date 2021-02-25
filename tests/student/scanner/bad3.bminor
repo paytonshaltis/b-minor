@@ -1,0 +1,6 @@
+// testing for escape characters being used as part of an identifier
+
+identifier_esc                      // enter key used to make new line
+ape: int = 1024;
+
+identifier_esc\nape: int = 1024;    // escape character attempts to make new line, results in error

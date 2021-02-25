@@ -1,0 +1,10 @@
+// testing backslashes getting too close to important characters
+
+// no backslashes means no chance of messing up escape characters
+safe_str: string = "this string has no backslashes near the quotes";
+
+// backslashes present a risk, but the space prevents messing up the string
+less_dangerous_str: string = "\these backslashes are less dangerous\ ";
+
+// backslash is now touching the end quote, should result in an error
+dangerous_str: string = "\these backslashes are dangerous\";

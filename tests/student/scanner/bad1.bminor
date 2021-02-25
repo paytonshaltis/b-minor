@@ -1,0 +1,6 @@
+// testing a char literal that has new lines within it
+
+'\n'        // this is a valid char literal with an escaped new line
+
+'           // this is an invalid char literal with a normal new line, should result in error
+'

@@ -1,0 +1,4 @@
+// testing backticks in place of single quotes
+
+letter_a: char = 'a';   // proper way to declare and define a char literal
+letter_b: char = `b`;   // char must use single quotes, not backticks, results in error

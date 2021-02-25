@@ -1,11 +1,10 @@
-// testing recognition of keywords within identifiers and strings
+// testing normally illegal symbols inside of a string literal
 
-array               // keyword
-arrAy               // identifier
-variable_boolean    // identifier
-1973for             // int literal, keyword
-1973forward         // int literal, identifier
-int_variable        // identifier
-char123             // identifier
-"for , int , char"  // string literal
-" if "              // string literal
+symbol_string: string = "Any symbol is allowed in a string literal: . ~ ` @ # $ & | ";
+symbol_string: string = "They even work as escape sequences: \. \~ \` \@ \# \$ \& \| ";
+
+symbol_char1: char = '@';       // they should obviously work in chars just the same
+symbol_char2: char = '`';
+symbol_char3: char = '~';
+symbol_char4: char = '\|';
+symbol_char5: char = '\#';

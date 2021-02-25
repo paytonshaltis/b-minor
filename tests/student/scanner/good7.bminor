@@ -1,0 +1,8 @@
+// testing escape characters and special symbols in comments
+
+// for a single comment, do \t\h\e\s\e \w\o\r\k\? \n \0
+/* how about for a comment \l\i\k\e \t\h\i\s? \n \0 */
+
+/* since a comment just ignores everything after its start symbol,
+   even characters not allowed in bminor will work with comments:
+   ~ ` @ # $ & | \ .                                               */
