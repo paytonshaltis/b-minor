@@ -10,8 +10,7 @@ extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 
     int scan = 0;                           /* flag that indicates the "-scan" option was used */
     int opt = 0;                            /* return value for getopt_long_only() */
