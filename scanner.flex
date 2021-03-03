@@ -44,10 +44,10 @@ void            { return TOKEN_VOID; }
 \<=             { return TOKEN_LE; }
 \<              { return TOKEN_LESS; }
 \>              { return TOKEN_GREATER; }
-\!=             { return TOKEN_NEQUAL; }
+!=             { return TOKEN_NEQUAL; }
 \|\|            { return TOKEN_OR; }
 &&              { return TOKEN_AND; }
-\!              { return TOKEN_NOT; }
+!              { return TOKEN_NOT; }
  /*~~~~~~~~~~~~~   LITERALS / IDENTIFIER   ~~~~~~~~~~~~~*/
 ({LETTER}|"_")({LETTER}|"_"|{DIGIT}){0,255}     { return TOKEN_IDENT; }
 {DIGIT}+                                        { return TOKEN_INTLIT; }
