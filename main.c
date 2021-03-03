@@ -13,10 +13,11 @@ extern char *yytext;
 int main(int argc, char* argv[])
 {
 
-    char* filename = "";                    /* name of the source file used in command line */
     int scan = 0;                           /* flag that indicates the "-scan" option was used */
     int opt = 0;                            /* return value for getopt_long_only() */
     int index = 0;                          /* index of the option stored here by getopt_long_only() */
+    int stringsize;                         /* stores the size of 'yytext', used when printing string and char literals */
+    char* filename = "";                    /* name of the source file used in command line */
     char* tokenArray[TOKEN_ERROR + 1] = {   /* array that maps token value to name (implicitly through index) */
         "EOF",
         "ARRAY",
@@ -66,6 +67,7 @@ int main(int argc, char* argv[])
         "LOGICAL_NOT",
         "ERROR"  
     };    
+    
     /* array of options; currently only contains "scan" and the required "all-0s" option structs */
     struct option options[] = { 
         {"scan", required_argument, &scan, 1}, 
@@ -100,71 +102,39 @@ int main(int argc, char* argv[])
                 printf("%s %s\n",tokenArray[t], yytext);
             }
             else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
+                /* stores the size of the yytext c-string in stringsize */
+                stringsize = strlen(yytext) + 1;
 
-                /* converts the char* into a char array, then first and last element (quotes) are easy to remove */
-                
-                /* create a char array called newstring from the char* yytext */
-                int stringsize = strlen(yytext) + 1;
-                char newstring[stringsize];
-                
-                /* if the string under consideration is not empty (NOT "") */
-                if(stringsize != 3) {
-                    char* curpos = yytext;
-                    int arraypos = 0;
-                    
-                    /* fills newstring with characters from yytext */
-                    while(*curpos != '\0') {
-                        newstring[arraypos] = *curpos;
-                        arraypos++;
-                        curpos += sizeof(char);
+                /* prints one character at a time, ignoring quotes 
+                and taking proper action for escape characters */
+                printf("%s ", tokenArray[t]);
+                for(int i = 0; i < stringsize; i++) {
+                    /* in case of quotes */
+                    if((yytext[i] == '\"' && t == TOKEN_STRINGLIT) || (yytext[i] == '\'' && t == TOKEN_CHARLIT)) {
+                        /* nothing should be printed */
                     }
-                    
-                    /* terminates the c-string array with the null-terminator */
-                    newstring[arraypos] = '\0';
-
-                    /* remove the quotes from the begining and end of the string */
-                    for(int i = 1; i < stringsize; i++) {
-                        newstring[i - 1] = newstring[i];
-                    }
-                    newstring[stringsize - 3] = '\0';
-
-                    /* prints either CHAR_LITERAL or STRING_LITERAL token type */
-                    printf("%s ", tokenArray[t]);
-
-                    /* scans each character in newstring for escape characters */
-                    for(int i = 0; i < stringsize; i++) {
-                        
-                        /* prints one character at a time, taking proper action for escape characters */
-                        if(newstring[i] == '\\') {
-                            if(newstring[i + 1] == 'n') {
-                                printf("\n");
-                                i++;
-                            }
-                            else if(newstring[i + 1] == '0') {
-                                break;
-                            }
-                            else {
-                                printf("%c", newstring[i + 1]);
-                                i++;
-                            }
+                    /* in case of escape sequence */
+                    else if(yytext[i] == '\\') {
+                        if(yytext[i+1] == 'n') {
+                            printf("\n");
+                            i++;
+                        }
+                        else if(yytext[i+1] == '0') {
+                            break;
                         }
                         else {
-                            printf("%c", newstring[i]);
+                            printf("%c", yytext[i+1]);
+                            i++;
                         }
                     }
-                    printf("\n");
+                    /* in case of any other character */
+                    else {
+                        printf("%c", yytext[i]);
+                    }
                 }
-                /* strings of size 3 will be empty strings: \"\"\0 (two quotes and a null terminator.)
-                a char will never end up here since scanner will not recognize '' as an empty char.) */
-                else {
-                    newstring[0] = '\0';
-                    newstring[1] = '\0';
-                    newstring[2] = '\0';
-                    
-                    printf("%s %s\n", tokenArray[t], newstring);
-                }
-                
+                printf("\n");
             }
+            /* any token other than EOF, ERROR, IDENT, INTLIT, CHARLIT, or STRINGLIT */
             else {
                 printf("%s\n",tokenArray[t]);
             }

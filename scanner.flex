@@ -51,7 +51,7 @@ void            { return TOKEN_VOID; }
  /*~~~~~~~~~~~~~   LITERALS / IDENTIFIER   ~~~~~~~~~~~~~*/
 ({LETTER}|"_")({LETTER}|"_"|{DIGIT}){0,255}     { return TOKEN_IDENT; }
 {DIGIT}+                                        { return TOKEN_INTLIT; }
-'((\\?[^\\])|(\\\\))'                           { return TOKEN_CHARLIT; }
+'((\\?[^\\\''])|(\\\\)|(\\\'))'                 { return TOKEN_CHARLIT; }
 \"((\\.|[^\\"\n]){0,255})\"                     { return TOKEN_STRINGLIT; }
  /*~~~~~~~~~~~~~   COMMENTS   ~~~~~~~~~~~~~*/
 "//".*          /* skips single line C++ style comments */

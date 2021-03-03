@@ -19,7 +19,7 @@
 
 /* 
 because of how the code works for handling C-styled comments, the scanner ends the comment at the 
-first occurrence of the "* /" symbol (if I didn't leave out the space, it would end this comment!). 
+first occurrence of the "* /" symbol (if I left out the space, it would end this comment!). 
 The words after the end of comment 1 should scan as identifiers, the closing comment symbol should 
 scan as "multiply" and "divide" tokens
 */
