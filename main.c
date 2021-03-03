@@ -101,20 +101,26 @@ int main(int argc, char* argv[])
             }
             else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
 
-                /* converts the char* into a char array, then I can remove the first and last element (quotes) */
+                /* converts the char* into a char array, then first and last element (quotes) are easy to remove */
                 
-                /* create a char array from the char* yytext */
+                /* create a char array called newstring from the char* yytext */
                 int stringsize = strlen(yytext) + 1;
                 char newstring[stringsize];
+                
+                /* if the string under consideration is not empty (NOT "") */
                 if(stringsize != 3) {
                     char* curpos = yytext;
-                    int count = 0;
+                    int arraypos = 0;
+                    
+                    /* fills newstring with characters from yytext */
                     while(*curpos != '\0') {
-                        newstring[count] = *curpos;
-                        count++;
+                        newstring[arraypos] = *curpos;
+                        arraypos++;
                         curpos += sizeof(char);
                     }
-                    newstring[count] = '\0';
+                    
+                    /* terminates the c-string array with the null-terminator */
+                    newstring[arraypos] = '\0';
 
                     /* remove the quotes from the begining and end of the string */
                     for(int i = 1; i < stringsize; i++) {
@@ -122,10 +128,13 @@ int main(int argc, char* argv[])
                     }
                     newstring[stringsize - 3] = '\0';
 
+                    /* prints either CHAR_LITERAL or STRING_LITERAL token type */
                     printf("%s ", tokenArray[t]);
 
                     /* scans each character in newstring for escape characters */
                     for(int i = 0; i < stringsize; i++) {
+                        
+                        /* prints one character at a time, taking proper action for escape characters */
                         if(newstring[i] == '\\') {
                             if(newstring[i + 1] == 'n') {
                                 printf("\n");
@@ -145,7 +154,7 @@ int main(int argc, char* argv[])
                     }
                     printf("\n");
                 }
-                /* strings of size 3 will be empty strings: "\"\"\0" (two quotes and a null terminator.)
+                /* strings of size 3 will be empty strings: \"\"\0 (two quotes and a null terminator.)
                 a char will never end up here since scanner will not recognize '' as an empty char.) */
                 else {
                     newstring[0] = '\0';
