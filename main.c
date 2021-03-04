@@ -126,14 +126,16 @@ int main(int argc, char* argv[]) {
 
     /* tries to open the source file */
     char* filename = optarg;
-    yyin = fopen(filename,"r");
-    if(!yyin) {
-        fprintf(stderr, "Error, could not open %s!\n",filename);
-        exit(1);
-    }
-    if(strlen(filename) < 8 || strcmp(filename + strlen(filename) - 7, ".bminor") != 0) {
-        fprintf(stderr, "Error, %s is not a .bminor source file!\n", filename);
-        exit(1);
+    if(filename != NULL) {
+        yyin = fopen(filename,"r");
+        if(!yyin) {
+            fprintf(stderr, "Error, could not open %s!\n",filename);
+            exit(1);
+        }
+        if(strlen(filename) < 8 || strcmp(filename + strlen(filename) - 7, ".bminor") != 0) {
+            fprintf(stderr, "Error, %s is not a .bminor source file!\n", filename);
+            exit(1);
+        }
     }
 
     /* when the '-scan' command line option is used */
@@ -158,7 +160,8 @@ int main(int argc, char* argv[]) {
             }
             /* reached char literal or string literal token */
             else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
-                /* modifyText() removes quotes and deals with escape characters  */
+                /* modifyText() removes quotes from string pointed 
+                to by 'yytext' and deals with escape characters */
                 modifyText(t);
                 printf("%s %s\n", tokenArray[t], yytext);
             }
