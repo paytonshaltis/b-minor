@@ -52,15 +52,18 @@ void modifyText(token_t t) {
             textPos++;
         }
     }
-    
-    /* yytext then points to the modified string, can be printed */
-    yytext = newyytext;
+
+    /* copies string pointed to by 'newyytext' to 'yytext' */
+    for(int i = 0; i < stringsize; i++) {
+        yytext[i] = newyytext[i];
+    }
 }
 
 /* main function */
 int main(int argc, char* argv[]) {
-
-    char* tokenArray[TOKEN_ERROR + 1] = {   /* array that maps token value to name (implicitly through index) */
+    
+    /* array that maps token value to name (implicitly through index) */
+    char* tokenArray[TOKEN_ERROR + 1] = {   
         "EOF",
         "ARRAY",
         "BOOLEAN",
@@ -108,8 +111,8 @@ int main(int argc, char* argv[]) {
         "LOGICAL_AND",
         "LOGICAL_NOT",
         "ERROR"  
-    };    
-    
+    };
+      
     /* array of options; currently only contains "scan" and the required "all-0s" option structs */
     int scanFlag = 0;                   
     int index = 0;
@@ -121,10 +124,8 @@ int main(int argc, char* argv[]) {
     /* gets options from the command line */
     int opt = getopt_long_only(argc, argv, "", options, &index);
 
-    /* the argument for each option is the filename */
-    char* filename = optarg;
-    
     /* tries to open the source file */
+    char* filename = optarg;
     yyin = fopen(filename,"r");
     if(!yyin) {
         fprintf(stderr, "Error, could not open %s!\n",filename);
