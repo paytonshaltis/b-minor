@@ -103,6 +103,8 @@ int main(int argc, char* argv[]) {
             else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
                 /* stores the size of the yytext c-string in stringsize */
                 stringsize = strlen(yytext) + 1;
+                char newyytext[stringsize];
+                int textPos = 0;
 
                 /* prints one character at a time, ignoring quotes 
                 and taking proper action for escape characters */
@@ -110,27 +112,34 @@ int main(int argc, char* argv[]) {
                 for(int i = 0; i < stringsize; i++) {
                     /* in case of quotes */
                     if((yytext[i] == '\"' && t == TOKEN_STRINGLIT) || (yytext[i] == '\'' && t == TOKEN_CHARLIT)) {
-                        /* nothing should be printed */
+                        /* nothing should be duplicated */
                     }
                     /* in case of escape sequence */
                     else if(yytext[i] == '\\') {
                         if(yytext[i+1] == 'n') {
-                            printf("\n");
+                            newyytext[textPos] = 10;
+                            textPos++;
                             i++;
                         }
                         else if(yytext[i+1] == '0') {
-                            break;
+                            newyytext[textPos] = 0;
+                            textPos++;
                         }
                         else {
-                            printf("%c", yytext[i+1]);
+                            newyytext[textPos] = yytext[i + 1];
+                            textPos++;
                             i++;
                         }
                     }
                     /* in case of any other character */
                     else {
-                        printf("%c", yytext[i]);
+                        newyytext[textPos] = yytext[i];
+                        textPos++;
                     }
                 }
+                yytext = newyytext;
+                /* prints the new modified string that yytext points to */
+                printf("%s", yytext);
                 printf("\n");
             }
             /* any token other than EOF, ERROR, IDENT, INTLIT, CHARLIT, or STRINGLIT */
