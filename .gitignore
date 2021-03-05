@@ -54,7 +54,11 @@ dkms.conf
 # Project specific
 bminor
 scanner.c
+parser.c
+parser.output
+token.h
 
 # From my mac
 .DS_Store
 /Compiler\ Misc
+.vscode/

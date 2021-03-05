@@ -8,10 +8,12 @@
 
 extern FILE *yyin;
 extern int yylex();
+extern int yyparse();
+extern void yyrestart();
 extern char *yytext;
 
 /* function used to modify 'yytext' for char and string literals */
-void modifyText(token_t t) {
+void modifyText(enum yytokentype t) {
     
     /* creates a new array for storing characters one by one */
     int stringSize = strlen(yytext) + 1;
@@ -65,8 +67,7 @@ void modifyText(token_t t) {
 int main(int argc, char* argv[]) {
     
     /* array that maps token value to name (implicitly through array indices) */
-    char* tokenArray[TOKEN_ERROR + 1] = {   
-        "EOF",
+    char* tokenArray[46] = {   
         "ARRAY",
         "BOOLEAN",
         "CHAR",
@@ -116,12 +117,14 @@ int main(int argc, char* argv[]) {
     };
       
     /* flags that determine the command line option / index for getopt_long_only() call */
-    int scanFlag = 0;                   
+    int scanFlag = 0;
+    int parseFlag = 0;
     int index = 0;
 
     /* array of options; currently only contains "scan" and the required "all-0s" option structs */
     struct option options[] = { 
-        {"scan", required_argument, &scanFlag, 1}, 
+        {"scan", required_argument, &scanFlag, 1},
+        {"parse", required_argument, &parseFlag, 1}, 
         {0, 0, 0, 0} 
     };
 
@@ -143,15 +146,18 @@ int main(int argc, char* argv[]) {
     }
 
     /* when the '-scan' command line option is used */
-    if(scanFlag == 1) {
+    if(scanFlag == 1 || parseFlag == 1) {
 
         /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
         while(1) {
-            token_t t = yylex();
+            enum yytokentype t = yylex();
             
-            /* reached end of file */
-            if(t==TOKEN_EOF) {
-                exit(0);
+            /* reached end of file (yylex returns 0 when at EOF) */
+            if(t==0) {
+                if(parseFlag != 1)
+                    exit(0);
+                else
+                    break;
             }
             /* reached unrecognized token */
             else if(t==TOKEN_ERROR) {
@@ -160,19 +166,31 @@ int main(int argc, char* argv[]) {
             }
             /* reached identifier or an integer literal token */
             else if(t==TOKEN_IDENT || t==TOKEN_INTLIT) {
-                printf("%s %s\n", tokenArray[t], yytext);
+                printf("%s %s\n", tokenArray[t - 258], yytext);
             }
             /* reached char literal or string literal token */
             else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
                 /* modifyText() removes quotes from string pointed 
                 to by 'yytext' and deals with escape characters */
                 modifyText(t);
-                printf("%s %s\n", tokenArray[t], yytext);
+                printf("%s %s\n", tokenArray[t - 258], yytext);
             }
             /* reached any other token */
             else {
-                printf("%s\n",tokenArray[t]);
+                printf("%s\n",tokenArray[t - 258]);
             }
         }
+        printf("\nSCANNING COMPLETE\n");
+    }
+
+    /* when the '-parse' command line option is used */
+    if(parseFlag == 1) {
+        printf("\n\n");
+        yyin = fopen(filename,"r");
+        yyrestart(yyin);
+        if(yyparse() == 0)
+            printf("Parse successful!\n");
+        else
+            printf("Parse failed!\n");
     }
 }
