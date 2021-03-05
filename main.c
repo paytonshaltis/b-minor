@@ -10,21 +10,21 @@ extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 
-/* function used to modify yytext for char and string literals */
+/* function used to modify 'yytext' for char and string literals */
 void modifyText(token_t t) {
     
-    /* creates a new pointer for storing characters one by one */
-    int stringsize = strlen(yytext) + 1;
-    char newyytext[stringsize];
+    /* creates a new array for storing characters one by one */
+    int stringSize = strlen(yytext) + 1;
+    char newyytext[stringSize];
     int textPos = 0;
 
     /* copies one character at a time, ignoring quotes 
     and taking proper action for escape characters */
-    for(int i = 0; i < stringsize; i++) {
+    for(int i = 0; i < stringSize; i++) {
         
         /* in case of starting and ending quotes */
         if((yytext[i] == '\"' && t == TOKEN_STRINGLIT) || (yytext[i] == '\'' && t == TOKEN_CHARLIT)) {
-            /* nothing should be duplicated */
+            /* nothing should be duplicated into the 'newyytext' array */
         }
         
         /* in case of escape sequence */
@@ -53,8 +53,10 @@ void modifyText(token_t t) {
         }
     }
 
-    /* copies string pointed to by 'newyytext' to 'yytext' */
-    for(int i = 0; i < stringsize; i++) {
+    /* copies characters from 'newyytext' array to 'yytext' pointer,
+    overwriting the originally scanned string from the souce file 
+    with the new changes made within this function */
+    for(int i = 0; i < stringSize; i++) {
         yytext[i] = newyytext[i];
     }
 }
@@ -62,7 +64,7 @@ void modifyText(token_t t) {
 /* main function */
 int main(int argc, char* argv[]) {
     
-    /* array that maps token value to name (implicitly through index) */
+    /* array that maps token value to name (implicitly through array indices) */
     char* tokenArray[TOKEN_ERROR + 1] = {   
         "EOF",
         "ARRAY",
@@ -113,9 +115,11 @@ int main(int argc, char* argv[]) {
         "ERROR"  
     };
       
-    /* array of options; currently only contains "scan" and the required "all-0s" option structs */
+    /* flags that determine the command line option / index for getopt_long_only() call */
     int scanFlag = 0;                   
     int index = 0;
+
+    /* array of options; currently only contains "scan" and the required "all-0s" option structs */
     struct option options[] = { 
         {"scan", required_argument, &scanFlag, 1}, 
         {0, 0, 0, 0} 
@@ -133,7 +137,7 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
         if(strlen(filename) < 8 || strcmp(filename + strlen(filename) - 7, ".bminor") != 0) {
-            fprintf(stderr, "Error, %s is not a .bminor source file!\n", filename);
+            fprintf(stderr, "Error, not a .bminor source file!\n");
             exit(1);
         }
     }
@@ -156,7 +160,7 @@ int main(int argc, char* argv[]) {
             }
             /* reached identifier or an integer literal token */
             else if(t==TOKEN_IDENT || t==TOKEN_INTLIT) {
-                printf("%s %s\n",tokenArray[t], yytext);
+                printf("%s %s\n", tokenArray[t], yytext);
             }
             /* reached char literal or string literal token */
             else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
