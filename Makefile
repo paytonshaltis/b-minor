@@ -17,4 +17,4 @@ parser.c token.h: parser.bison
 	bison -v --defines=token.h --output=parser.c parser.bison 
 
 clean:
-	rm -f scanner.c scanner.o parser.c parser.o token.h main.o bminor
+	rm -f scanner.c scanner.o parser.c parser.o parser.output token.h main.o bminor
