@@ -57,19 +57,40 @@ extern int yyerror(char* str);
 
 %%
 
-program	: expr TOKEN_SEMICOLON
-		| decl TOKEN_SEMICOLON decl TOKEN_SEMICOLON
-		|
-		;
+program			: decllist
+				|
+				;
 
-expr	: TOKEN_INTLIT TOKEN_PLUS TOKEN_INTLIT
-		| TOKEN_INTLIT TOKEN_MINUS TOKEN_INTLIT
-		|
-		; 
+decllist		: decllist decl
+				| decl
+				;
 
-decl	: TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER TOKEN_ASSIGN TOKEN_INTLIT
-		| TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER
-		;
+decl			: TOKEN_IDENT TOKEN_COLON type TOKEN_SEMICOLON
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN value TOKEN_SEMICOLON
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN params TOKEN_RPAREN TOKEN_ASSIGN body
+				;
+
+params			: TOKEN_IDENT TOKEN_COLON type
+				| 
+				;
+
+body			: TOKEN_LCURLY decllist TOKEN_RCURLY
+				|
+				;
+
+type			: TOKEN_INTEGER
+				| TOKEN_STRING
+				| TOKEN_CHAR
+				| TOKEN_BOOLEAN
+				| TOKEN_VOID
+				;
+
+value			: TOKEN_INTLIT
+				| TOKEN_STRINGLIT
+				| TOKEN_CHARLIT
+				| TOKEN_TRUE
+				| TOKEN_FALSE
+				;
 
 %%
 

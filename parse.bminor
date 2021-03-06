@@ -1,0 +1,7 @@
+x:integer;
+y:integer = 9;
+b:boolean = "cow";
+f: function void () = {
+    x: integer;
+    y: integer = 9;
+}
