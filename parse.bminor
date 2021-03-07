@@ -79,7 +79,8 @@ f : function char (x : integer, s : string) = {
 main: function void() =
 {
 	x:integer = 5 * 5;
-
+    num : integer = arr[7+8][6];
+    return f(67, "literal", character, (87 == !bool)) + 890 && false;
 }
 
 

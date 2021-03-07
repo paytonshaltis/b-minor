@@ -61,21 +61,18 @@ program			: programlist
 				|
 				;
 
-programlist		: programlist globalstmt
+programlist		: programlist stmt
 				| programlist functions
-				| globalstmt
+				| stmt
 				| functions
-				;
-
-globalstmt		: decl TOKEN_SEMICOLON
-				| globalassign TOKEN_SEMICOLON
 				;
 
 functions		: fnctdecl TOKEN_SEMICOLON
 				| fnctassign
 				;
 
-localstmt		: localassign TOKEN_SEMICOLON
+stmt 			: decl TOKEN_SEMICOLON
+				| assign TOKEN_SEMICOLON
 				| print TOKEN_SEMICOLON
 				| return TOKEN_SEMICOLON
 				;
@@ -96,45 +93,28 @@ fnctdecl		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_INTEGER TOKEN_LPAREN pa
 fnctassign		: fnctdecl TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
 				;
 
+stmtlist		: stmtlist stmt
+				| stmt
+				;
+
 paramlist		: decl TOKEN_COMMA paramlist
 				| decl
 				|
 				;
 
-stmtlist		: stmtlist globalstmt
-				| stmtlist localstmt
-				| globalstmt
-				| localstmt
-				;
-
-localassign		: decl TOKEN_ASSIGN expr
+assign 			: decl TOKEN_ASSIGN expr
 				| TOKEN_IDENT TOKEN_ASSIGN expr
-				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_STRINGLIT
-				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_CHARLIT
-				;
-
-globalassign	: decl TOKEN_ASSIGN TOKEN_STRINGLIT
-				| decl TOKEN_ASSIGN TOKEN_CHARLIT
-			 // | decl TOKEN_ASSIGN TOKEN_INTLIT
-			 // | decl TOKEN_ASSIGN TOKEN_TRUE
-			 // | decl TOKEN_ASSIGN TOKEN_FALSE
 				;
 
 print			: TOKEN_PRINT printlist
 				;
 
 return			: TOKEN_RETURN expr
-				| TOKEN_RETURN TOKEN_STRINGLIT
-				| TOKEN_RETURN TOKEN_CHARLIT
 				| TOKEN_RETURN
 				;
 
 printlist		: expr TOKEN_COMMA printlist
-				| TOKEN_STRINGLIT TOKEN_COMMA printlist
-				| TOKEN_CHARLIT TOKEN_COMMA printlist
 				| expr
-				| TOKEN_STRINGLIT
-				| TOKEN_CHARLIT
 				|
 				;
 
@@ -178,16 +158,32 @@ unary			: TOKEN_MINUS incdec
 				| incdec
 				;
 
-incdec			: atomic TOKEN_INCREMENT
-				| atomic TOKEN_DECREMENT
-				| atomic
+incdec			: groups TOKEN_INCREMENT
+				| groups TOKEN_DECREMENT
+				| groups
 				;
 
-atomic			: TOKEN_INTLIT
-				| TOKEN_IDENT
+groups			: TOKEN_LPAREN expr TOKEN_RPAREN					// group
+				| TOKEN_IDENT bracket								// array subscript NEED TO TEST 2D ARRAYS!
+				| TOKEN_IDENT TOKEN_LPAREN fcalllist TOKEN_RPAREN	// function call
+				| atomic
+				;
+				
+fcalllist		: expr TOKEN_COMMA fcalllist
+				| expr
+				|
+				;
+
+bracket 		: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
+				| TOKEN_LBRACKET expr TOKEN_RBRACKET
+				;
+
+atomic			: TOKEN_IDENT
+				| TOKEN_INTLIT
+				| TOKEN_STRINGLIT
+				| TOKEN_CHARLIT
 				| TOKEN_TRUE
 				| TOKEN_FALSE
-				| TOKEN_LPAREN expr TOKEN_RPAREN
 				;
 
 %%
