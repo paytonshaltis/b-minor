@@ -14,7 +14,7 @@ extern char *yytext;
 
 /* function used to modify 'yytext' for char and string literals */
 void modifyText(enum yytokentype t) {
-    
+
     /* creates a new array for storing characters one by one */
     int stringSize = strlen(yytext) + 1;
     char newyytext[stringSize];
@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* when the '-scan' command line option is used */
-    if(scanFlag == 1 || parseFlag == 1) {
+    if(scanFlag == 1 /*|| parseFlag == 1*/) {
 
         /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
         while(1) {
@@ -188,9 +188,13 @@ int main(int argc, char* argv[]) {
         printf("\n\n");
         yyin = fopen(filename,"r");
         yyrestart(yyin);
-        if(yyparse() == 0)
+        if(yyparse() == 0) {
             printf("Parse successful!\n");
-        else
+            exit(0);
+        }
+        else {
             printf("Parse failed!\n");
+            exit(1);
+        }
     }
 }
