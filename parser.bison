@@ -67,12 +67,6 @@ programlist		: programlist globalstmt
 				| functions
 				;
 
-stmtlist		: stmtlist globalstmt
-				| stmtlist localstmt
-				| globalstmt
-				| localstmt
-				;
-
 globalstmt		: decl TOKEN_SEMICOLON
 				| globalassign TOKEN_SEMICOLON
 				;
@@ -82,6 +76,7 @@ functions		: fnctdecl TOKEN_SEMICOLON
 				;
 
 localstmt		: localassign TOKEN_SEMICOLON
+				| print TOKEN_SEMICOLON
 				;
 
 decl			: TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER
@@ -97,6 +92,20 @@ fnctdecl		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_INTEGER TOKEN_LPAREN pa
 				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN paramlist TOKEN_RPAREN
 				;
 
+fnctassign		: fnctdecl TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				;
+
+paramlist		: decl TOKEN_COMMA paramlist
+				| decl
+				|
+				;
+
+stmtlist		: stmtlist globalstmt
+				| stmtlist localstmt
+				| globalstmt
+				| localstmt
+				;
+
 localassign		: decl TOKEN_ASSIGN expr
 				| TOKEN_IDENT TOKEN_ASSIGN expr
 				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_STRINGLIT
@@ -105,9 +114,22 @@ localassign		: decl TOKEN_ASSIGN expr
 
 globalassign	: decl TOKEN_ASSIGN TOKEN_STRINGLIT
 				| decl TOKEN_ASSIGN TOKEN_CHARLIT
+			 // | decl TOKEN_ASSIGN TOKEN_INTLIT
+			 // | decl TOKEN_ASSIGN TOKEN_TRUE
+			 // | decl TOKEN_ASSIGN TOKEN_FALSE
 				;
 
-fnctassign		: fnctdecl TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+print			: TOKEN_PRINT printlist
+				;
+
+printlist		: expr TOKEN_COMMA printlist
+				| TOKEN_STRINGLIT TOKEN_COMMA printlist
+				| TOKEN_CHARLIT TOKEN_COMMA printlist
+				| expr
+				| TOKEN_STRINGLIT
+				| TOKEN_CHARLIT
+				|
+				;
 
 expr			: logor
 				;
@@ -159,11 +181,6 @@ atomic			: TOKEN_INTLIT
 				| TOKEN_TRUE
 				| TOKEN_FALSE
 				| TOKEN_LPAREN expr TOKEN_RPAREN
-				;
-
-paramlist		: decl TOKEN_COMMA paramlist
-				| decl
-				|
 				;
 
 %%
