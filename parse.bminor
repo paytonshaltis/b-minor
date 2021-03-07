@@ -41,12 +41,15 @@ z:boolean  = true || -(4*x^5) + (4 - 4) >= 16 - 6 * 3 + x && y^2 == 16;
 
 
 }
+
 newF : function integer (c : char, x : integer, y : string);
+
 x : integer;
 x : integer;
 y : string = "this is a string";
 c : char = 'c';
 int : integer;
+
 fxn: function void () =
 {
 	x:integer;
@@ -54,8 +57,9 @@ fxn: function void () =
 	w:boolean = true;
 	q:boolean;
 }
-//return 7;
+// return 7;
 // FUNCTIONS
+
 f : function char (x : integer, s : string) = {
     x = 5;
     a = b;
@@ -68,19 +72,33 @@ f : function char (x : integer, s : string) = {
     return (5+8) / 78 % 3;
     return "string";
     return string_word;
-    print temo, 5 + 6, (true || false), "  ", "\n";
+    //print temo, 5 + 6, (true || false), "  ", "\n";
 
     b = (!true || false) + 56 ^ (9087 / 2 && false);
     x:integer = 5;
     y:integer = 4;
     z:boolean  = true || -(4*x^5) + (4 - 4) >= 16 - 6 * 3 + x && y^2 == 16;
 }
+
 // two multiples should generate parse error
 main: function void() =
 {
 	x:integer = 5 * 5;
     num : integer = arr[7+8][6];
-    return f(67, "literal", character, (87 == !bool)) + 890 && false;
+    return f(67, "literal", character, true && false) || 6 != true - false;
 }
 
+ident_ifier : char;
+ident_ifier = 'c';
+int : integer = 8 + 9 / (true || false);
 
+f : function void ();
+f : function integer () = {
+    int : integer;
+    int = (true && !false);
+    f : function boolean ();
+}
+
+arr : array [3+4][56 / 7];
+arr : array [3][4] = {5, 7, 'c', "ghfjhg", false};
+arr [34][998] = arr2[7];

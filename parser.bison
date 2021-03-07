@@ -57,134 +57,132 @@ extern int yyerror(char* str);
 
 %%
 
-program			: programlist
+program			: decllist											// a program is a series of declarations
 				|
 				;
 
-programlist		: programlist stmt
-				| programlist functions
-				| stmt
-				| functions
+decllist		: decllist decl										// a series of 1 or more declarations
+				| decl
 				;
 
-functions		: fnctdecl TOKEN_SEMICOLON
-				| fnctassign
-				;
-
-stmt 			: decl TOKEN_SEMICOLON
-				| assign TOKEN_SEMICOLON
-				| print TOKEN_SEMICOLON
-				| return TOKEN_SEMICOLON
-				;
-
-decl			: TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER
-				| TOKEN_IDENT TOKEN_COLON TOKEN_STRING
-				| TOKEN_IDENT TOKEN_COLON TOKEN_CHAR
-				| TOKEN_IDENT TOKEN_COLON TOKEN_BOOLEAN
-				;
-
-fnctdecl		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_INTEGER TOKEN_LPAREN paramlist TOKEN_RPAREN
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_STRING TOKEN_LPAREN paramlist TOKEN_RPAREN
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_CHAR TOKEN_LPAREN paramlist TOKEN_RPAREN
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_BOOLEAN TOKEN_LPAREN paramlist TOKEN_RPAREN
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN paramlist TOKEN_RPAREN
-				;
-
-fnctassign		: fnctdecl TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				;
+decl			: assign TOKEN_SEMICOLON							// an assignment 
+				| onlydecl TOKEN_SEMICOLON							// just a declarations
+				| expr TOKEN_SEMICOLON								// assignment of existing variable
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_SEMICOLON
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_SEMICOLON
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				;		
 
 stmtlist		: stmtlist stmt
 				| stmt
 				;
 
-paramlist		: decl TOKEN_COMMA paramlist
-				| decl
-				|
+stmt			: TOKEN_RETURN TOKEN_SEMICOLON
+				| TOKEN_RETURN expr TOKEN_SEMICOLON
+				| other
 				;
 
-assign 			: decl TOKEN_ASSIGN expr
-				| TOKEN_IDENT TOKEN_ASSIGN expr
+other			: decl
 				;
 
-print			: TOKEN_PRINT printlist
+fnctparams		: onlydecl TOKEN_COMMA fnctparams
+				| onlydecl
 				;
 
-return			: TOKEN_RETURN expr
-				| TOKEN_RETURN
+assign			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr	// expression to the right side of assignment
 				;
 
-printlist		: expr TOKEN_COMMA printlist
+onlydecl		: TOKEN_IDENT TOKEN_COLON type						// declaration only
+				| TOKEN_IDENT TOKEN_COLON TOKEN_ARRAY bracket
+				| TOKEN_IDENT TOKEN_COLON TOKEN_ARRAY bracket TOKEN_ASSIGN TOKEN_LCURLY arrlist TOKEN_RCURLY
+				;
+
+arrlist			: expr TOKEN_COMMA arrlist
 				| expr
-				|
 				;
 
-expr			: logor
+type			: TOKEN_INTEGER										// basic types
+				| TOKEN_STRING
+				| TOKEN_CHAR
+				| TOKEN_BOOLEAN
 				;
 
-logor			: logand TOKEN_OR logor
+expr			: expr TOKEN_ASSIGN logor							// array subscript is a left side expression	
+				| logor
+				;
+
+logor			: logor TOKEN_OR logand
 				| logand
 				;
 
-logand			: comparison TOKEN_AND logand
+logand			: logand TOKEN_AND comparison
 				| comparison
 				;
 
-comparison		: addsub TOKEN_LESS comparison
-				| addsub TOKEN_LE comparison
-				| addsub TOKEN_GREATER comparison
-				| addsub TOKEN_GE comparison
-				| addsub TOKEN_EQUAL comparison
-				| addsub TOKEN_NEQUAL comparison
+comparison		: comparison TOKEN_LESS addsub
+				| comparison TOKEN_LE addsub
+				| comparison TOKEN_GREATER addsub
+				| comparison TOKEN_GE addsub
+				| comparison TOKEN_EQUAL addsub
+				| comparison TOKEN_NEQUAL addsub
 				| addsub
 				;
 
-addsub			: multdiv TOKEN_PLUS addsub
-				| multdiv TOKEN_MINUS addsub
+addsub			: addsub TOKEN_PLUS multdiv
+				| addsub TOKEN_MINUS multdiv
 				| multdiv
 				;
 
-multdiv			: expon TOKEN_MULTIPLY multdiv
-				| expon TOKEN_DIVIDE multdiv
-				| expon TOKEN_MOD multdiv
+multdiv			: multdiv TOKEN_MULTIPLY expon
+				| multdiv TOKEN_DIVIDE expon
+				| multdiv TOKEN_MOD expon
 				| expon
 				;
 
-expon			: unary TOKEN_CARET expon
+expon			: expon TOKEN_CARET unary
 				| unary
 				;
 
-unary			: TOKEN_MINUS incdec
-				| TOKEN_NOT incdec
+unary			: TOKEN_MINUS unary
+				| TOKEN_NOT unary
 				| incdec
 				;
 
-incdec			: groups TOKEN_INCREMENT
-				| groups TOKEN_DECREMENT
+incdec			: incdec TOKEN_INCREMENT
+				| incdec TOKEN_DECREMENT
 				| groups
 				;
 
-groups			: TOKEN_LPAREN expr TOKEN_RPAREN					// group
-				| TOKEN_IDENT bracket								// array subscript NEED TO TEST 2D ARRAYS!
-				| TOKEN_IDENT TOKEN_LPAREN fcalllist TOKEN_RPAREN	// function call
-				| atomic
+groups			: TOKEN_LPAREN expr TOKEN_RPAREN					// grouping in parens
+				| TOKEN_IDENT bracket								// array subscript (multiple dimensions)
+				| TOKEN_IDENT TOKEN_LPAREN fnctcalllist TOKEN_RPAREN// function call
+				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN				// function call (blank)
+				| atomic											// any atomic type
 				;
-				
-fcalllist		: expr TOKEN_COMMA fcalllist
+
+fnctcalllist	: expr TOKEN_COMMA fnctcalllist
 				| expr
-				|
 				;
 
-bracket 		: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
-				| TOKEN_LBRACKET expr TOKEN_RBRACKET
+bracket 		: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET		// series of array subscripts in brackets
+				| TOKEN_LBRACKET expr TOKEN_RBRACKET				// single expression in brackets
 				;
 
-atomic			: TOKEN_IDENT
+atomic			: TOKEN_IDENT										// atomic types for expressions
 				| TOKEN_INTLIT
 				| TOKEN_STRINGLIT
 				| TOKEN_CHARLIT
 				| TOKEN_TRUE
 				| TOKEN_FALSE
 				;
+
+
+
 
 %%
 
