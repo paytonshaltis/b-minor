@@ -84,7 +84,13 @@ stmtlist		: stmtlist stmt
 
 stmt			: TOKEN_RETURN TOKEN_SEMICOLON
 				| TOKEN_RETURN expr TOKEN_SEMICOLON
+				| TOKEN_PRINT TOKEN_SEMICOLON
+				| TOKEN_PRINT printlist TOKEN_SEMICOLON
 				| other
+				;
+
+printlist		: expr TOKEN_COMMA printlist
+				| expr
 				;
 
 other			: decl
