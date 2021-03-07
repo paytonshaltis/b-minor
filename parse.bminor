@@ -97,8 +97,14 @@ f : function integer () = {
     int : integer;
     int = (true && !false);
     f : function boolean ();
+
+    for (i = 0; i < 99; i++) {
+        x : integer;
+    }
+
 }
 
 arr : array [3+4][56 / 7];
 arr : array [3][4] = {5, 7, 'c', "ghfjhg", false};
 arr [34][998] = arr2[7];
+
