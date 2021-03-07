@@ -76,18 +76,31 @@ decl			: TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER
 				;
 
 assign			: decl TOKEN_ASSIGN expr
-				| decl TOKEN_ASSIGN TOKEN_TRUE
-				| decl TOKEN_ASSIGN TOKEN_FALSE
 				| decl TOKEN_ASSIGN TOKEN_STRINGLIT
 				| decl TOKEN_ASSIGN TOKEN_CHARLIT
 				| TOKEN_IDENT TOKEN_ASSIGN expr
-				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_TRUE
-				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_FALSE
 				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_STRINGLIT
 				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_CHARLIT
 				;
 
-expr			: addsub
+expr			: logor
+				;
+
+logor			: logand TOKEN_OR logor
+				| logand
+				;
+
+logand			: comparison TOKEN_AND logand
+				| comparison
+				;
+
+comparison		: addsub TOKEN_LESS comparison
+				| addsub TOKEN_LE comparison
+				| addsub TOKEN_GREATER comparison
+				| addsub TOKEN_GE comparison
+				| addsub TOKEN_EQUAL comparison
+				| addsub TOKEN_NEQUAL comparison
+				| addsub
 				;
 
 addsub			: multdiv TOKEN_PLUS addsub
@@ -95,13 +108,30 @@ addsub			: multdiv TOKEN_PLUS addsub
 				| multdiv
 				;
 
-multdiv			: atomic TOKEN_MULTIPLY multdiv
-				| atomic TOKEN_DIVIDE multdiv
+multdiv			: expon TOKEN_MULTIPLY multdiv
+				| expon TOKEN_DIVIDE multdiv
+				| expon TOKEN_MOD multdiv
+				| expon
+				;
+
+expon			: unary TOKEN_CARET expon
+				| unary
+				;
+
+unary			: TOKEN_MINUS incdec
+				| TOKEN_NOT incdec
+				| incdec
+				;
+
+incdec			: atomic TOKEN_INCREMENT
+				| atomic TOKEN_DECREMENT
 				| atomic
 				;
 
 atomic			: TOKEN_INTLIT
 				| TOKEN_IDENT
+				| TOKEN_TRUE
+				| TOKEN_FALSE
 				| TOKEN_LPAREN expr TOKEN_RPAREN
 				;
 
