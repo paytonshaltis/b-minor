@@ -57,22 +57,30 @@ extern int yyerror(char* str);
 
 %%
 
-program			: fnctlist
-				;
-
-fnctlist		: fnctlist fnctdecl TOKEN_SEMICOLON
-				| fnctlist fnctassign
+program			: programlist
 				|
 				;
 
-stmtlist		: stmtlist stmt
-				| stmt
+programlist		: programlist globalstmt
+				| programlist functions
+				| globalstmt
+				| functions
 				;
 
-stmt			: decl TOKEN_SEMICOLON
-				| fnctdecl TOKEN_SEMICOLON
-				| assign TOKEN_SEMICOLON
+stmtlist		: stmtlist globalstmt
+				| stmtlist localstmt
+				| globalstmt
+				| localstmt
+				;
+
+globalstmt		: decl TOKEN_SEMICOLON
+				;
+
+functions		: fnctdecl TOKEN_SEMICOLON
 				| fnctassign
+				;
+
+localstmt		: assign TOKEN_SEMICOLON
 				;
 
 decl			: TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER
