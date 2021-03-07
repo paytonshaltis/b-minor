@@ -77,6 +77,7 @@ functions		: fnctdecl TOKEN_SEMICOLON
 
 localstmt		: localassign TOKEN_SEMICOLON
 				| print TOKEN_SEMICOLON
+				| return TOKEN_SEMICOLON
 				;
 
 decl			: TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER
@@ -120,6 +121,12 @@ globalassign	: decl TOKEN_ASSIGN TOKEN_STRINGLIT
 				;
 
 print			: TOKEN_PRINT printlist
+				;
+
+return			: TOKEN_RETURN expr
+				| TOKEN_RETURN TOKEN_STRINGLIT
+				| TOKEN_RETURN TOKEN_CHARLIT
+				| TOKEN_RETURN
 				;
 
 printlist		: expr TOKEN_COMMA printlist
