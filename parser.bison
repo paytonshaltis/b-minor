@@ -74,13 +74,14 @@ stmtlist		: stmtlist globalstmt
 				;
 
 globalstmt		: decl TOKEN_SEMICOLON
+				| globalassign TOKEN_SEMICOLON
 				;
 
 functions		: fnctdecl TOKEN_SEMICOLON
 				| fnctassign
 				;
 
-localstmt		: assign TOKEN_SEMICOLON
+localstmt		: localassign TOKEN_SEMICOLON
 				;
 
 decl			: TOKEN_IDENT TOKEN_COLON TOKEN_INTEGER
@@ -96,12 +97,14 @@ fnctdecl		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_INTEGER TOKEN_LPAREN pa
 				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN paramlist TOKEN_RPAREN
 				;
 
-assign			: decl TOKEN_ASSIGN expr
-				| decl TOKEN_ASSIGN TOKEN_STRINGLIT
-				| decl TOKEN_ASSIGN TOKEN_CHARLIT
+localassign		: decl TOKEN_ASSIGN expr
 				| TOKEN_IDENT TOKEN_ASSIGN expr
 				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_STRINGLIT
 				| TOKEN_IDENT TOKEN_ASSIGN TOKEN_CHARLIT
+				;
+
+globalassign	: decl TOKEN_ASSIGN TOKEN_STRINGLIT
+				| decl TOKEN_ASSIGN TOKEN_CHARLIT
 				;
 
 fnctassign		: fnctdecl TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
