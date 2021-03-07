@@ -57,7 +57,11 @@ extern int yyerror(char* str);
 
 %%
 
-program			: stmtlist
+program			: fnctlist
+				;
+
+fnctlist		: fnctlist fnctdecl TOKEN_SEMICOLON
+				| fnctlist fnctassign
 				|
 				;
 
@@ -148,6 +152,7 @@ atomic			: TOKEN_INTLIT
 
 paramlist		: decl TOKEN_COMMA paramlist
 				| decl
+				|
 				;
 
 %%
