@@ -71,15 +71,24 @@ decl			: global																																// declarations may be global, fu
 				;
 
 global			: stddecl TOKEN_SEMICOLON
-				| expdecl TOKEN_SEMICOLON
+				| cstdecl TOKEN_SEMICOLON
 				;
 
-stddecl			: TOKEN_IDENT TOKEN_COLON type 																											// standard declaration
+stddecl			: TOKEN_IDENT TOKEN_COLON type 	
+				| TOKEN_IDENT TOKEN_COLON array																										// standard declaration
 				;
 
+
+cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
+				;
 
 expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
 				;
 
 proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON													// global function prototypes with and w/o parameters
@@ -99,6 +108,8 @@ stmt			: TOKEN_RETURN TOKEN_SEMICOLON																										// FIXME return
 				| stddecl TOKEN_SEMICOLON
 				| expdecl TOKEN_SEMICOLON
 				| expr TOKEN_SEMICOLON
+				| TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RPAREN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN TOKEN_LCURLY stmtlist TOKEN_RCURLY
 				;
 
 type			: TOKEN_INTEGER
@@ -106,7 +117,10 @@ type			: TOKEN_INTEGER
 				| TOKEN_CHAR
 				| TOKEN_BOOLEAN
 				| TOKEN_VOID
-				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type																					// FIXME expr
+				;
+
+array 			: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET array		// may need to remove this from here for function declarations. Make this its own 'array' rule, duplicate function declarations with this. would have to make a duplicate rule everywhere that type' is used.
 				;
 
 expr			: expr TOKEN_ASSIGN logor								
@@ -184,8 +198,17 @@ exprlist		: expr TOKEN_COMMA exprlist																												// FIXME expr
 				| expr
 				;
 
-paramslist		: stddecl TOKEN_COMMA paramslist
-				| stddecl
+paramslist		: TOKEN_IDENT TOKEN_COLON type TOKEN_COMMA paramslist			
+				| TOKEN_IDENT TOKEN_COLON type
+				| paramarr TOKEN_COMMA paramslist
+				| paramarr
+				;
+
+paramarr		: TOKEN_IDENT TOKEN_COLON emptyarrs type												// array function parameter format
+				;
+				
+emptyarrs		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET emptyarrs									// empty array format for function parameters
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET
 				;
 
 %%
