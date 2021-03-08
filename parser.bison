@@ -100,6 +100,9 @@ stmt			: TOKEN_RETURN TOKEN_SEMICOLON																										// FIXME return
 				| TOKEN_RETURN expr TOKEN_SEMICOLON
 				| TOKEN_PRINT TOKEN_SEMICOLON
 				| TOKEN_PRINT printlist TOKEN_SEMICOLON
+				| stddecl TOKEN_SEMICOLON
+				| cstdecl TOKEN_SEMICOLON
+				| expr TOKEN_SEMICOLON
 				;
 
 printlist		: expr TOKEN_COMMA printlist
