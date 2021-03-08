@@ -57,7 +57,11 @@ extern int yyerror(char* str);
 
 %%
 
-program			: program decl																															// a program is a series of declarations
+program			: programlist
+				| 
+				;
+
+programlist		: programlist decl																															// a program is a series of declarations
 				| decl
 				;
 
@@ -67,19 +71,15 @@ decl			: global																																// declarations may be global, fu
 				;
 
 global			: stddecl TOKEN_SEMICOLON
-				| cstdecl TOKEN_SEMICOLON
+				| expdecl TOKEN_SEMICOLON
 				;
 
 stddecl			: TOKEN_IDENT TOKEN_COLON type 																											// standard declaration
 				;
 
 
-cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT																				// constant declarations of basic types
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT 											
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT 
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE 
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE 
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_LCURLY arrlist TOKEN_RCURLY
+expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
 				;
 
 proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON													// global function prototypes with and w/o parameters
@@ -88,10 +88,6 @@ proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN 
 function		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
 				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
 
-paramslist		: stddecl TOKEN_COMMA paramslist
-				| stddecl
-				;
-
 stmtlist		: stmt stmtlist
 				| stmt	
 				;
@@ -99,14 +95,10 @@ stmtlist		: stmt stmtlist
 stmt			: TOKEN_RETURN TOKEN_SEMICOLON																										// FIXME return
 				| TOKEN_RETURN expr TOKEN_SEMICOLON
 				| TOKEN_PRINT TOKEN_SEMICOLON
-				| TOKEN_PRINT printlist TOKEN_SEMICOLON
+				| TOKEN_PRINT exprlist TOKEN_SEMICOLON
 				| stddecl TOKEN_SEMICOLON
-				| cstdecl TOKEN_SEMICOLON
+				| expdecl TOKEN_SEMICOLON
 				| expr TOKEN_SEMICOLON
-				;
-
-printlist		: expr TOKEN_COMMA printlist
-				| expr
 				;
 
 type			: TOKEN_INTEGER
@@ -115,10 +107,6 @@ type			: TOKEN_INTEGER
 				| TOKEN_BOOLEAN
 				| TOKEN_VOID
 				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type																					// FIXME expr
-				;
-
-arrlist			: expr TOKEN_COMMA arrlist																												// FIXME expr
-				| expr
 				;
 
 expr			: expr TOKEN_ASSIGN logor								
@@ -190,6 +178,14 @@ bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
 
 call 			: expr TOKEN_COMMA call																													// goes into a function call
 				| expr
+				;
+
+exprlist		: expr TOKEN_COMMA exprlist																												// FIXME expr
+				| expr
+				;
+
+paramslist		: stddecl TOKEN_COMMA paramslist
+				| stddecl
 				;
 
 %%
