@@ -57,69 +57,58 @@ extern int yyerror(char* str);
 
 %%
 
-program			: decllist											// a program is a series of declarations
-				|
-				;
-
-decllist		: decllist decl										// a series of 1 or more declarations
+program			: program decl																															// a program is a series of declarations
 				| decl
 				;
 
-decl			: assign TOKEN_SEMICOLON							// an assignment 
-				| onlydecl TOKEN_SEMICOLON							// just a declarations
-				| expr TOKEN_SEMICOLON								// assignment of existing variable
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_SEMICOLON
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_SEMICOLON
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION TOKEN_VOID TOKEN_LPAREN fnctparams TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				;		
-
-stmtlist		: stmtlist stmt
-				| stmt
+decl			: global																																// declarations may be global, function prototypes, or function declarations
+				| proto
+				| function
 				;
 
-stmt			: TOKEN_RETURN TOKEN_SEMICOLON
+global			: stddecl TOKEN_SEMICOLON
+				| cstdecl TOKEN_SEMICOLON
+				;
+
+stddecl			: TOKEN_IDENT TOKEN_COLON type 																											// standard declaration
+				;
+
+
+cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT																				// constant declarations of basic types
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT 											
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT 
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE 
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE 
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_LCURLY arrlist TOKEN_RCURLY
+				;
+
+proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON													// global function prototypes with and w/o parameters
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		
+
+function		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+
+paramslist		: stddecl TOKEN_COMMA paramslist
+				| stddecl
+				;
+
+stmtlist		: TOKEN_RETURN TOKEN_SEMICOLON																										// FIXME return
 				| TOKEN_RETURN expr TOKEN_SEMICOLON
-				| TOKEN_PRINT TOKEN_SEMICOLON
-				| TOKEN_PRINT printlist TOKEN_SEMICOLON
-				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				| other
 				;
 
-printlist		: expr TOKEN_COMMA printlist
-				| expr
-				;
-
-other			: decl
-				;
-
-fnctparams		: onlydecl TOKEN_COMMA fnctparams
-				| onlydecl
-				;
-
-assign			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr	// expression to the right side of assignment
-				;
-
-onlydecl		: TOKEN_IDENT TOKEN_COLON type						// declaration only
-				| TOKEN_IDENT TOKEN_COLON TOKEN_ARRAY bracket
-				| TOKEN_IDENT TOKEN_COLON TOKEN_ARRAY bracket TOKEN_ASSIGN TOKEN_LCURLY arrlist TOKEN_RCURLY
-				;
-
-arrlist			: expr TOKEN_COMMA arrlist
-				| expr
-				;
-
-type			: TOKEN_INTEGER										// basic types
+type			: TOKEN_INTEGER
 				| TOKEN_STRING
 				| TOKEN_CHAR
 				| TOKEN_BOOLEAN
+				| TOKEN_VOID
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type																					// FIXME expr
 				;
 
-expr			: expr TOKEN_ASSIGN logor							// array subscript is a left side expression	
+arrlist			: expr TOKEN_COMMA arrlist																												// FIXME expr
+				| expr
+				;
+
+expr			: expr TOKEN_ASSIGN logor								
 				| logor
 				;
 
@@ -143,7 +132,9 @@ comparison		: comparison TOKEN_LESS addsub
 addsub			: addsub TOKEN_PLUS multdiv
 				| addsub TOKEN_MINUS multdiv
 				| multdiv
-				;
+				;																														// FIXME intlit 
+
+
 
 multdiv			: multdiv TOKEN_MULTIPLY expon
 				| multdiv TOKEN_DIVIDE expon
@@ -162,25 +153,17 @@ unary			: TOKEN_MINUS unary
 
 incdec			: incdec TOKEN_INCREMENT
 				| incdec TOKEN_DECREMENT
-				| groups
+				| group
 				;
 
-groups			: TOKEN_LPAREN expr TOKEN_RPAREN					// grouping in parens
-				| TOKEN_IDENT bracket								// array subscript (multiple dimensions)
-				| TOKEN_IDENT TOKEN_LPAREN fnctcalllist TOKEN_RPAREN// function call
-				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN				// function call (blank)
-				| atomic											// any atomic type
-				;
+group			: TOKEN_LPAREN expr TOKEN_RPAREN																										// grouping with priority just below atomics
+				| TOKEN_IDENT bracket
+				| TOKEN_IDENT TOKEN_LPAREN call TOKEN_RPAREN
+				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN
+				| atomic
+				;																																		
 
-fnctcalllist	: expr TOKEN_COMMA fnctcalllist
-				| expr
-				;
-
-bracket 		: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET		// series of array subscripts in brackets
-				| TOKEN_LBRACKET expr TOKEN_RBRACKET				// single expression in brackets
-				;
-
-atomic			: TOKEN_IDENT										// atomic types for expressions
+atomic			: TOKEN_IDENT																															// basic expression atomic types
 				| TOKEN_INTLIT
 				| TOKEN_STRINGLIT
 				| TOKEN_CHARLIT
@@ -188,8 +171,13 @@ atomic			: TOKEN_IDENT										// atomic types for expressions
 				| TOKEN_FALSE
 				;
 
+bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
+				| TOKEN_LBRACKET expr TOKEN_RBRACKET
+				;
 
-
+call 			: expr TOKEN_COMMA call																													// goes into a function call
+				| expr
+				;
 
 %%
 
