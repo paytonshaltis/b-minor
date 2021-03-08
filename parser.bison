@@ -92,8 +92,18 @@ paramslist		: stddecl TOKEN_COMMA paramslist
 				| stddecl
 				;
 
-stmtlist		: TOKEN_RETURN TOKEN_SEMICOLON																										// FIXME return
+stmtlist		: stmt stmtlist
+				| stmt	
+				;
+
+stmt			: TOKEN_RETURN TOKEN_SEMICOLON																										// FIXME return
 				| TOKEN_RETURN expr TOKEN_SEMICOLON
+				| TOKEN_PRINT TOKEN_SEMICOLON
+				| TOKEN_PRINT printlist TOKEN_SEMICOLON
+				;
+
+printlist		: expr TOKEN_COMMA printlist
+				| expr
 				;
 
 type			: TOKEN_INTEGER
