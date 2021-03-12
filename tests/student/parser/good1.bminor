@@ -1,0 +1,90 @@
+// GLOBAL STANDARD DECLARATIONS
+a : integer;
+b : string;
+c : boolean;
+arr : array [5] integer;
+arr : array [5] array [4] integer;
+
+// GLOBAL CONSTANT DECLARATIONS
+a : integer = 6;
+b : char = 'm';
+c : string = "string";
+arr : array[3] string = {54, 998, 231};
+
+// GLOBAL FUNCTION PROTOTYPES
+f : function boolean ();
+f : function char (x : string, y : char);
+f : function string (x : integer);
+
+// GLOBAL FUNCTION DECLARATIONS
+
+f : function char () = {
+    print "cat", dog, 54;
+    return f(4, "char", 'e') + true * (false || !munkee) / arr[34][x - y];
+    x : integer;
+    y : char = "hello";
+    y = arr[98][y][x+7][33][3] && true;
+    arr : array [78] array [88] integer = {65, "cat", fish};
+    arr[3-yx][98] = true;
+}
+f : function string (x : integer, c : char, arr : array[] array[] integer) = {
+    print;
+    return 33;
+}
+
+//some variable usages
+x:integer;
+y:integer;
+z:integer;
+arr:array[5] array[5] integer;
+str: string = "hello world";
+fxn : function  integer () =
+{
+	//while loop syntax
+    for(;;) {
+        result = 56 * 7;
+        return result;
+    }
+
+i : integer;
+j : integer;
+for(i = 0; i < size; i++) {
+    for(j = 0; j < other_size; j++) {
+        print arr[i][j];
+    }
+}
+    arr[3][2] = 5;
+	x = arr[2][3];
+    x++;
+	return z;
+    c:char = str[0];
+
+    {
+        s: string = "this should be completely legal.";
+        {{x = 9;}}
+    }
+
+    if(x < 2) {
+        if(9 != 2) {
+            print "hellow";
+        }
+    }
+    else
+        return 7;
+
+    if(3 < 8) 
+        if(4 < 7)
+            print "hello";
+    else
+        return 'e';
+
+    for(i=0;i<10;i++) print i;
+    if(a) x=y; else z=w;
+
+    arr: array[2] array[8]  integer;
+
+}
+arr : array [2] integer  = {4, 5};
+f : function void (s : string, arr : array [] array [] array []integer);
+
+arr: array [3] char = {'a', '3', 'e'};

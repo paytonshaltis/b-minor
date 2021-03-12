@@ -16,13 +16,11 @@ a : integer = 1;
 b : string = "this is a string";
 c : char = 'n';
 d : boolean = true;
-
 w = 5;
 x = "another string";
 y = 'M';
 z = false;
 //a = b = c;                                INQUIRE
-
 
 
 
@@ -33,8 +31,11 @@ a = 6 + 7;
 a = 45;
 a = (identifier / 7) * (child + size_of_me - 12) * 67 + 3 + (child);
 a = ((8) * 7 / 3) + (8 * 9 + 9) * 9 + 8 + 0;
+
 b : boolean = true;
+
 b = (!true || false) + 56 ^ (9087 / 2 && false);
+
 x:integer = 5;
 y:integer = 4;
 z:boolean  = true || -(4*x^5) + (4 - 4) >= 16 - 6 * 3 + x && y^2 == 16;
@@ -89,22 +90,20 @@ main: function void() =
 }
 
 ident_ifier : char;
-ident_ifier = 'c';
+//ident_ifier = 'c';
 int : integer = 8 + 9 / (true || false);
 
 f : function void ();
+
 f : function integer () = {
     int : integer;
     int = (true && !false);
-    f : function boolean ();
 
-    for (i = 0; i < 99; i++) {
-        x : integer;
-    }
-
+    
 }
 
-arr : array [3+4][56 / 7];
-arr : array [3][4] = {5, 7, 'c', "ghfjhg", false};
-arr [34][998] = arr2[7];
+arr : array [6] integer;
+arr : array[65] array [56] boolean = {5, 7, 'c', "ghfjhg", false};
+//arr[34][998] = arr2[7];
+arr : array [9] string;
 
