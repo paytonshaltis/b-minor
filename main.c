@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* when the '-scan' command line option is used */
-    if(scanFlag == 1 /*|| parseFlag == 1*/) {
+    if(scanFlag == 1) {
 
         /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
         while(1) {
@@ -180,18 +180,23 @@ int main(int argc, char* argv[]) {
                 printf("%s\n",tokenArray[t - 258]);
             }
         }
-        printf("\nSCANNING COMPLETE\n");
     }
 
     /* when the '-parse' command line option is used */
     if(parseFlag == 1) {
-        printf("\n\n");
+        
+        /* reopens and restarts the source file so parsing may
+        begin from the beginning of the file after scanning */
         yyin = fopen(filename,"r");
         yyrestart(yyin);
+        
+        /* if the source file has valid B-Minor syntax */
         if(yyparse() == 0) {
             printf("Parse successful!\n");
             exit(0);
         }
+
+        /* if the source file does not have valid B-Minor syntax */
         else {
             printf("Parse failed!\n");
             exit(1);

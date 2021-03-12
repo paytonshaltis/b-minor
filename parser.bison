@@ -57,28 +57,49 @@ extern int yyerror(char* str);
 
 %%
 
+/* ========================= HIGHEST LEVEL PRODUCTIONS ========================= */
+
+//a program consists of a list of declarations
 program			: programlist
 				| 
 				;
 
-programlist		: programlist decl																															// a program is a series of declarations
+//this list of declarations may contain one or more declaration
+programlist		: programlist decl
 				| decl
 				;
 
-decl			: global																																// declarations may be global, function prototypes, or function declarations
-				| proto
-				| function
+//a declaration can be one of the following
+decl			: global												// global variables that may optionally be initialized
+				| proto													// function prototypes that contain no body of code
+				| function												// function implementations that contain a body of code
 				;
 
+/* ========================= GLOBALS, PROTOTYPES, FUNCTION DECLARATIONS ========================= */
+
+//global variables may be declared in one of two ways
 global			: stddecl TOKEN_SEMICOLON
 				| cstdecl TOKEN_SEMICOLON
 				;
 
-stddecl			: TOKEN_IDENT TOKEN_COLON type 	
-				| TOKEN_IDENT TOKEN_COLON array																										// standard declaration
+//function prototypes, declared with or without parameters
+proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		
 				;
 
+//function implementations, defined with or without parameters and contain a body of statements
+function		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+				;
 
+/* ========================= STANDARD, CONSTANT, AND EXPRESSION DECLARATIONS ========================= */
+
+//standard declarations do not involve variable initialization
+stddecl			: TOKEN_IDENT TOKEN_COLON type 							// may declare a basic type
+				| TOKEN_IDENT TOKEN_COLON array							// may declare an array
+				;
+
+//constant declarations involve variable initialization with a constant value
 cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT
@@ -87,113 +108,128 @@ cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT
 				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
 				;
 
+//expression declarations involve variable initialization with an expression or a constant
 expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr
 				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
 				;
 
-proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON													// global function prototypes with and w/o parameters
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		
+/* ========================= STATEMENT PRODUCTION RULES ========================= */
 
-function		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-
-stmtlist		: balanced stmtlist
+//list of both balanced and unbalanced statements
+stmtlist		: balanced stmtlist				
 				| unbalanced stmtlist
 				| balanced
 				| unbalanced	
 				;
 
-unbalanced		: TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RPAREN unbalanced
-				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN unbalanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN unbalanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE unbalanced
+//all of the possible unbalanced statements (if/else/for)
+unbalanced		: TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RPAREN unbalanced					// for(;;) with an unbalanced statement following it 
+				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN unbalanced		// for(expr) with an unbalanced statement following it 
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced													// lone if statement is automatically unbalanced
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN unbalanced												// lone if statement is automatically unbalanced
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE unbalanced							// if-else statement with only one balanced statement
 				;
 				
-
-balanced		: TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RPAREN balanced
-				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN balanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE balanced
-				| other_stmt
+//all of the possible balanced statements (if/else/for)
+balanced		: TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RPAREN balanced						// for(;;) with a balanced statement following it
+				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN balanced		// for(expr) with a balanced statement following it
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE balanced								// if statement that is balanced (both statements)
+				| other_stmt																						// any one of the balanced statements below
 				;
 
-other_stmt		: TOKEN_RETURN TOKEN_SEMICOLON																										// FIXME return
-				| TOKEN_RETURN expr TOKEN_SEMICOLON
-				| TOKEN_PRINT TOKEN_SEMICOLON
-				| TOKEN_PRINT exprlist TOKEN_SEMICOLON
-				| stddecl TOKEN_SEMICOLON
-				| expdecl TOKEN_SEMICOLON
-				| expr TOKEN_SEMICOLON
-				| TOKEN_LCURLY stmtlist TOKEN_RCURLY
+//the non-if/else/for statements that are by definition balanced
+other_stmt		: TOKEN_RETURN TOKEN_SEMICOLON																		// return nothing statement 
+				| TOKEN_RETURN expr TOKEN_SEMICOLON																	// return expression statement 
+				| TOKEN_PRINT TOKEN_SEMICOLON																		// print nothing statement
+				| TOKEN_PRINT exprlist TOKEN_SEMICOLON																// print expressions statement 
+				| stddecl TOKEN_SEMICOLON																			// standard declaration statement 
+				| expdecl TOKEN_SEMICOLON																			// expression declaration statement
+				| expr TOKEN_SEMICOLON																				// expression statement
+				| TOKEN_LCURLY stmtlist TOKEN_RCURLY																// block statement of 'stmtlists'
 				;
 
+/* ========================= TYPE PRODUCTION RULES ========================= */
+
+//basic types used for declaring variables and functions
 type			: TOKEN_INTEGER
 				| TOKEN_STRING
 				| TOKEN_CHAR
 				| TOKEN_BOOLEAN
-				| TOKEN_VOID
+				| TOKEN_VOID															// must later typecheck to make sure only functions are of type void
 				;
 
-array 			: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type
-				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET array		// may need to remove this from here for function declarations. Make this its own 'array' rule, duplicate function declarations with this. would have to make a duplicate rule everywhere that type' is used.
+//the array type; split from the 'type' production since it is more specialized
+array 			: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type			// this production describes a one-dimensional array of type 'type'
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET array			// this production describes n-dimensional arrays, must eventually take a 'type'
 				;
 
-expr			: expr TOKEN_ASSIGN logor								
-				| logor
+/* ========================= EXPRESSION PRODUCTION RULES ========================= */
+
+//highest priority, an expression itself
+expr			: expr TOKEN_ASSIGN logor							// multiple assignments on 'logors'							
+				| logor												// an expression can be anything below; they bubble up
 				;
 
-logor			: logor TOKEN_OR logand
-				| logand
+//next highest priority after logical and
+logor			: logor TOKEN_OR logand								// multiple or operations on 'logands'
+				| logand											// can just be a 'logand'
 				;
 
-logand			: logand TOKEN_AND comparison
-				| comparison
+//next highest priority after comparison operators
+logand			: logand TOKEN_AND comparison						// multiple and operations on 'comparisons'
+				| comparison										// can just be a 'comparison'
 				;
 
-comparison		: comparison TOKEN_LESS addsub
-				| comparison TOKEN_LE addsub
-				| comparison TOKEN_GREATER addsub
-				| comparison TOKEN_GE addsub
-				| comparison TOKEN_EQUAL addsub
-				| comparison TOKEN_NEQUAL addsub
-				| addsub
+//next highest priority after add and subtract
+comparison		: comparison TOKEN_LESS addsub						// multiple less comparisons on 'addsubs'
+				| comparison TOKEN_LE addsub						// multiple lequal comparisons on 'addsubs'
+				| comparison TOKEN_GREATER addsub					// multiple greater comparisons on 'addsubs'
+				| comparison TOKEN_GE addsub						// multiple gequal comparisons on 'addsubs'
+				| comparison TOKEN_EQUAL addsub						// multiple equal comparisons on 'addsubs'
+				| comparison TOKEN_NEQUAL addsub					// multiple nequals comparisons on 'addsubs'
+				| addsub											// can just be an 'addsub'
 				;
 
-addsub			: addsub TOKEN_PLUS multdiv
-				| addsub TOKEN_MINUS multdiv
-				| multdiv
-				;																														// FIXME intlit 
-
-
-
-multdiv			: multdiv TOKEN_MULTIPLY expon
-				| multdiv TOKEN_DIVIDE expon
-				| multdiv TOKEN_MOD expon
-				| expon
+//next highest priority after mult, div, and mod
+addsub			: addsub TOKEN_PLUS multdiv							// adds multiple 'multdivs'
+				| addsub TOKEN_MINUS multdiv						// subtracts multiple 'multdivs'
+				| multdiv 											// can just be a 'multdiv'
 				;
 
-expon			: expon TOKEN_CARET unary
-				| unary
+//next highest priority after exponentiation
+multdiv			: multdiv TOKEN_MULTIPLY expon						// multiplies multiple 'expons'
+				| multdiv TOKEN_DIVIDE expon						// divides multiple 'expons'
+				| multdiv TOKEN_MOD expon							// modulos multiple 'expons'
+				| expon												// can just be an 'expon'
 				;
 
-unary			: TOKEN_MINUS unary
-				| TOKEN_NOT unary
-				| incdec
+//next highest priority after unary operations
+expon			: expon TOKEN_CARET unary							// exponentiates multiple 'unaries'
+				| unary												// can just be a 'unary'
 				;
 
-incdec			: incdec TOKEN_INCREMENT
-				| incdec TOKEN_DECREMENT
-				| group
+//next highest priority after increment and decrement
+unary			: TOKEN_MINUS unary									// unary minus
+				| TOKEN_NOT unary									// unary not 
+				| incdec											// can just be an 'incdec'
 				;
 
-group			: TOKEN_LPAREN expr TOKEN_RPAREN																										// grouping with priority just below atomics
-				| TOKEN_IDENT bracket
-				| TOKEN_IDENT TOKEN_LPAREN call TOKEN_RPAREN
-				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN
-				| atomic
+//next highest priority after groups
+incdec			: incdec TOKEN_INCREMENT							// incrementing a 'group' 
+				| incdec TOKEN_DECREMENT							// decrementing a 'group' 
+				| group												// can just be a 'group'
+				;
+
+//next highest priority after atomics
+group			: TOKEN_LPAREN expr TOKEN_RPAREN 					// an expresison within parentheses
+				| TOKEN_IDENT bracket								// indexing an element of an array 
+				| TOKEN_IDENT TOKEN_LPAREN exprlist TOKEN_RPAREN	// result of a function call (with parameters)
+				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN				// result of a function call (without parameters)
+				| atomic											// can just be an 'atomic'
 				;																																		
 
-atomic			: TOKEN_IDENT																															// basic expression atomic types
+//the atomic types used in an expression
+atomic			: TOKEN_IDENT																															
 				| TOKEN_INTLIT
 				| TOKEN_STRINGLIT
 				| TOKEN_CHARLIT
@@ -201,28 +237,31 @@ atomic			: TOKEN_IDENT																															// basic expression atomic 
 				| TOKEN_FALSE
 				;
 
+/* ========================= MISCELLANEOUS PRODUCTION RULES ========================= */
+
+//possibly multiple brackets used for indexing an array
 bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
 				| TOKEN_LBRACKET expr TOKEN_RBRACKET
 				;
 
-call 			: expr TOKEN_COMMA call																													// goes into a function call
+//list of expressions for array initialization, print statement, and function call
+exprlist		: expr TOKEN_COMMA exprlist
 				| expr
 				;
 
-exprlist		: expr TOKEN_COMMA exprlist																												// FIXME expr
-				| expr
-				;
-
+//list of parameters that can be used to declare a function
 paramslist		: TOKEN_IDENT TOKEN_COLON type TOKEN_COMMA paramslist			
 				| TOKEN_IDENT TOKEN_COLON type
 				| paramarr TOKEN_COMMA paramslist
 				| paramarr
 				;
 
-paramarr		: TOKEN_IDENT TOKEN_COLON emptyarrs type												// array function parameter format
+//an empty array that can be used as a parameter in function declaration
+paramarr		: TOKEN_IDENT TOKEN_COLON emptyarrs type
 				;
-				
-emptyarrs		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET emptyarrs									// empty array format for function parameters
+
+//format for empty arrays in function parameters
+emptyarrs		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET emptyarrs
 				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET
 				;
 
