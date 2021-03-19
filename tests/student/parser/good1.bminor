@@ -1,38 +1,19 @@
-// general test file, includes global variables, function declaration,
-// function definition, main function, function call, print, return, loops,
-// if/else statements, boolean logic, and comments.
+// testing global declarations and constant initializations
 
 
-/* global variables declared or initialized with constant */
-g_int : integer;
-g_string : string = "Hello World!";
-g_array : array[3] integer = {3, 7, 19};
+/* declaration of the basic types */
+a : integer;
+b : string;
+c : char;
+d : boolean;
+e : array[3] integer;
+f : array[3] array[9] boolean;
+g : array[1178] array[493] array[88039] char;
 
-/* function declaration, defined below 'main' */
-overlyComplexTest : function boolean (var : boolean);
-
-/* main function */
-main : function integer (argc : integer, argv : array[] string) = {
-    i : integer;
-    for(i = 0; i < 10; i++)
-        print "Hello ", i, "\n";
-
-
-    isComplex : boolean;
-    isComplex = true;
-    if(overlyComplexTest(!(!isComplex)) == true) {
-        print "This is overly complex.\n";
-    }
-    else {
-        print "This is NOT overly complex.\n";
-    }
-    return 0;
-}
-
-/* definition of the overlyComplexTest function */
-overlyComplexTest : function boolean (var : boolean) = {
-    if(var == true) {
-        return true;
-    }
-    return false;
-}
+/* constant initialization of the basic types */
+a : integer = 7;
+b : string = "this is a string";
+c : char = 'E';
+d : boolean = false;
+e : array[4] string = {"toast", "waffles", "bacon", "egg"};
+f : array[3] array[2] integer = {1, 2, 3, 4, 5, 6};
