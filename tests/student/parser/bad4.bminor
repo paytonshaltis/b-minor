@@ -1,0 +1,31 @@
+// testing bad for-loop statements
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+
+i : integer = 0;                    // loops cannot exist globally; must reside within a function
+for(i; i < 10; i++) {
+    print "dog\n";
+    print "cat and ";
+}
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    for(i = -30; i < 0)             // must specifically contain 3 expressions
+        return;
+    
+    for(i = 5; i < 30; i = i+2;)    // extra semicolon after the final expression in the statement
+        return;
+  
+    for(i; i < 2; i++)              // must end in a valid statement; "for(i; i < 2; i++)" is incomplete
+        for(i; i < 2; i++)
+            for(i; i < 2; i++)
+                for(i; i < 2; i++);
+  
+    for(i = 4; i != 7; i++) {       // cannot have semicolon after a block statement
+        print "cat";
+        print "\n";
+        return;
+    };
+
+    return 0;
+}

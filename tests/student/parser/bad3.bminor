@@ -19,7 +19,7 @@ main : function integer (argc : integer, argv : array[] string) = {
         for(;;)
             for(;;)
                 for(;;);
-    *?
+    
     for(;;) {                   // cannot have semicolon after a block statement
         print "cat";
         print "\n";
