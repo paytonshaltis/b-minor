@@ -100,7 +100,8 @@ stddecl			: TOKEN_IDENT TOKEN_COLON type 							// may declare a basic type
 				;
 
 //constant declarations involve variable initialization with a constant value
-cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT
+cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT							// positive integers
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS TOKEN_INTLIT				// accounts for negative integers
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE

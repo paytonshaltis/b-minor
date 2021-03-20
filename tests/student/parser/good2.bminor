@@ -1,0 +1,21 @@
+// testing array usage: declarations, initializations, indexing
+
+
+main : function integer (argc : integer, argv : array[] string) = {
+    i : integer = 3;
+
+
+    arr1 : array[1] string;
+    arr2 : array[7] boolean;
+    arr3 : array[1] array[2] char;
+    
+    arr1[0] = "cat";
+    arr2[i - 3] = false;                                                        // can index using expressions
+    arr2[i - 3] = false && true;                                                // can assign using expressions
+
+    arr4 : array[4] char = {'c', 'h', 'a', 'r'};
+    arr5 : array[2] array[4] char = {arr4, arr4};                               // arrays within arrays
+    arr6 : array[3] boolean = {!bool1, (bool2 || bool3), (bool4 && bool5)};     // initializer list with expressions
+
+    return 0;
+}

@@ -1,19 +1,27 @@
-// testing global declarations and constant initializations
+// testing function prototypes and implementations, function calls within functions
 
 
-/* declaration of the basic types */
-a : integer;
-b : string;
-c : char;
-d : boolean;
-e : array[3] integer;
-f : array[3] array[9] boolean;
-g : array[1178] array[493] array[88039] char;
+// function prototypes with and without parameters
+proto1 : function char ();
+proto2 : function void (x : integer);
+proto3 : function string (arr : array[] array[] string, size : integer);
 
-/* constant initialization of the basic types */
-a : integer = 7;
-b : string = "this is a string";
-c : char = 'E';
-d : boolean = false;
-e : array[4] string = {"toast", "waffles", "bacon", "egg"};
-f : array[3] array[2] integer = {1, 2, 3, 4, 5, 6};
+//function declarations with and without parameters
+power : function integer (base : integer, exp : integer) = {
+    /* purposefully more complex than it needs to be for more testing! */
+    temp1 : integer = base;
+    temp2 : integer = exp;
+    temp3 = temp1 ^ temp2;
+    return temp3;
+}
+intAt : function integer (a : array[] integer, location : integer) = {
+    return a[location];
+}
+
+main : function integer (argc : integer, argv : array[] string) = {
+    num1 : integer = 5;
+    arr : array[2] integer = {1, 2};
+    num2 : integer = power(2, num1) + intAt(arr, 1) + power(var1 * var2, var3 % var4);
+    
+    return 0;
+}

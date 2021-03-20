@@ -1,0 +1,34 @@
+// testing the 'while'-loop statements (two semicolons in a for statement) with several types of statements and expressions
+
+
+main : function integer (argc : integer, argv : array[] string) = {
+    
+    for(;;)                             // while loop allows single statement
+        return;
+
+    for(;;)                             // while loop allows for nesting
+        for(;;)
+            return;
+
+    for(;;) {                           // while loop with block statement      
+        x : integer = x * 8;
+        print "cat ", x, " mouse!"; 
+    }
+
+    for(;;)                             // if-statement works in while loop (unbalanced)
+        if(x == 0)
+            return false;
+    
+    for(;;)                             // if-else-statement works in while loop (balanced)
+        if(x <= 3)
+            return true;
+        else
+            return false;
+
+    i : integer = 0;
+    for(;;)                             // for-loop-statement works in while loop
+        for(i = 0; i < 10; i++)
+            print "cat";
+            
+    return 0;
+}

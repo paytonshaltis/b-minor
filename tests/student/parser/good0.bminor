@@ -1,0 +1,19 @@
+// testing global declarations and constant initializations
+
+
+/* declaration of the basic types */
+a : integer;
+b : string;
+c : char;
+d : boolean;
+e : array[3] integer;
+f : array[3] array[9] boolean;
+g : array[1178] array[493] array[88039] char;
+
+/* constant initialization of the basic types */
+a : integer = -7;
+b : string = "this is a string";
+c : char = 'E';
+d : boolean = false;
+e : array[4] string = {"toast", "waffles", "bacon", "egg"};
+f : array[3] array[4] string = {e, e, e, e};

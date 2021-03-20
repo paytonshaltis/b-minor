@@ -1,0 +1,9 @@
+// testing for bad global variables
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+
+x : integer = 7 * 8;        // no expressions allowed in global initialization
+y : char = charFunction();  
+
+x = 3;                      // no assignments allowed in global scope
+strting = otherString;  

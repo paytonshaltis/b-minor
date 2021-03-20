@@ -1,0 +1,16 @@
+// testing bad function prototypes and implementations
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+
+func1 : function array[] ();                            // functions may not return arrays
+func1 : function void (arr : array[][] integer) = {     // not the way to create array of arrays
+    return;
+};    
+
+func2 : function (x : integer, s : string) = {          // function must have return type
+    return;
+}
+
+func2 : function char (x : integer, b : boolean) {      // function implementations must have '='
+    return 'c';
+}
