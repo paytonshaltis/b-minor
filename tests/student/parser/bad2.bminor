@@ -1,0 +1,17 @@
+// testing bad array usage; declarations, initializations, indexing
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+
+main : function integer (argc : integer, argv : array[] string) = {
+    
+    arr : array[] string;                   // array must have a size
+    arr : array[2][3] integer;              // not the correct way to make arrays of arrays
+
+    arr : array[3] integer;                 // correct syntax
+    arr = {3, 4, 5};                        // initializer list cannot be used as assignment later
+
+    arr : array[3] string = {};             // empty initializer list is not allowed
+    arr : array[15] char = {'e', 'f',};     // incomplete initializer list ending in comma
+
+    return 0;
+}

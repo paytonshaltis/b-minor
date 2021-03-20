@@ -1,0 +1,30 @@
+// testing bad 'while'-loop statements
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+
+for(;;) {                       // loops cannot exist globally; must reside within a function
+    x = x + 5;
+    print x, " ";
+}
+
+main : function integer (argc : integer, argv : array[] string) = {
+    
+    for(;;;)                    // must specifically contain 2 semicolons
+        return;
+    
+    for(;)                      // must specifically contain 2 semicolons
+        return;
+    
+    for(;;)                     // must end in a valid statement; "for(;;)" is incomplete
+        for(;;)
+            for(;;)
+                for(;;);
+    *?
+    for(;;) {                   // cannot have semicolon after a block statement
+        print "cat";
+        print "\n";
+        return;
+    };
+
+    return 0;
+}
