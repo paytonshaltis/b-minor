@@ -14,3 +14,8 @@ func2 : function (x : integer, s : string) = {          // function must have re
 func2 : function char (x : integer, b : boolean) {      // function implementations must have '='
     return 'c';
 }
+
+func3 : function void (x : integer) = {                 // nested functions are not allowed 
+    func4 : function void ();
+    return 0;
+}

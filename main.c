@@ -145,8 +145,14 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    /* when the '-scan' command line option is used */
-    if(scanFlag == 1) {
+    /* tokens should only be output during the scanning phase if '-scan' option is used */
+    int tokenOutput = 1;
+    if(parseFlag == 1) {
+       tokenOutput = 0;
+    }
+
+    /* scanning phase: done with all command line options */
+    if(scanFlag == 1 || parseFlag == 1) {
 
         /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
         while(1) {
@@ -165,24 +171,24 @@ int main(int argc, char* argv[]) {
                 exit(1);
             }
             /* reached identifier or an integer literal token */
-            else if(t==TOKEN_IDENT || t==TOKEN_INTLIT) {
+            else if((t==TOKEN_IDENT || t==TOKEN_INTLIT) && tokenOutput == 1) {
                 printf("%s %s\n", tokenArray[t - 258], yytext);
             }
             /* reached char literal or string literal token */
-            else if(t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) {
+            else if((t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) && tokenOutput == 1) {
                 /* modifyText() removes quotes from string pointed 
                 to by 'yytext' and deals with escape characters */
                 modifyText(t);
                 printf("%s %s\n", tokenArray[t - 258], yytext);
             }
             /* reached any other token */
-            else {
+            else if(tokenOutput == 1) {
                 printf("%s\n",tokenArray[t - 258]);
             }
         }
     }
 
-    /* when the '-parse' command line option is used */
+    /* parsing phase: done with all command line options other than '-scan' */
     if(parseFlag == 1) {
         
         /* reopens and restarts the source file so parsing may
@@ -202,4 +208,7 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
     }
+
+    /* completed each phase of the compiler */
+    exit(0);
 }

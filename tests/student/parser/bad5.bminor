@@ -1,0 +1,29 @@
+// testing bad if-then statements with other balanced and unbalanced statements
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    if(a == b);                                     // extra semicolon after the if statement
+        functCall(x, y, z, "abc");
+
+    if(blue == yellow) {                            // the final if statement is not valid; requires the 'then' part
+        for(;;) {
+            if(true);
+        }
+    }
+
+    if(a == b)                                      // no semicolon after the final if; will parse because 'return 0;' comes after, but program
+        if(a == c)                                  // will not behave correctly if written this way. If should always have a 'then' part
+            if (b == c)
+
+    
+    if(running) {                                   // function implementations not allowed within if statements
+        sum : function integer () = {
+            int total;
+            return total;
+        }
+        return;
+    }
+
+    return 0;
+}

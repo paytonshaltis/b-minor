@@ -6,4 +6,4 @@ x : integer = 7 * 8;        // no expressions allowed in global initialization
 y : char = charFunction();  
 
 x = 3;                      // no assignments allowed in global scope
-strting = otherString;  
+strting = otherString;

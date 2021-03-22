@@ -1,0 +1,39 @@
+// testing if-then statements with other balanced and unbalanced statements
+
+main : function integer (argc : integer, argv : array[] string) = {
+    
+    if(a == b)                                      // if with a single statement
+        functCall(x, y, z, "abc");
+
+    if(5 == 6) {                                    // if with a block statement
+        print "No.";
+        return false;
+    }
+
+    if(a == b)                                      // nested single-statement ifs
+        if(a == c)
+            if (b == c)
+                return 0;
+
+    if(1 == 2) {                                    // nested block-statement ifs
+        if(2 == 3) {
+            if(3 == 4) {
+                return false;
+            }
+        }
+    }
+
+    if(red == black)                                // single-statement if with single-statement for-loops
+        for(i; i < 5; i++)
+            if(4 - 5 == number)
+                return true;
+
+    if(blue == yellow) {                            // block-statement if with block-statement 'while'-loop
+        for(;;) {
+            if(true)
+                print "Always True";
+        }
+    }
+
+    return 0;
+}
