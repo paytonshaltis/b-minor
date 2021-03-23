@@ -1,0 +1,36 @@
+// testing the return statement
+
+
+main : function integer (argc : integer, argv : array[] string) = {
+    
+    return;                                 // may return nothing (void statement)
+
+    return 5;                               // may return a simple expression atomic
+    return "string";
+    return 'J';
+
+    return 5 * 7;                           // may return result of an expression
+    return a && b;
+    return 87 % 9;
+
+    return ident = 7;                       // may return result of an assignment
+    return ident = ident - 2;
+    return ident++--;
+
+    return arr[row][col]^(pow1 + pow2);     // may return expressions using array indices
+    return arr[x^y][y^x] || bool1;
+
+    return helper1();                       // may return the result of a function call
+    return helper2(row, col);
+
+    if(condition1)                          // may return within if-else statements
+        return a;
+    else
+        return b;
+    
+    for(i; i < 3; i++) {                    // may return within a for-loop
+        return "exit";
+    }
+    
+    return 0;
+}

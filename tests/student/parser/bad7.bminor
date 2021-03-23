@@ -1,0 +1,31 @@
+// testing bad print statements
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    print integer;                  // cannot print types
+    print array[] char;
+
+    print return;                   // cannot print a return statement
+
+    print 'c' 'h' 'a' 'r';          // expressions must be separated by a comma
+   
+    print if(x) return;             // if and for statements are not expressions
+    prnt for(;;) return;
+  
+    i : integer;                    // cannot have nested print statements
+    for(i = 0; i < 10; i++) {
+        print print i;
+    }
+
+    if(print 4) {                   // print statements are not expressions
+        print "4";
+    }
+    else {
+        print "not 4";
+    }
+    
+
+    return 0;
+}
