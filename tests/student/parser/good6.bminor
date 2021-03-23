@@ -1,5 +1,48 @@
 // testing if-then-else-then statements with other balanced and unbalanced statements
 
 main : function integer (argc : integer, argv : array[] string) = {
+    
+    if(something)                                   // if-else with a single statement
+        print word;
+    else
+        print number;
+
+    if(something) {                                 // if-else with a block statement
+        print word;
+        return true;
+    } 
+    else {
+        print number;
+        return false;
+    }
+
+    if(1)                                           // combined if / if-else statements all as single statements
+        if(1)
+            print word;
+        else
+            if(1)
+                print word2;
+            if(1)
+                print word3;
+            else
+                print number;
+
+    if(1) {                                        // combined if / if-else statements all as block statements
+        if(1) {
+            print word;
+        }
+        else {
+            if(1) {
+                print word2;
+            }
+            if(1) {
+                print word3;
+            }
+            else {
+                print number;
+            }
+        }
+    }
+    
     return 0;
 }

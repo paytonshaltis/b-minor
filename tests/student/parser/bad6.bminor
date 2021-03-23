@@ -1,0 +1,40 @@
+// testing bad if-then-else-then statements with other balanced and unbalanced statements
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    if(condition1)                                  // 'else' does not contain any condition
+        print "hello";
+    else (condition2)
+        print "HELLO";
+
+    if(a == b, b == c)                              // condition must be a single expression, not a list
+        return "This cannot be true";
+    else
+        return "Looks good!";
+
+
+    /* the following code will parse, but see comments for explanations regarding HOW they will parse */
+
+
+    if(black != white)                              // based on my production rules, to eliminate the dangling else problem,
+        if(red = purple)                            // the closest 'if-else' will be paired together. While this will parse,
+            return false;                           // the indentation is not representative of HOW it will parse: see below
+    else
+        return pink;
+
+    if(black != white)                              // this is the proper representation for how this will parse
+        if(red = purple)
+            return false;
+        else
+            return pink;
+
+    if(black != white) {                            // to solve, put the second 'if' in curly braces like so
+        if(red = purple)
+            return false;
+        }
+    else
+        return pink;
+
+    return 0;
+}
