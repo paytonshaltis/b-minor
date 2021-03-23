@@ -1,4 +1,4 @@
-// testing bad 'while'-loop statements
+// testing bad infinite-loop statements
 // (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
 
 

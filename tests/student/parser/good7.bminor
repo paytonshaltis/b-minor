@@ -1,0 +1,40 @@
+// testing the print statement
+
+
+main : function integer (argc : integer, argv : array[] string) = {
+    
+    print;                                      // may print nothing
+
+    print x;                                    // may print identifiers
+    print x, variable, z;
+
+    print "string literal";                     // may print string literals
+    print "string", "literal";
+
+    print 'c';                                  // may print char literals
+    print 'c', 'h', 'a', 'r';
+
+    print "any ", 'c', 'o', mbo;                // may print any combination of the expression atomics
+
+    print 4+5/(value-cost);                     // may print the result of some expresison(s)
+    print true || false;                            // locigal
+    print functCall(param1);                        // function call
+    print 1+0, 1+1, 1+2;                            // several expressions
+    print f1(a), f2(b), f3(c);                      // several function calls
+    print x = 3;                                    // assignment
+    print arr[1][2] + val;                          // expressions w/ array indexing
+    print f1(arr[1][2] + val);                      // array index within function call
+
+    if(x != (y || (z && a))) {                  // may print within if statements
+        print x = 3;
+        print arr[1][2] + val;
+        print f1(arr[1][2] + val);
+    }
+    
+    for(i; i != j; i = i * j)                   // may print within for-loops
+        print "this is a loop!\n";
+    
+    for(;;) {                                   // may print within infinite-loops
+        print "hello there!\n";
+    }
+}

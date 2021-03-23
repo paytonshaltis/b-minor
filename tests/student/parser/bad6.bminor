@@ -1,6 +1,7 @@
 // testing bad if-then-else-then statements with other balanced and unbalanced statements
 // (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
 
+
 main : function integer (argc : integer, argv : array[] string) = {
 
     if(condition1)                                  // 'else' does not contain any condition

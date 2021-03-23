@@ -27,7 +27,7 @@ main : function integer (argc : integer, argv : array[] string) = {
         else
             return false;
 
-    for(i = 0; i < 10; i++)                     // while-loop-statement works in for-loop
+    for(i = 0; i < 10; i++)                     // infinite-loop-statement works in for-loop
         for(;;)  
             print "cat";
             

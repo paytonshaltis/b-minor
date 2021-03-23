@@ -1,5 +1,6 @@
 // testing if-then statements with other balanced and unbalanced statements
 
+
 main : function integer (argc : integer, argv : array[] string) = {
     
     if(a == b)                                      // if with a single statement
@@ -28,7 +29,7 @@ main : function integer (argc : integer, argv : array[] string) = {
             if(4 - 5 == number)
                 return true;
 
-    if(blue == yellow) {                            // block-statement if with block-statement 'while'-loop
+    if(blue == yellow) {                            // block-statement if with block-statement infinite-loop
         for(;;) {
             if(true)
                 print "Always True";

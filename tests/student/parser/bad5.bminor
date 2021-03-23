@@ -1,6 +1,7 @@
 // testing bad if-then statements with other balanced and unbalanced statements
 // (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
 
+
 main : function integer (argc : integer, argv : array[] string) = {
 
     if(a == b);                                     // extra semicolon after the if statement
