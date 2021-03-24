@@ -5,5 +5,5 @@
 x : integer = 7 * 8;        // no expressions allowed in global initialization
 y : char = charFunction();  
 
-x = 3;                      // no assignments allowed in global scope
-strting = otherString;
+x = 3;                      // no assignments without declaration allowed in global scope
+string = "Hello World!";

@@ -13,10 +13,9 @@ main : function integer (argc : integer, argv : array[] string) = {
         }
     }
 
-    if(a == b)                                      // no semicolon after the final if; will parse because 'return 0;' comes after, but program
-        if(a == c)                                  // will not behave correctly if written this way. If should always have a 'then' part
+    if(a == b)                                      // no semicolon after the final if statement (if the next statement was valid syntax, then
+        if(a == c)                                  // that would parse as the 'then' part of this if-then statement)
             if (b == c)
-
     
     if(running) {                                   // function implementations not allowed within if statements
         sum : function integer () = {

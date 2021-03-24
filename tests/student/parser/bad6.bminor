@@ -2,9 +2,15 @@
 // (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
 
 
+if(black != white)                                  // if-else statements are not allowed in the global scope
+    if(red = purple)
+        return false;
+else
+    return pink;
+
 main : function integer (argc : integer, argv : array[] string) = {
 
-    if(condition1)                                  // 'else' does not contain any condition
+    if(condition1)                                  // 'else' should not contain any condition
         print "hello";
     else (condition2)
         print "HELLO";
@@ -24,7 +30,7 @@ main : function integer (argc : integer, argv : array[] string) = {
     else
         return pink;
 
-    if(black != white)                              // this is the proper representation for how this will parse
+    if(black != white)                              // this is the proper representation for how the above will parse
         if(red = purple)
             return false;
         else
@@ -39,9 +45,3 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     return 0;
 }
-
-if(black != white)                                  // if-else statements are not allowed in the global scope
-    if(red = purple)
-        return false;
-else
-    return pink;

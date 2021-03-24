@@ -22,7 +22,8 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     // doubles g_count until it reaches 64
     g_count++;
-    for(;;){
+    i : integer = zeroVar;
+    for(i;;i++){
         g_count = g_count * 2;
         if(g_count >= 64) 
             return 0;

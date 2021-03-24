@@ -1,13 +1,11 @@
 // testing function prototypes and implementations, function calls within functions
 
 
-// function prototypes with and without parameters
-proto1 : function char ();
+proto1 : function char ();                                                              // function prototypes with and without parameters
 proto2 : function void (x : integer);
 proto3 : function string (arr : array[] array[] string, size : integer);
 
-//function declarations with and without parameters
-power : function integer (base : integer, exp : integer) = {
+power : function integer (base : integer, exp : integer) = {                            //function declarations with and without parameters
     /* purposefully more complex than it needs to be for more testing! */
     temp1 : integer = base;
     temp2 : integer = exp;

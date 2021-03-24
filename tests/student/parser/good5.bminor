@@ -24,15 +24,16 @@ main : function integer (argc : integer, argv : array[] string) = {
         }
     }
 
-    if(red == black)                                // single-statement if with single-statement for-loops
+    if(red == black)                                // single-statement ifs with single-statement for-loop
         for(i; i < 5; i++)
             if(4 - 5 == number)
                 return true;
 
     if(blue == yellow) {                            // block-statement if with block-statement infinite-loop
         for(;;) {
-            if(true)
+            if(true) {
                 print "Always True";
+            }
         }
     }
 
