@@ -39,3 +39,9 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     return 0;
 }
+
+if(black != white)                                  // if-else statements are not allowed in the global scope
+    if(red = purple)
+        return false;
+else
+    return pink;

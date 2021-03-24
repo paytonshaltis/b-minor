@@ -12,7 +12,7 @@ main : function integer (argc : integer, argv : array[] string) = {
     print 'c' 'h' 'a' 'r';          // expressions must be separated by a comma
    
     print if(x) return;             // if and for statements are not expressions
-    prnt for(;;) return;
+    print for(;;) return;
   
     i : integer;                    // cannot have nested print statements
     for(i = 0; i < 10; i++) {
@@ -29,3 +29,5 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     return 0;
 }
+
+print "uh oh, global scope!";       // cannot print outside of a function

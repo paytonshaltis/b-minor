@@ -1,0 +1,28 @@
+// testing bad return statements
+// (note that the first line will cause parsing error, comment out individual parts to confirm each error!)
+
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    return a, b;                    // cannot return a list of expressions
+    return b * 4, (true || false);
+
+    return return;                  // cannot return statements
+    return print;
+    return {false};
+    return if(true);
+    return for(;;);
+
+    return void;                    // not the way to return from void function
+
+    if(return true)                 // return statement is not an expression
+        print "returned true";
+
+    return integer;                 // cannot return types
+    return string;
+    return array[] char;
+
+    return 0;
+}
+
+return;                             // cannot return outside of a function

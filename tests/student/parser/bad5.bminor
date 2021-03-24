@@ -28,3 +28,6 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     return 0;
 }
+
+if(a == b);                                         // if statement not allowed in the global scope
+    functCall(x, y, z, "abc");

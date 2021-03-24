@@ -88,22 +88,24 @@ main: function void() =
     num : integer = arr[7+8][6];
     return f(67, "literal", character, true && false) || 6 != true - false;
 }
-
-ident_ifier : char;
-//ident_ifier = 'c';
-int : integer = 8 + 9 / (true || false);
+fn : function void () = {
+    ident_ifier : char;
+    ident_ifier = 'c';
+    int : integer = 8 + 9 / (true || false);
+}
 
 f : function void ();
 
 f : function integer () = {
     int : integer;
     int = (true && !false);
-
-    
 }
 
-arr : array [6] integer;
-arr : array[65] array [56] boolean = {5, 7, 'c', "ghfjhg", false};
-//arr[34][998] = arr2[7];
-arr : array [9] string;
+arrayFunction : function integer (x : array[] array[] string) = {
+    arr : array [6] integer;
+    arr : array[65] array [56] boolean = {5, 7, 'c', "ghfjhg", false};
+    arr[34][998] = arr2[7];
+    arr : array [9] string;
+}
+
 
