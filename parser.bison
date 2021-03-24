@@ -124,29 +124,27 @@ stmtlist		: balanced stmtlist
 				;
 
 //all of the possible unbalanced statements (if/else/for)
-unbalanced		: TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RPAREN unbalanced					// for(;;) with an unbalanced statement following it 
-				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN unbalanced		// for(expr) with an unbalanced statement following it 
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced													// lone if statement is automatically unbalanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN unbalanced												// lone if statement is automatically unbalanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE unbalanced							// if-else statement with only one balanced statement
+unbalanced		: TOKEN_FOR TOKEN_LPAREN exprfor TOKEN_SEMICOLON exprfor TOKEN_SEMICOLON exprfor TOKEN_RPAREN unbalanced		// for() with an unbalanced statement following it 
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced																// lone if statement is automatically unbalanced
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN unbalanced															// lone if statement is automatically unbalanced
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE unbalanced										// if-else statement with only one balanced statement
 				;
 				
 //all of the possible balanced statements (if/else/for)
-balanced		: TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RPAREN balanced						// for(;;) with a balanced statement following it
-				| TOKEN_FOR TOKEN_LPAREN expr TOKEN_SEMICOLON expr TOKEN_SEMICOLON expr TOKEN_RPAREN balanced		// for(expr) with a balanced statement following it
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE balanced								// if statement that is balanced (both statements)
-				| other_stmt																						// any one of the balanced statements below
+balanced		: TOKEN_FOR TOKEN_LPAREN exprfor TOKEN_SEMICOLON exprfor TOKEN_SEMICOLON exprfor TOKEN_RPAREN balanced			// for(expr) with a balanced statement following it
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE balanced											// if statement that is balanced (both statements)
+				| other_stmt																									// any one of the balanced statements below
 				;
 
 //the non-if/else/for statements that are by definition balanced
-other_stmt		: TOKEN_RETURN TOKEN_SEMICOLON																		// return nothing statement 
-				| TOKEN_RETURN expr TOKEN_SEMICOLON																	// return expression statement 
-				| TOKEN_PRINT TOKEN_SEMICOLON																		// print nothing statement
-				| TOKEN_PRINT exprlist TOKEN_SEMICOLON																// print expressions statement 
-				| stddecl TOKEN_SEMICOLON																			// standard declaration statement 
-				| expdecl TOKEN_SEMICOLON																			// expression declaration statement
-				| expr TOKEN_SEMICOLON																				// expression statement
-				| TOKEN_LCURLY stmtlist TOKEN_RCURLY																// block statement of 'stmtlists'
+other_stmt		: TOKEN_RETURN TOKEN_SEMICOLON																					// return nothing statement 
+				| TOKEN_RETURN expr TOKEN_SEMICOLON																				// return expression statement 
+				| TOKEN_PRINT TOKEN_SEMICOLON																					// print nothing statement
+				| TOKEN_PRINT exprlist TOKEN_SEMICOLON																			// print expressions statement 
+				| stddecl TOKEN_SEMICOLON																						// standard declaration statement 
+				| expdecl TOKEN_SEMICOLON																						// expression declaration statement
+				| expr TOKEN_SEMICOLON																							// expression statement
+				| TOKEN_LCURLY stmtlist TOKEN_RCURLY																			// block statement of 'stmtlists'
 				;
 
 /* ========================= TYPE PRODUCTION RULES ========================= */
@@ -239,6 +237,11 @@ atomic			: TOKEN_IDENT
 				;
 
 /* ========================= MISCELLANEOUS PRODUCTION RULES ========================= */
+
+//expressions in for-loop fields may be expressions or omitted
+exprfor			: expr
+				|
+				;
 
 //possibly multiple brackets used for indexing an array
 bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET

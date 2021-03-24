@@ -8,6 +8,24 @@ main : function integer (argc : integer, argv : array[] string) = {
     for(i; i < 5; i++)                          // for-loop allows single statement
         return;
 
+    for(; i < 5; i++)                           // for-loop may omit one expression
+        return;                                         // missing first
+    
+    for(i; ; i++)                                       
+        return;                                         // missing second
+
+    for(i; i < 5; )                                        
+        return;                                         // missing third
+
+    for(; ; i++)                                // for-loop may omit two expression
+        return;                                         // missing first and second
+    
+    for(; i < 5;)                                       
+        return;                                         // missing first and third
+
+    for(i; ;)                                        
+        return;                                         // missing second and third
+
     for(j = 9; j >= i * 4; j--)                 // for-loop allows for nesting
         for(i = 3; i >= var; i = i/4)
             return;

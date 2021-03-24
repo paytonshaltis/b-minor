@@ -10,7 +10,10 @@ for(i; i < 10; i++) {
 
 main : function integer (argc : integer, argv : array[] string) = {
 
-    for(i = -30; i < 0)             // must specifically contain 3 expressions
+    for(i = -30; i < 0, i++)        // must specifically contain 2 semicolons
+        return;
+
+    for(i = -30; i < 0)             // even when omitting an expression, must specifically contain 2 semicolons
         return;
     
     for(i = 5; i < 30; i = i+2;)    // extra semicolon after the final expression in the statement
