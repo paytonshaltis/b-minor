@@ -1,6 +1,9 @@
 # CSC-425 Compilers Project: Parser
 
-## UPDATE: Parser Progress #2
+## Final: Parser Project Submission
+All 30 instructor and 20 student test cases work as expected. `Makefile` has been modified in account of `parser.bison` now generating `token.h`, as well as the linkage of the new `parser.o` object file. `main.c` has been modified in order to continue supporting the `-scan` command line option, as well as the newly added `-parse` command line option. `parser.bison` is the most interesting file in this milestone of the project, housing all of the production rules for the grammar of B-Minor. Production rules have been organized for clarity, readability, and functionality, along with comments regarding any rules that are not obvious or that were deemed important. The 20 student test cases include what I think to be the important parts of the B-Minor language that should be tested on the parser.
+
+## Parser Progress #2
 Modified some of the existing production rules since last time as well as adding a few more to account for mistakes that I spotted while writting my own test code. `good0.bminor` through `good4.bminor` as well as `bad0.bminor` through `bad4.bminor` are all up and working as intended, and test for the first half of what I feel are the most important production rules to test. The last remaining items for this step of the compiler include finishing up the test cases, as well as a thorough look at all production rules again to make sure that the parser will serve as good foundation for the parts to come next.
 
 ## Parser Progress Check #1
