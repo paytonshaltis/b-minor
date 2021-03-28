@@ -119,12 +119,14 @@ int main(int argc, char* argv[]) {
     /* flags that determine the command line option / index for getopt_long_only() call */
     int scanFlag = 0;
     int parseFlag = 0;
+    int printFlag = 0;
     int index = 0;
 
     /* array of options; currently only contains "scan" and the required "all-0s" option structs */
     struct option options[] = { 
         {"scan", required_argument, &scanFlag, 1},
-        {"parse", required_argument, &parseFlag, 1}, 
+        {"parse", required_argument, &parseFlag, 1},
+        {"print", required_argument, &printFlag, 1}, 
         {0, 0, 0, 0} 
     };
 
@@ -147,12 +149,12 @@ int main(int argc, char* argv[]) {
 
     /* tokens should only be output during the scanning phase if '-scan' option is used */
     int tokenOutput = 1;
-    if(parseFlag == 1) {
+    if(parseFlag == 1 || printFlag == 1) {
        tokenOutput = 0;
     }
 
     /* scanning phase: done with all command line options */
-    if(scanFlag == 1 || parseFlag == 1) {
+    if(scanFlag == 1 || parseFlag == 1 || printFlag == 1) {
 
         /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
         while(1) {
@@ -160,7 +162,7 @@ int main(int argc, char* argv[]) {
             
             /* reached end of file (yylex returns 0 when at EOF) */
             if(t==0) {
-                if(parseFlag != 1)
+                if(tokenOutput == 1)
                     exit(0);
                 else
                     break;
@@ -187,9 +189,15 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+    
+    /* parser status should only be output during the parsing phase if '-parse' option is used */
+    int parseOutput = 1;
+    if(printFlag == 1) {
+       parseOutput = 0;
+    }
 
     /* parsing phase: done with all command line options other than '-scan' */
-    if(parseFlag == 1) {
+    if(parseFlag == 1 || printFlag == 1) {
         
         /* reopens and restarts the source file so parsing may
         begin from the beginning of the file after scanning */
@@ -198,8 +206,10 @@ int main(int argc, char* argv[]) {
         
         /* if the source file has valid B-Minor syntax */
         if(yyparse() == 0) {
-            printf("Parse successful!\n");
-            exit(0);
+            if(parseOutput == 1) {
+                printf("Parse successful!\n");
+                exit(0);
+            }
         }
 
         /* if the source file does not have valid B-Minor syntax */
@@ -207,6 +217,10 @@ int main(int argc, char* argv[]) {
             printf("Parse failed!\n");
             exit(1);
         }
+    }
+
+    if(printFlag == 1) {
+        printf("Pretty Print:\n");
     }
 
     /* completed each phase of the compiler */

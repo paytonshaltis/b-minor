@@ -106,12 +106,12 @@ cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT							// posi
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY arraylist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr
 				;
 
 //expression declarations involve variable initialization with an expression or a constant
 expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY arraylist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr
 				;
 
 /* ========================= STATEMENT PRODUCTION RULES ========================= */
@@ -234,6 +234,7 @@ group			: TOKEN_LPAREN expr TOKEN_RPAREN 					// an expresison within parenthese
 				| TOKEN_IDENT bracket								// indexing an element of an array 
 				| TOKEN_IDENT TOKEN_LPAREN exprlist TOKEN_RPAREN	// result of a function call (with parameters)
 				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN				// result of a function call (without parameters)
+				| TOKEN_LCURLY exprlist TOKEN_RCURLY				// used in array initializer lists
 				| atomic											// can just be an 'atomic'
 				;																																		
 
@@ -258,26 +259,7 @@ bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
 				| TOKEN_LBRACKET expr TOKEN_RBRACKET
 				;
 
-//a curly bracket list of expressions
-curlbase		: TOKEN_LCURLY exprlist TOKEN_RCURLY
-				;
 
-
-//list of curly bracket lists
-curllist		: curlbase TOKEN_COMMA curllist
-				| curlbase
-				;
-
-//the possible array intitializer list elements
-arrelements		: TOKEN_LCURLY curllist TOKEN_RCURLY
-				| curlbase
-				| expr
-				;
-
-//list of possible array elements
-arraylist		: arrelements TOKEN_COMMA arraylist
-				| arrelements
-				;
 
 //list of expressions for print statement and function call
 exprlist		: expr TOKEN_COMMA exprlist
