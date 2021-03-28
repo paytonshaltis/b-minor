@@ -106,12 +106,12 @@ cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT							// posi
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE
 				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY arraylist TOKEN_RCURLY
 				;
 
 //expression declarations involve variable initialization with an expression or a constant
 expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY exprlist TOKEN_RCURLY
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN TOKEN_LCURLY arraylist TOKEN_RCURLY
 				;
 
 /* ========================= STATEMENT PRODUCTION RULES ========================= */
@@ -158,8 +158,18 @@ type			: TOKEN_INTEGER
 				;
 
 //the array type; split from the 'type' production since it is more specialized
-array 			: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type			// this production describes a one-dimensional array of type 'type'
-				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET array			// this production describes n-dimensional arrays, must eventually take a 'type'
+array			: sizearr
+				| nosizearr
+				;
+
+//array with a given size
+sizearr 		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type			// this production describes a one-dimensional array of type 'type'
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET sizearr		// this production describes n-dimensional arrays, must eventually take a 'type'
+				;
+
+//array without a given size
+nosizearr		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET type						// this production describes a one-dimensional array of type 'type'
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET nosizearr					// this production describes n-dimensional arrays, must eventually take a 'type'
 				;
 
 /* ========================= EXPRESSION PRODUCTION RULES ========================= */
@@ -248,7 +258,28 @@ bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
 				| TOKEN_LBRACKET expr TOKEN_RBRACKET
 				;
 
-//list of expressions for array initialization, print statement, and function call
+//a curly bracket list of expressions
+curlbase		: TOKEN_LCURLY exprlist TOKEN_RCURLY
+				;
+
+
+//list of curly bracket lists
+curllist		: curlbase TOKEN_COMMA curllist
+				| curlbase
+				;
+
+//the possible array intitializer list elements
+arrelements		: TOKEN_LCURLY curllist TOKEN_RCURLY
+				| curlbase
+				| expr
+				;
+
+//list of possible array elements
+arraylist		: arrelements TOKEN_COMMA arraylist
+				| arrelements
+				;
+
+//list of expressions for print statement and function call
 exprlist		: expr TOKEN_COMMA exprlist
 				| expr
 				;
