@@ -39,6 +39,9 @@ void type_print(struct type *t) {
     if(t->kind == TYPE_BOOLEAN) {
         printf("boolean");
     }
+    if(t->kind == TYPE_VOID) {
+        printf("void");
+    }
 
     if(t->kind == TYPE_FUNCTION) {
         printf("function ");

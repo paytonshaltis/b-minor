@@ -34,8 +34,10 @@ void decl_print( struct decl *d, int indent ) {
         
         if(d->code != NULL) {
             printf(" = ");
-            //expr_print(d->value);
-            printf("{\n\tcode body;\n}");
+            printf("{\n");
+            //stmt_print(d->code, 1);
+            printf("\tcode goes here");
+            printf("\n}");
         }
         printf("\n");
 
