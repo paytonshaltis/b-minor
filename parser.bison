@@ -1,10 +1,14 @@
 %{
 #include <stdio.h>
-#include <stdlib.h>    
+#include <stdlib.h> 
+#include "decl.h" 
+#include "type.h"  
 
 extern char* yytext;
 extern int yylex();
 extern int yyerror(char* str);
+
+struct decl* parser_result = 0;
 
 %}
 
@@ -55,63 +59,71 @@ extern int yyerror(char* str);
 %token TOKEN_NOT
 %token TOKEN_ERROR
 
+%union {
+	struct decl* decl;
+	struct type* type;
+}
+
+%type <decl> program programlist decl global proto function stddecl cstdecl expdecl function proto
+%type <type> type array sizearr nosizearr
+
 %%
 
 /* ========================= HIGHEST LEVEL PRODUCTIONS ========================= */
 
 //a program consists of a list of declarations
-program			: programlist
-				| 
+program			: programlist		{parser_result = $1;}
+				| 					{parser_result = NULL;}
 				;
 
 //this list of declarations may contain one or more declaration
-programlist		: programlist decl
-				| decl
+programlist		: programlist decl	{$$ = $1, $1->next = $2;}
+				| decl				{$$ = $1;}
 				;
 
 //a declaration can be one of the following
-decl			: global												// global variables that may optionally be initialized
-				| proto													// function prototypes that contain no body of code
-				| function												// function implementations that contain a body of code
+decl			: global			{$$ = $1;}								// global variables that may optionally be initialized
+				| proto				{$$ = $1;}								// function prototypes that contain no body of code
+				| function			{$$ = $1;}								// function implementations that contain a body of code
 				;
 
 /* ========================= GLOBALS, PROTOTYPES, FUNCTION DECLARATIONS ========================= */
 
 //global variables may be declared in one of two ways
-global			: stddecl TOKEN_SEMICOLON
-				| cstdecl TOKEN_SEMICOLON
+global			: stddecl TOKEN_SEMICOLON	{$$ = $1;}
+				| cstdecl TOKEN_SEMICOLON	{$$ = $1;}
 				;
 
 //function prototypes, declared with or without parameters
-proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		
+proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, 0, 0);}
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, 0, 0);}
 				;
 
 //function implementations, defined with or without parameters and contain a body of statements
-function		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY
+function		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, $9, 0);}
+				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, $10, 0);}
 				;
 
 /* ========================= STANDARD, CONSTANT, AND EXPRESSION DECLARATIONS ========================= */
 
 //standard declarations do not involve variable initialization
-stddecl			: TOKEN_IDENT TOKEN_COLON type 							// may declare a basic type
-				| TOKEN_IDENT TOKEN_COLON array							// may declare an array
+stddecl			: TOKEN_IDENT TOKEN_COLON type 											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare a basic type
+				| TOKEN_IDENT TOKEN_COLON array											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare an array
 				;
 
 //constant declarations involve variable initialization with a constant value
-cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT							// positive integers
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS TOKEN_INTLIT				// accounts for negative integers
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr
+cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT				{$$ = decl_create($1, $3, $5, 0, 0);}			// positive integers
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS TOKEN_INTLIT	{$$ = decl_create($1, $3, $5, 0, 0);}			// accounts for negative integers
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT				{$$ = decl_create($1, $3, $5, 0, 0);}
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT				{$$ = decl_create($1, $3, $5, 0, 0);}
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE					{$$ = decl_create($1, $3, $5, 0, 0);}
+				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE					{$$ = decl_create($1, $3, $5, 0, 0);}
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
 				;
 
 //expression declarations involve variable initialization with an expression or a constant
-expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr
+expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
+				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
 				;
 
 /* ========================= STATEMENT PRODUCTION RULES ========================= */
@@ -150,26 +162,26 @@ other_stmt		: TOKEN_RETURN TOKEN_SEMICOLON																					// return nothing
 /* ========================= TYPE PRODUCTION RULES ========================= */
 
 //basic types used for declaring variables and functions
-type			: TOKEN_INTEGER
-				| TOKEN_STRING
-				| TOKEN_CHAR
-				| TOKEN_BOOLEAN
-				| TOKEN_VOID															// must later typecheck to make sure only functions are of type void
+type			: TOKEN_INTEGER		{$$ = type_create(TYPE_INTEGER, 0, 0, 0);}
+				| TOKEN_STRING		{$$ = type_create(TYPE_STRING, 0, 0, 0);}
+				| TOKEN_CHAR		{$$ = type_create(TYPE_CHAR, 0, 0, 0);}
+				| TOKEN_BOOLEAN		{$$ = type_create(TYPE_BOOLEAN, 0, 0, 0);}
+				| TOKEN_VOID		{$$ = type_create(TYPE_VOID, 0, 0, 0);}			// must later typecheck to make sure only functions are of type void
 				;
 
 //the array type; split from the 'type' production since it is more specialized
-array			: sizearr
-				| nosizearr
+array			: sizearr			{$$ = $1;}
+				| nosizearr			{$$ = $1;}
 				;
 
 //array with a given size
-sizearr 		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type			// this production describes a one-dimensional array of type 'type'
-				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET sizearr		// this production describes n-dimensional arrays, must eventually take a 'type'
+sizearr 		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type		{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes a one-dimensional array of type 'type'
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET sizearr	{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes n-dimensional arrays, must eventually take a 'type'
 				;
 
 //array without a given size
-nosizearr		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET type						// this production describes a one-dimensional array of type 'type'
-				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET nosizearr					// this production describes n-dimensional arrays, must eventually take a 'type'
+nosizearr		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET type					{$$ = type_create(TYPE_ARRAY, $4, 0, 0);}		// this production describes a one-dimensional array of type 'type'
+				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET nosizearr				{$$ = type_create(TYPE_ARRAY, $4, 0, 0);}		// this production describes n-dimensional arrays, must eventually take a 'type'
 				;
 
 /* ========================= EXPRESSION PRODUCTION RULES ========================= */

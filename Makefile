@@ -1,5 +1,5 @@
-bminor: main.o scanner.o parser.o
-	gcc main.o scanner.o parser.o -o bminor
+bminor: main.o scanner.o parser.o decl.o type.o
+	gcc main.o scanner.o parser.o decl.o type.o -o bminor
 
 main.o: main.c token.h parser.c
 	gcc main.c -c -o main.o
@@ -16,5 +16,11 @@ parser.o: parser.c token.h
 parser.c token.h: parser.bison
 	bison -v --defines=token.h --output=parser.c parser.bison 
 
+decl.o: decl.c decl.h
+	gcc decl.c -c -o decl.o
+
+type.o: type.c type.h
+	gcc type.c -c -o type.o
+
 clean:
-	rm -f scanner.c scanner.o parser.c parser.o parser.output token.h main.o bminor
+	rm -f scanner.c scanner.o parser.c parser.o parser.output token.h main.o decl.o bminor
