@@ -22,9 +22,39 @@ void decl_print( struct decl *d, int indent ) {
         
         printf("integer");
 
-        if(d->value){
+        if(d->value != NULL){
             //expr_print(d->value);
+            printf(" expr");
         }
         printf(";\n");
+    }
+
+    //for declarations of type string...
+    if(d->type->kind == TYPE_STRING) {
+        
+        printf("string");
+
+        if(d->value != NULL){
+            //expr_print(d->value);
+            printf(" \"%s\"", d->value->string_literal);
+        }
+        printf(";\n");
+    }
+
+    //for declarations of type char...
+    if(d->type->kind == TYPE_CHAR) {
+        
+        printf("char");
+
+        if(d->value != NULL){
+            //expr_print(d->value);
+            printf(" \'%c\'", d->value->literal_value);
+        }
+        printf(";\n");
+    }
+    
+    //prints out the next declaration with same indent
+    if(d->next != NULL) {
+        decl_print(d->next, 0);
     }
 }

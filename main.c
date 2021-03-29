@@ -222,8 +222,9 @@ int main(int argc, char* argv[]) {
     }
 
     if(printFlag == 1) {
-        printf("Pretty Print:\n");
+        printf("Pretty Print:\n\n");
         decl_print(parser_result, 0);
+        printf("\nEnd of Pretty Print\n");
     }
 
     /* completed each phase of the compiler */

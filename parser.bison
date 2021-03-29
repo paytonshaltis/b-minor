@@ -94,7 +94,7 @@ program			: programlist		{parser_result = $1;}
 				;
 
 //this list of declarations may contain one or more declaration
-programlist		: programlist decl	{$$ = $1, $1->next = $2;}
+programlist		: decl programlist	{$$ = $1, $1->next = $2;}
 				| decl				{$$ = $1;}
 				;
 
@@ -129,7 +129,7 @@ stddecl			: ident TOKEN_COLON type 											{$$ = decl_create($1, $3, 0, 0, 0)
 				;
 
 //constant declarations involve variable initialization with a constant value
-cstdecl			: ident TOKEN_COLON type TOKEN_ASSIGN value							{$$ = decl_create($1, $3, expr_create_integer_literal($5), 0, 0);}									// positive integers
+cstdecl			: ident TOKEN_COLON type TOKEN_ASSIGN value							{$$ = decl_create($1, $3, expr_create_integer_literal($5), 0, 0);}										// positive integers
 				| ident TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS value				{$$ = decl_create($1, $3, expr_create(EXPR_NEG, expr_create_integer_literal($6), 0), 0, 0);}			// accounts for negative integers
 				| ident TOKEN_COLON type TOKEN_ASSIGN string						{$$ = decl_create($1, $3, expr_create_string_literal($5), 0, 0);}
 				| ident TOKEN_COLON type TOKEN_ASSIGN char							{$$ = decl_create($1, $3, expr_create_char_literal($5), 0, 0);}
