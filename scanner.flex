@@ -1,5 +1,56 @@
 %{
 #include "token.h"
+
+/* function used to modify 'yytext' for char and string literals */
+void modifyText(enum yytokentype t) {
+
+    /* creates a new array for storing characters one by one */
+    int stringSize = strlen(yytext) + 1;
+    char newyytext[stringSize];
+    int textPos = 0;
+
+    /* copies one character at a time, ignoring quotes 
+    and taking proper action for escape characters */
+    for(int i = 0; i < stringSize; i++) {
+        
+        /* in case of starting and ending quotes */
+        if((yytext[i] == '\"' && t == TOKEN_STRINGLIT) || (yytext[i] == '\'' && t == TOKEN_CHARLIT)) {
+            /* nothing should be duplicated into the 'newyytext' array */
+        }
+        
+        /* in case of escape sequence */
+        else if(yytext[i] == '\\') {
+            if(yytext[i+1] == 'n') {
+                newyytext[textPos] = 10;
+                textPos++;
+                i++;
+            }
+            else if(yytext[i+1] == '0') {
+                newyytext[textPos] = 0;
+                textPos++;
+                i++;
+            }
+            else {
+                newyytext[textPos] = yytext[i + 1];
+                textPos++;
+                i++;
+            }
+        }
+        
+        /* in case of any other character */
+        else {
+            newyytext[textPos] = yytext[i];
+            textPos++;
+        }
+    }
+
+    /* copies characters from 'newyytext' array to 'yytext' pointer,
+    overwriting the originally scanned string from the souce file 
+    with the new changes made within this function */
+    for(int i = 0; i < stringSize; i++) {
+        yytext[i] = newyytext[i];
+    }
+}
 %}
 DIGIT  [0-9]
 LETTER [a-zA-Z]
@@ -51,8 +102,8 @@ void            { return TOKEN_VOID; }
  /*~~~~~~~~~~~~~   LITERALS / IDENTIFIER   ~~~~~~~~~~~~~*/
 ({LETTER}|"_")({LETTER}|"_"|{DIGIT}){0,255}     { return TOKEN_IDENT; }
 {DIGIT}+                                        { return TOKEN_INTLIT; }
-'((\\?[^\\\'\n])|(\\\\)|(\\\'))'                { return TOKEN_CHARLIT; }
-\"((\\.|[^\\"\n]){0,255})\"                     { return TOKEN_STRINGLIT; }
+'((\\?[^\\\'\n])|(\\\\)|(\\\'))'                { modifyText(TOKEN_CHARLIT); return TOKEN_CHARLIT; }
+\"((\\.|[^\\"\n]){0,255})\"                     { modifyText(TOKEN_STRINGLIT); return TOKEN_STRINGLIT; }
  /*~~~~~~~~~~~~~   COMMENTS   ~~~~~~~~~~~~~*/
 "//".*          /* skips single line C++ style comments */
 "/*"            {

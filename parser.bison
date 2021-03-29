@@ -280,7 +280,7 @@ string			: TOKEN_STRINGLIT									{$$ = strdup(yytext);}
 				;
 
 //char literal that is declared with a type
-char			: TOKEN_CHARLIT										{$$ = yytext[1];}
+char			: TOKEN_CHARLIT										{$$ = yytext[0];}
 				;
 
 //true literal that is declared with a type
