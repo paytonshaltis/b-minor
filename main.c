@@ -5,12 +5,14 @@
 #include <getopt.h>
 #include <stdbool.h>
 #include <string.h>
+#include "decl.h"
 
 extern FILE *yyin;
 extern int yylex();
 extern int yyparse();
 extern void yyrestart();
 extern char *yytext;
+extern struct decl* parser_result;
 
 /* function used to modify 'yytext' for char and string literals */
 void modifyText(enum yytokentype t) {
@@ -221,6 +223,7 @@ int main(int argc, char* argv[]) {
 
     if(printFlag == 1) {
         printf("Pretty Print:\n");
+        decl_print(parser_result, 0);
     }
 
     /* completed each phase of the compiler */
