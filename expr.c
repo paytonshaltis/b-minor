@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "expr.h"
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
@@ -48,5 +49,18 @@ void expr_print(struct expr *e) {
         }
         else
             printf("true");
+    }
+    if(e->kind == EXPR_STRINGLIT) {
+        for(int i = 0; i < strlen(e->string_literal); i++) {
+            if(e->string_literal[i] == 10) {
+                printf("\\n");
+            }
+            if(e->string_literal[i] == 0) {
+                printf("\\0");
+            }
+            else{
+                printf("%c", e->string_literal[i]);
+            }
+        }
     }
 }

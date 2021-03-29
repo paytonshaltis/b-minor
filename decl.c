@@ -24,7 +24,7 @@ void decl_print( struct decl *d, int indent ) {
 
         if(d->value != NULL){
             printf(" = ");
-            //expr_print(d->value);
+            expr_print(d->value);
             printf("expr");
         }
         printf(";\n");
