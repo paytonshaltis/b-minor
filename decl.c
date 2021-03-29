@@ -52,6 +52,18 @@ void decl_print( struct decl *d, int indent ) {
         }
         printf(";\n");
     }
+
+    //for declarations of type boolean...
+    if(d->type->kind == TYPE_BOOLEAN) {
+
+        printf("boolean");
+
+        if(d->value != NULL){
+            //expr_print(d->value);
+            printf(" expr");
+        }
+        printf(";\n");
+    }
     
     //prints out the next declaration with same indent
     if(d->next != NULL) {
