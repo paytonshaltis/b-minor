@@ -4,6 +4,7 @@
 #include "decl.h" 
 #include "type.h"
 #include "stmt.h"
+#include "expr.h"
 
 extern char* yytext;
 extern int yylex();
@@ -64,11 +65,13 @@ struct decl* parser_result = 0;
 	struct decl* decl;
 	struct type* type;
 	struct stmt* stmt;
+	struct expr* expr;
 }
 
 %type <decl> program programlist decl global proto function stddecl cstdecl expdecl
 %type <type> type array sizearr nosizearr
 %type <stmt> stmtlist unbalanced balanced otherstmt
+%type <expr> atomic group incdec unary expon multdiv addsub comparison logand logor expr
 
 %%
 
@@ -190,76 +193,76 @@ nosizearr		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET type					{$$ = type_creat
 /* ========================= EXPRESSION PRODUCTION RULES ========================= */
 
 //highest priority, an expression itself
-expr			: expr TOKEN_ASSIGN logor							// multiple assignments on 'logors'							
-				| logor												// an expression can be anything below; they bubble up
+expr			: expr TOKEN_ASSIGN logor							{$$ = expr_create(EXPR_ASSIGN, $1, $3);}							// multiple assignments on 'logors'							
+				| logor												{$$ = $1;}															// an expression can be anything below; they bubble up
 				;
 
 //next highest priority after logical and
-logor			: logor TOKEN_OR logand								// multiple or operations on 'logands'
-				| logand											// can just be a 'logand'
+logor			: logor TOKEN_OR logand								{$$ = expr_create(EXPR_OR, $1, $3);}								// multiple or operations on 'logands'
+				| logand											{$$ = $1;}															// can just be a 'logand'
 				;
 
 //next highest priority after comparison operators
-logand			: logand TOKEN_AND comparison						// multiple and operations on 'comparisons'
-				| comparison										// can just be a 'comparison'
+logand			: logand TOKEN_AND comparison						{$$ = expr_create(EXPR_AND, $1, $3);}								// multiple and operations on 'comparisons'
+				| comparison										{$$ = $1;}															// can just be a 'comparison'
 				;
 
 //next highest priority after add and subtract
-comparison		: comparison TOKEN_LESS addsub						// multiple less comparisons on 'addsubs'
-				| comparison TOKEN_LE addsub						// multiple lequal comparisons on 'addsubs'
-				| comparison TOKEN_GREATER addsub					// multiple greater comparisons on 'addsubs'
-				| comparison TOKEN_GE addsub						// multiple gequal comparisons on 'addsubs'
-				| comparison TOKEN_EQUAL addsub						// multiple equal comparisons on 'addsubs'
-				| comparison TOKEN_NEQUAL addsub					// multiple nequals comparisons on 'addsubs'
-				| addsub											// can just be an 'addsub'
+comparison		: comparison TOKEN_LESS addsub						{$$ = expr_create(EXPR_LESS, $1, $3);}								// multiple less comparisons on 'addsubs'
+				| comparison TOKEN_LE addsub						{$$ = expr_create(EXPR_LE, $1, $3);}								// multiple lequal comparisons on 'addsubs'
+				| comparison TOKEN_GREATER addsub					{$$ = expr_create(EXPR_GREATER, $1, $3);}							// multiple greater comparisons on 'addsubs'
+				| comparison TOKEN_GE addsub						{$$ = expr_create(EXPR_GE, $1, $3);}								// multiple gequal comparisons on 'addsubs'
+				| comparison TOKEN_EQUAL addsub						{$$ = expr_create(EXPR_EQUAL, $1, $3);}								// multiple equal comparisons on 'addsubs'
+				| comparison TOKEN_NEQUAL addsub					{$$ = expr_create(EXPR_NEQUAL, $1, $3);}							// multiple nequals comparisons on 'addsubs'
+				| addsub											{$$ = $1;}															// can just be an 'addsub'
 				;
 
 //next highest priority after mult, div, and mod
-addsub			: addsub TOKEN_PLUS multdiv							// adds multiple 'multdivs'
-				| addsub TOKEN_MINUS multdiv						// subtracts multiple 'multdivs'
-				| multdiv 											// can just be a 'multdiv'
+addsub			: addsub TOKEN_PLUS multdiv							{$$ = expr_create(EXPR_ADD, $1, $3);}								// adds multiple 'multdivs'
+				| addsub TOKEN_MINUS multdiv						{$$ = expr_create(EXPR_MINUS, $1, $3);}								// subtracts multiple 'multdivs'
+				| multdiv 											{$$ = $1;}															// can just be a 'multdiv'
 				;
 
 //next highest priority after exponentiation
-multdiv			: multdiv TOKEN_MULTIPLY expon						// multiplies multiple 'expons'
-				| multdiv TOKEN_DIVIDE expon						// divides multiple 'expons'
-				| multdiv TOKEN_MOD expon							// modulos multiple 'expons'
-				| expon												// can just be an 'expon'
+multdiv			: multdiv TOKEN_MULTIPLY expon						{$$ = expr_create(EXPR_MULT, $1, $3);}								// multiplies multiple 'expons'
+				| multdiv TOKEN_DIVIDE expon						{$$ = expr_create(EXPR_DIV, $1, $3);}								// divides multiple 'expons'
+				| multdiv TOKEN_MOD expon							{$$ = expr_create(EXPR_MOD, $1, $3);}								// modulos multiple 'expons'
+				| expon												{$$ = $1;}															// can just be an 'expon'
 				;
 
 //next highest priority after unary operations
-expon			: expon TOKEN_CARET unary							// exponentiates multiple 'unaries'
-				| unary												// can just be a 'unary'
+expon			: expon TOKEN_CARET unary							{$$ = expr_create(EXPR_EXPON, $1, $3);}								// exponentiates multiple 'unaries'
+				| unary												{$$ = $1;}															// can just be a 'unary'
 				;
 
 //next highest priority after increment and decrement
-unary			: TOKEN_MINUS unary									// unary minus
-				| TOKEN_NOT unary									// unary not 
-				| incdec											// can just be an 'incdec'
+unary			: TOKEN_MINUS unary									{$$ = expr_create(EXPR_NEG, $2, 0);}								// unary minus
+				| TOKEN_NOT unary									{$$ = expr_create(EXPR_NOT, $2, 0);}								// unary not 
+				| incdec											{$$ = $1;}															// can just be an 'incdec'
 				;
 
 //next highest priority after groups
-incdec			: incdec TOKEN_INCREMENT							// incrementing a 'group' 
-				| incdec TOKEN_DECREMENT							// decrementing a 'group' 
-				| group												// can just be a 'group'
+incdec			: incdec TOKEN_INCREMENT							{$$ = expr_create(EXPR_INC, $1, 0);}								// incrementing a 'group' 
+				| incdec TOKEN_DECREMENT							{$$ = expr_create(EXPR_DEC, $1, 0);}								// decrementing a 'group' 
+				| group												{$$ = $1;}															// can just be a 'group'
 				;
 
 //next highest priority after atomics
-group			: TOKEN_LPAREN expr TOKEN_RPAREN 					// an expresison within parentheses
-				| TOKEN_IDENT bracket								// indexing an element of an array 
-				| TOKEN_IDENT TOKEN_LPAREN exprlist TOKEN_RPAREN	// result of a function call (with parameters)
-				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN				// result of a function call (without parameters)
-				| TOKEN_LCURLY exprlist TOKEN_RCURLY				// used in array initializer lists
-				| atomic											// can just be an 'atomic'
+group			: TOKEN_LPAREN expr TOKEN_RPAREN 					{$$ = expr_create(EXPR_GROUP, $2, 0);}								// an expresison within parentheses
+				| TOKEN_IDENT bracket								{$$ = expr_create(EXPR_ARRIND, expr_create_name($1), $2);}			// indexing an element of an array 
+				| TOKEN_IDENT TOKEN_LPAREN exprlist TOKEN_RPAREN	{$$ = expr_create(EXPR_FCALL, expr_create_name($1), $3);}			// result of a function call (with parameters)
+				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN				{$$ = expr_create(EXPR_FCALL, expr_create_name($1), 0);}			// result of a function call (without parameters)
+				| TOKEN_LCURLY exprlist TOKEN_RCURLY				{$$ = expr_create(EXPR_CURLS, $2, 0);}								// used in array initializer lists
+				| atomic											{$$ = $1;}															// can just be an 'atomic'
 				;																																		
 
 //the atomic types used in an expression
-atomic			: TOKEN_IDENT																															
-				| TOKEN_INTLIT
-				| TOKEN_STRINGLIT
-				| TOKEN_CHARLIT
-				| TOKEN_TRUE
-				| TOKEN_FALSE
+atomic			: TOKEN_IDENT										{$$ = expr_create_name(strdup(yytext));}																											
+				| TOKEN_INTLIT										{$$ = expr_create_integer_literal(atoi(yytext));}
+				| TOKEN_STRINGLIT									{$$ = expr_create_string_literal(strdup(yytext));}
+				| TOKEN_CHARLIT										{$$ = expr_create_char_literal(yytext[1]);}
+				| TOKEN_TRUE										{$$ = expr_create_boolean_literal(1);}
+				| TOKEN_FALSE										{$$ = expr_create_boolean_literal(0);}
 				;
 
 /* ========================= MISCELLANEOUS PRODUCTION RULES ========================= */
