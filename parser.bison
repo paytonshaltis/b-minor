@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include "decl.h" 
-#include "type.h"  
+#include "type.h"
+#include "stmt.h"
 
 extern char* yytext;
 extern int yylex();
@@ -62,10 +63,12 @@ struct decl* parser_result = 0;
 %union {
 	struct decl* decl;
 	struct type* type;
+	struct stmt* stmt;
 }
 
-%type <decl> program programlist decl global proto function stddecl cstdecl expdecl function proto
+%type <decl> program programlist decl global proto function stddecl cstdecl expdecl
 %type <type> type array sizearr nosizearr
+%type <stmt> stmtlist unbalanced balanced otherstmt
 
 %%
 
@@ -129,34 +132,34 @@ expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr						{$$ = decl_creat
 /* ========================= STATEMENT PRODUCTION RULES ========================= */
 
 //list of both balanced and unbalanced statements
-stmtlist		: balanced stmtlist				
-				| unbalanced stmtlist
-				| balanced
-				| unbalanced	
+stmtlist		: balanced stmtlist			{$$ = $1, $1->next = $2;}	
+				| unbalanced stmtlist		{$$ = $1, $1->next = $2;}
+				| balanced					{$$ = $1;}
+				| unbalanced				{$$ = $1;}
 				;
 
 //all of the possible unbalanced statements (if/else/for)
-unbalanced		: TOKEN_FOR TOKEN_LPAREN exprfor TOKEN_SEMICOLON exprfor TOKEN_SEMICOLON exprfor TOKEN_RPAREN unbalanced		// for() with an unbalanced statement following it 
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced																// lone if statement is automatically unbalanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN unbalanced															// lone if statement is automatically unbalanced
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE unbalanced										// if-else statement with only one balanced statement
+unbalanced		: TOKEN_FOR TOKEN_LPAREN exprfor TOKEN_SEMICOLON exprfor TOKEN_SEMICOLON exprfor TOKEN_RPAREN unbalanced	{$$ = stmt_create(STMT_FOR, 0, $3, $5, $7, $9, 0, 0);}		// for() with an unbalanced statement following it 
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced															{$$ = stmt_create(STMT_IF, 0, 0, $3, 0, $5, 0, 0);}			// lone if statement is automatically unbalanced
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN unbalanced														{$$ = stmt_create(STMT_IF, 0, 0, $3, 0, $5, 0, 0);}			// lone if statement is automatically unbalanced
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE unbalanced									{$$ = stmt_create(STMT_IF_ELSE, 0, 0, $3, 0, $5, $7, 0);}	// if-else statement with only one balanced statement
 				;
 				
 //all of the possible balanced statements (if/else/for)
-balanced		: TOKEN_FOR TOKEN_LPAREN exprfor TOKEN_SEMICOLON exprfor TOKEN_SEMICOLON exprfor TOKEN_RPAREN balanced			// for(expr) with a balanced statement following it
-				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE balanced											// if statement that is balanced (both statements)
-				| other_stmt																									// any one of the balanced statements below
+balanced		: TOKEN_FOR TOKEN_LPAREN exprfor TOKEN_SEMICOLON exprfor TOKEN_SEMICOLON exprfor TOKEN_RPAREN balanced		{$$ = stmt_create(STMT_FOR, 0, $3, $5, $7, $9, 0, 0);}		// for(expr) with a balanced statement following it
+				| TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN balanced TOKEN_ELSE balanced										{$$ = stmt_create(STMT_IF_ELSE, 0, 0, $3, 0, $5, $7, 0);}	// if statement that is balanced (both statements)
+				| otherstmt																									{$$ = $1;}													// any one of the balanced statements below
 				;
 
 //the non-if/else/for statements that are by definition balanced
-other_stmt		: TOKEN_RETURN TOKEN_SEMICOLON																					// return nothing statement 
-				| TOKEN_RETURN expr TOKEN_SEMICOLON																				// return expression statement 
-				| TOKEN_PRINT TOKEN_SEMICOLON																					// print nothing statement
-				| TOKEN_PRINT exprlist TOKEN_SEMICOLON																			// print expressions statement 
-				| stddecl TOKEN_SEMICOLON																						// standard declaration statement 
-				| expdecl TOKEN_SEMICOLON																						// expression declaration statement
-				| expr TOKEN_SEMICOLON																							// expression statement
-				| TOKEN_LCURLY stmtlist TOKEN_RCURLY																			// block statement of 'stmtlists'
+otherstmt		: TOKEN_RETURN TOKEN_SEMICOLON				{$$ = stmt_create(STMT_RETURN, 0, 0, 0, 0, 0, 0, 0);}				// return nothing statement 
+				| TOKEN_RETURN expr TOKEN_SEMICOLON			{$$ = stmt_create(STMT_RETURN, 0, 0, $2, 0, 0, 0, 0);}				// return expression statement 
+				| TOKEN_PRINT TOKEN_SEMICOLON				{$$ = stmt_create(STMT_PRINT, 0, 0, 0, 0, 0, 0, 0);}				// print nothing statement
+				| TOKEN_PRINT exprlist TOKEN_SEMICOLON		{$$ = stmt_create(STMT_PRINT, 0, 0, $2, 0, 0, 0, 0);}				// print expressions statement 
+				| stddecl TOKEN_SEMICOLON					{$$ = stmt_create(STMT_DECL, $1, 0, 0, 0, 0, 0, 0);}				// standard declaration statement 
+				| expdecl TOKEN_SEMICOLON					{$$ = stmt_create(STMT_DECL, $1, 0, 0, 0, 0, 0, 0);}				// expression declaration statement
+				| expr TOKEN_SEMICOLON						{$$ = stmt_create(STMT_EXPR, 0, 0, $1, 0, 0, 0, 0);}				// expression statement
+				| TOKEN_LCURLY stmtlist TOKEN_RCURLY		{$$ = stmt_create(STMT_BLOCK, 0, 0, 0, 0, $2, 0, 0);}				// block statement of 'stmtlists'
 				;
 
 /* ========================= TYPE PRODUCTION RULES ========================= */
