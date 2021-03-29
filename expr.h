@@ -33,7 +33,6 @@ typedef enum {
 	EXPR_OR,
 	EXPR_ASSIGN,
 	EXPR_ARGS
-	/* many more kinds of exprs to add here */
 } expr_t;
 
 struct expr {

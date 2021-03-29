@@ -34,3 +34,19 @@ struct expr * expr_create_string_literal( const char *str ) {
     e->string_literal = str;
     return e;
 }
+
+void expr_print(struct expr *e) {
+    if(e->kind == EXPR_NAME) {
+        printf("%s", e->name);
+    }
+    if(e->kind == EXPR_INTLIT) {
+        printf("%i", e->literal_value);
+    }
+    if(e->kind == EXPR_BOOLLIT) {
+        if(e->literal_value == 0) {
+            printf("false");
+        }
+        else
+            printf("true");
+    }
+}
