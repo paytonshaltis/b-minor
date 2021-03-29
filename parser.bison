@@ -66,12 +66,19 @@ struct decl* parser_result = 0;
 	struct type* type;
 	struct stmt* stmt;
 	struct expr* expr;
+	char* word;
+	int number;
+	char letter;
+
 }
 
 %type <decl> program programlist decl global proto function stddecl cstdecl expdecl
 %type <type> type array sizearr nosizearr
 %type <stmt> stmtlist unbalanced balanced otherstmt
 %type <expr> atomic group incdec unary expon multdiv addsub comparison logand logor expr
+%type <word> ident string
+%type <number> value true false
+%type <letter> char
 
 %%
 
@@ -101,35 +108,35 @@ global			: stddecl TOKEN_SEMICOLON	{$$ = $1;}
 				;
 
 //function prototypes, declared with or without parameters
-proto			: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, 0, 0);}
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, 0, 0);}
+proto			: ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, 0, 0);}
+				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, 0, 0);}
 				;
 
 //function implementations, defined with or without parameters and contain a body of statements
-function		: TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, $9, 0);}
-				| TOKEN_IDENT TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, $10, 0);}
+function		: ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, $9, 0);}
+				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, $10, 0);}
 				;
 
 /* ========================= STANDARD, CONSTANT, AND EXPRESSION DECLARATIONS ========================= */
 
 //standard declarations do not involve variable initialization
-stddecl			: TOKEN_IDENT TOKEN_COLON type 											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare a basic type
-				| TOKEN_IDENT TOKEN_COLON array											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare an array
+stddecl			: ident TOKEN_COLON type 											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare a basic type
+				| ident TOKEN_COLON array											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare an array
 				;
 
 //constant declarations involve variable initialization with a constant value
-cstdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_INTLIT				{$$ = decl_create($1, $3, $5, 0, 0);}			// positive integers
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS TOKEN_INTLIT	{$$ = decl_create($1, $3, $5, 0, 0);}			// accounts for negative integers
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_STRINGLIT				{$$ = decl_create($1, $3, $5, 0, 0);}
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_CHARLIT				{$$ = decl_create($1, $3, $5, 0, 0);}
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_TRUE					{$$ = decl_create($1, $3, $5, 0, 0);}
-				| TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN TOKEN_FALSE					{$$ = decl_create($1, $3, $5, 0, 0);}
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
+cstdecl			: ident TOKEN_COLON type TOKEN_ASSIGN value							{$$ = decl_create($1, $3, $5, 0, 0);}									// positive integers
+				| ident TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS value				{$$ = decl_create($1, $3, expr_create(EXPR_NEG, $6), 0, 0);}			// accounts for negative integers
+				| ident TOKEN_COLON type TOKEN_ASSIGN string						{$$ = decl_create($1, $3, $5, 0, 0);}
+				| ident TOKEN_COLON type TOKEN_ASSIGN char							{$$ = decl_create($1, $3, $5, 0, 0);}
+				| ident TOKEN_COLON type TOKEN_ASSIGN true							{$$ = decl_create($1, $3, $5, 0, 0);}
+				| ident TOKEN_COLON type TOKEN_ASSIGN false							{$$ = decl_create($1, $3, $5, 0, 0);}
+				| ident TOKEN_COLON array TOKEN_ASSIGN expr							{$$ = decl_create($1, $3, $5, 0, 0);}
 				;
 
 //expression declarations involve variable initialization with an expression or a constant
-expdecl			: TOKEN_IDENT TOKEN_COLON type TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
-				| TOKEN_IDENT TOKEN_COLON array TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
+expdecl			: ident TOKEN_COLON type TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
+				| ident TOKEN_COLON array TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
 				;
 
 /* ========================= STATEMENT PRODUCTION RULES ========================= */
@@ -181,8 +188,8 @@ array			: sizearr			{$$ = $1;}
 				;
 
 //array with a given size
-sizearr 		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET type		{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes a one-dimensional array of type 'type'
-				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_INTLIT TOKEN_RBRACKET sizearr	{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes n-dimensional arrays, must eventually take a 'type'
+sizearr 		: TOKEN_ARRAY TOKEN_LBRACKET value TOKEN_RBRACKET type		{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes a one-dimensional array of type 'type'
+				| TOKEN_ARRAY TOKEN_LBRACKET value TOKEN_RBRACKET sizearr	{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes n-dimensional arrays, must eventually take a 'type'
 				;
 
 //array without a given size
@@ -249,20 +256,44 @@ incdec			: incdec TOKEN_INCREMENT							{$$ = expr_create(EXPR_INC, $1, 0);}				
 
 //next highest priority after atomics
 group			: TOKEN_LPAREN expr TOKEN_RPAREN 					{$$ = expr_create(EXPR_GROUP, $2, 0);}								// an expresison within parentheses
-				| TOKEN_IDENT bracket								{$$ = expr_create(EXPR_ARRIND, expr_create_name($1), $2);}			// indexing an element of an array 
-				| TOKEN_IDENT TOKEN_LPAREN exprlist TOKEN_RPAREN	{$$ = expr_create(EXPR_FCALL, expr_create_name($1), $3);}			// result of a function call (with parameters)
-				| TOKEN_IDENT TOKEN_LPAREN TOKEN_RPAREN				{$$ = expr_create(EXPR_FCALL, expr_create_name($1), 0);}			// result of a function call (without parameters)
+				| ident bracket								{$$ = expr_create(EXPR_ARRIND, expr_create_name($1), $2);}			// indexing an element of an array 
+				| ident TOKEN_LPAREN exprlist TOKEN_RPAREN	{$$ = expr_create(EXPR_FCALL, expr_create_name($1), $3);}			// result of a function call (with parameters)
+				| ident TOKEN_LPAREN TOKEN_RPAREN				{$$ = expr_create(EXPR_FCALL, expr_create_name($1), 0);}			// result of a function call (without parameters)
 				| TOKEN_LCURLY exprlist TOKEN_RCURLY				{$$ = expr_create(EXPR_CURLS, $2, 0);}								// used in array initializer lists
 				| atomic											{$$ = $1;}															// can just be an 'atomic'
 				;																																		
 
+//identifier that is declared with a type
+ident 			: TOKEN_IDENT										{$$ = expr_create_name(strdup(yytext));}
+				;
+
+//integer literal that is declared with a type
+value			: TOKEN_INTLIT										{$$ = expr_create_integer_literal(atoi(yytext));}
+				;
+
+//string literal that is declared with a type
+string			: TOKEN_STRINGLIT									{$$ = expr_create_string_literal(strdup(yytext));}
+				;
+
+//char literal that is declared with a type
+char			: TOKEN_CHARLIT										{$$ = expr_create_char_literal(yytext[1]);}
+				;
+
+//true literal that is declared with a type
+true			: TOKEN_TRUE										{$$ = expr_create_boolean_literal(1);}
+				;
+
+//false literal that is declared with a type
+false			: TOKEN_FALSE										{$$ = expr_create_boolean_literal(0);}
+				;
+
 //the atomic types used in an expression
-atomic			: TOKEN_IDENT										{$$ = expr_create_name(strdup(yytext));}																											
-				| TOKEN_INTLIT										{$$ = expr_create_integer_literal(atoi(yytext));}
-				| TOKEN_STRINGLIT									{$$ = expr_create_string_literal(strdup(yytext));}
-				| TOKEN_CHARLIT										{$$ = expr_create_char_literal(yytext[1]);}
-				| TOKEN_TRUE										{$$ = expr_create_boolean_literal(1);}
-				| TOKEN_FALSE										{$$ = expr_create_boolean_literal(0);}
+atomic			: ident												{$$ = $1;}																											
+				| value												{$$ = $1;}
+				| string											{$$ = $1;}
+				| char												{$$ = $1;}
+				| true												{$$ = $1;}
+				| false												{$$ = $1;}
 				;
 
 /* ========================= MISCELLANEOUS PRODUCTION RULES ========================= */
@@ -285,14 +316,14 @@ exprlist		: expr TOKEN_COMMA exprlist
 				;
 
 //list of parameters that can be used to declare a function
-paramslist		: TOKEN_IDENT TOKEN_COLON type TOKEN_COMMA paramslist			
-				| TOKEN_IDENT TOKEN_COLON type
+paramslist		: ident TOKEN_COLON type TOKEN_COMMA paramslist			
+				| ident TOKEN_COLON type
 				| paramarr TOKEN_COMMA paramslist
 				| paramarr
 				;
 
 //an empty array that can be used as a parameter in function declaration
-paramarr		: TOKEN_IDENT TOKEN_COLON emptyarrs type
+paramarr		: ident TOKEN_COLON emptyarrs type
 				;
 
 //format for empty arrays in function parameters
