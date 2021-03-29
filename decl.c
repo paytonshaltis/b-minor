@@ -1,5 +1,6 @@
 #include "decl.h"
 #include "expr.h"
+#include "type.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,39 +17,46 @@ struct decl * decl_create( char *name, struct type *type, struct expr *value, st
 void decl_print( struct decl *d, int indent ) {
     //for all declarations...
     printf("%s : ", d->name);
+    type_print(d->type);
     
     //for declarations of type integer...
     if(d->type->kind == TYPE_INTEGER) {
-        
-        printf("integer");
 
         if(d->value != NULL){
+            printf(" = ");
             //expr_print(d->value);
-            printf(" expr");
+            printf("expr");
         }
         printf(";\n");
     }
 
     //for declarations of type string...
     if(d->type->kind == TYPE_STRING) {
-        
-        printf("string");
 
         if(d->value != NULL){
+            printf(" = ");
             //expr_print(d->value);
-            printf(" \"%s\"", d->value->string_literal);
+            printf("\"%s\"", d->value->string_literal);
         }
         printf(";\n");
     }
 
     //for declarations of type char...
     if(d->type->kind == TYPE_CHAR) {
-        
-        printf("char");
 
         if(d->value != NULL){
+            printf(" = ");
+            if(d->value->literal_value == 10){
+                printf("\'\\n\'");
+            }
+            else if(d->value->literal_value == 0){
+                printf("\'\\0\'");
+            }
+            else {
+                printf("\'%c\'", d->value->literal_value);
+            }
             //expr_print(d->value);
-            printf(" \'%c\'", d->value->literal_value);
+            
         }
         printf(";\n");
     }
@@ -56,15 +64,29 @@ void decl_print( struct decl *d, int indent ) {
     //for declarations of type boolean...
     if(d->type->kind == TYPE_BOOLEAN) {
 
-        printf("boolean");
-
         if(d->value != NULL){
+            printf(" = ");
             //expr_print(d->value);
-            printf(" expr");
+            printf("expr");
         }
         printf(";\n");
     }
     
+    //for declarations of type array...
+    if(d->type->kind == TYPE_ARRAY) {
+        
+        if(d->value != NULL) {
+            printf(" = ");
+            //expr_print(d->value);
+            printf("expr");
+        }
+        printf(";\n");
+    }
+
+    if(d->type->kind == TYPE_FUNCTION) {
+        printf(" INCOMPLETE");
+    }
+
     //prints out the next declaration with same indent
     if(d->next != NULL) {
         decl_print(d->next, 0);
