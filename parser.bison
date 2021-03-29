@@ -1,10 +1,12 @@
 %{
 #include <stdio.h>
 #include <stdlib.h> 
+#include <string.h>
 #include "decl.h" 
 #include "type.h"
 #include "stmt.h"
 #include "expr.h"
+#include "param_list.h"
 
 extern char* yytext;
 extern int yylex();
@@ -66,6 +68,7 @@ struct decl* parser_result = 0;
 	struct type* type;
 	struct stmt* stmt;
 	struct expr* expr;
+	struct param_list* param_list;
 	char* word;
 	int number;
 	char letter;
@@ -75,7 +78,8 @@ struct decl* parser_result = 0;
 %type <decl> program programlist decl global proto function stddecl cstdecl expdecl
 %type <type> type array sizearr nosizearr
 %type <stmt> stmtlist unbalanced balanced otherstmt
-%type <expr> atomic group incdec unary expon multdiv addsub comparison logand logor expr
+%type <expr> atomic group incdec unary expon multdiv addsub comparison logand logor expr exprfor exprlist bracket
+%type <param_list> paramslist paramarr emptyarrs
 %type <word> ident string
 %type <number> value true false
 %type <letter> char
@@ -120,13 +124,13 @@ function		: ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKE
 /* ========================= STANDARD, CONSTANT, AND EXPRESSION DECLARATIONS ========================= */
 
 //standard declarations do not involve variable initialization
-stddecl			: ident TOKEN_COLON type 											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare a basic type
-				| ident TOKEN_COLON array											{$$ = decl_create($1, $3, 0, 0, 0);}				// may declare an array
+stddecl			: ident TOKEN_COLON type 											{$$ = decl_create($1, $3, 0, 0, 0);}									// may declare a basic type
+				| ident TOKEN_COLON array											{$$ = decl_create($1, $3, 0, 0, 0);}									// may declare an array
 				;
 
 //constant declarations involve variable initialization with a constant value
 cstdecl			: ident TOKEN_COLON type TOKEN_ASSIGN value							{$$ = decl_create($1, $3, $5, 0, 0);}									// positive integers
-				| ident TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS value				{$$ = decl_create($1, $3, expr_create(EXPR_NEG, $6), 0, 0);}			// accounts for negative integers
+				| ident TOKEN_COLON type TOKEN_ASSIGN TOKEN_MINUS value				{$$ = decl_create($1, $3, expr_create(EXPR_NEG, $6, 0), 0, 0);}			// accounts for negative integers
 				| ident TOKEN_COLON type TOKEN_ASSIGN string						{$$ = decl_create($1, $3, $5, 0, 0);}
 				| ident TOKEN_COLON type TOKEN_ASSIGN char							{$$ = decl_create($1, $3, $5, 0, 0);}
 				| ident TOKEN_COLON type TOKEN_ASSIGN true							{$$ = decl_create($1, $3, $5, 0, 0);}
@@ -135,8 +139,8 @@ cstdecl			: ident TOKEN_COLON type TOKEN_ASSIGN value							{$$ = decl_create($1
 				;
 
 //expression declarations involve variable initialization with an expression or a constant
-expdecl			: ident TOKEN_COLON type TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
-				| ident TOKEN_COLON array TOKEN_ASSIGN expr						{$$ = decl_create($1, $3, $5, 0, 0);}
+expdecl			: ident TOKEN_COLON type TOKEN_ASSIGN expr							{$$ = decl_create($1, $3, $5, 0, 0);}
+				| ident TOKEN_COLON array TOKEN_ASSIGN expr							{$$ = decl_create($1, $3, $5, 0, 0);}
 				;
 
 /* ========================= STATEMENT PRODUCTION RULES ========================= */
@@ -188,8 +192,8 @@ array			: sizearr			{$$ = $1;}
 				;
 
 //array with a given size
-sizearr 		: TOKEN_ARRAY TOKEN_LBRACKET value TOKEN_RBRACKET type		{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes a one-dimensional array of type 'type'
-				| TOKEN_ARRAY TOKEN_LBRACKET value TOKEN_RBRACKET sizearr	{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes n-dimensional arrays, must eventually take a 'type'
+sizearr 		: TOKEN_ARRAY TOKEN_LBRACKET value TOKEN_RBRACKET type				{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes a one-dimensional array of type 'type'
+				| TOKEN_ARRAY TOKEN_LBRACKET value TOKEN_RBRACKET sizearr			{$$ = type_create(TYPE_ARRAY, $5, 0, $3);}		// this production describes n-dimensional arrays, must eventually take a 'type'
 				;
 
 //array without a given size
@@ -226,7 +230,7 @@ comparison		: comparison TOKEN_LESS addsub						{$$ = expr_create(EXPR_LESS, $1,
 
 //next highest priority after mult, div, and mod
 addsub			: addsub TOKEN_PLUS multdiv							{$$ = expr_create(EXPR_ADD, $1, $3);}								// adds multiple 'multdivs'
-				| addsub TOKEN_MINUS multdiv						{$$ = expr_create(EXPR_MINUS, $1, $3);}								// subtracts multiple 'multdivs'
+				| addsub TOKEN_MINUS multdiv						{$$ = expr_create(EXPR_SUB, $1, $3);}								// subtracts multiple 'multdivs'
 				| multdiv 											{$$ = $1;}															// can just be a 'multdiv'
 				;
 
@@ -256,9 +260,9 @@ incdec			: incdec TOKEN_INCREMENT							{$$ = expr_create(EXPR_INC, $1, 0);}				
 
 //next highest priority after atomics
 group			: TOKEN_LPAREN expr TOKEN_RPAREN 					{$$ = expr_create(EXPR_GROUP, $2, 0);}								// an expresison within parentheses
-				| ident bracket								{$$ = expr_create(EXPR_ARRIND, expr_create_name($1), $2);}			// indexing an element of an array 
-				| ident TOKEN_LPAREN exprlist TOKEN_RPAREN	{$$ = expr_create(EXPR_FCALL, expr_create_name($1), $3);}			// result of a function call (with parameters)
-				| ident TOKEN_LPAREN TOKEN_RPAREN				{$$ = expr_create(EXPR_FCALL, expr_create_name($1), 0);}			// result of a function call (without parameters)
+				| ident bracket										{$$ = expr_create(EXPR_ARRIND, expr_create_name($1), $2);}			// indexing an element of an array 
+				| ident TOKEN_LPAREN exprlist TOKEN_RPAREN			{$$ = expr_create(EXPR_FCALL, expr_create_name($1), $3);}			// result of a function call (with parameters)
+				| ident TOKEN_LPAREN TOKEN_RPAREN					{$$ = expr_create(EXPR_FCALL, expr_create_name($1), 0);}			// result of a function call (without parameters)
 				| TOKEN_LCURLY exprlist TOKEN_RCURLY				{$$ = expr_create(EXPR_CURLS, $2, 0);}								// used in array initializer lists
 				| atomic											{$$ = $1;}															// can just be an 'atomic'
 				;																																		
@@ -299,27 +303,27 @@ atomic			: ident												{$$ = $1;}
 /* ========================= MISCELLANEOUS PRODUCTION RULES ========================= */
 
 //expressions in for-loop fields may be expressions or omitted
-exprfor			: expr
-				|
+exprfor			: expr		{$$ = $1;}
+				|			{$$ = 0;}
 				;
 
 //possibly multiple brackets used for indexing an array
-bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET
-				| TOKEN_LBRACKET expr TOKEN_RBRACKET
+bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET	{$$ = $3, $3->next = $1;}
+				| TOKEN_LBRACKET expr TOKEN_RBRACKET			{$$ = $2;}
 				;
 
 
 
 //list of expressions for print statement and function call
-exprlist		: expr TOKEN_COMMA exprlist
-				| expr
+exprlist		: expr TOKEN_COMMA exprlist			{$$ = $1, $1->next = $3;}
+				| expr								{$$ = $1;}
 				;
 
 //list of parameters that can be used to declare a function
 paramslist		: ident TOKEN_COLON type TOKEN_COMMA paramslist			
 				| ident TOKEN_COLON type
-				| paramarr TOKEN_COMMA paramslist
-				| paramarr
+				| paramarr TOKEN_COMMA paramslist		{$$ = $1, $1->next = $3;}
+				| paramarr								{$$ = $1;}
 				;
 
 //an empty array that can be used as a parameter in function declaration

@@ -8,7 +8,7 @@ typedef enum {
 	TYPE_STRING,
 	TYPE_CHAR,
 	TYPE_BOOLEAN,
-	TYPE VOID,
+	TYPE_VOID,
 	TYPE_ARRAY,
 	TYPE_FUNCTION
 } type_t;
