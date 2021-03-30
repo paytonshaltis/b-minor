@@ -19,17 +19,17 @@ void decl_print( struct decl *d, int indent ) {
     printf("%s : ", d->name);
     type_print(d->type);
     
-    //for declarations of type integer...
+    //for declarations of type other than function...
     if(d->type->kind != TYPE_FUNCTION) {
 
         if(d->value != NULL){
             printf(" = ");
             expr_print(d->value);
-            //printf("expr");
         }
         printf(";\n");
     }
 
+    //for declarations of type function...
     if(d->type->kind == TYPE_FUNCTION) {
         
         if(d->code != NULL) {
