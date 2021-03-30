@@ -39,6 +39,9 @@ void decl_print( struct decl *d, int indent ) {
             printf("\tcode goes here");
             printf("\n}");
         }
+        else{
+            printf(";");
+        }
         printf("\n");
 
     }

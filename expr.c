@@ -8,7 +8,6 @@ struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) 
     e->kind = kind;
     e->left = left;
     e->right = right;
-    e->next = NULL;
     return e;
 }
 struct expr * expr_create_name( const char *n ) {
@@ -77,24 +76,32 @@ void expr_print(struct expr *e) {
         }
         printf("\'");
     }
-    /*need to test in a function*/ if(e->kind == EXPR_FCALL) {
+    if(e->kind == EXPR_FCALL) {
         expr_print(e->left);
         printf("(");
         expr_print(e->right);
         printf(")");
     }
-    /*need to test in a function*/ if(e->kind == EXPR_GROUP) {
+    if(e->kind == EXPR_GROUP) {
         printf("(");
         expr_print(e->left);
         printf(")");
     }
-    /*need to test in a function / unsure if correct*/ if(e->kind == EXPR_ARRIND) {
+    if(e->kind == EXPR_ARRIND) {
         expr_print(e->left);
         printf("[");
         expr_print(e->right);
         printf("]");
     }
-    /*currently testing*/ if(e->kind == EXPR_CURLS) {
+    if(e->kind == EXPR_BRACKET) {
+        expr_print(e->left);
+        printf("]");
+        if(e->right != NULL) {
+            printf("[");
+            expr_print(e->right);
+        }
+    }
+    if(e->kind == EXPR_CURLS) {
         printf("{");
         if(e->left != NULL) {
             expr_print(e->left);
@@ -108,6 +115,95 @@ void expr_print(struct expr *e) {
             expr_print(e->right);
         }
     }
-    /*need to test in a function*/
-    /*need to test in a function*/
+    if(e->kind == EXPR_INC) {
+        expr_print(e->left);
+        printf("++");
+    }
+    if(e->kind == EXPR_DEC) {
+        expr_print(e->left);
+        printf("--");
+    }
+    if(e->kind == EXPR_NOT) {
+        printf("!");
+        expr_print(e->left);
+    }
+    if(e->kind == EXPR_NEG) {
+        printf("-");
+        expr_print(e->left);
+    }
+    if(e->kind == EXPR_EXPON) {
+        expr_print(e->left);
+        printf("^");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_MOD) {
+        expr_print(e->left);
+        printf("%%");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_DIV) {
+        expr_print(e->left);
+        printf("/");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_MULT) {
+        expr_print(e->left);
+        printf("*");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_SUB) {
+        expr_print(e->left);
+        printf("-");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_ADD) {
+        expr_print(e->left);
+        printf("+");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_NEQUAL) {
+        expr_print(e->left);
+        printf("!=");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_EQUAL) {
+        expr_print(e->left);
+        printf("==");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_GE) {
+        expr_print(e->left);
+        printf(">=");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_GREATER) {
+        expr_print(e->left);
+        printf(">");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_LE) {
+        expr_print(e->left);
+        printf("<=");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_LESS) {
+        expr_print(e->left);
+        printf("<");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_AND) {
+        expr_print(e->left);
+        printf("&&");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_OR) {
+        expr_print(e->left);
+        printf("||");
+        expr_print(e->right);
+    }
+    if(e->kind == EXPR_ASSIGN) {
+        expr_print(e->left);
+        printf("=");
+        expr_print(e->right);
+    }
 }

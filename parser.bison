@@ -308,7 +308,7 @@ exprfor			: expr													{$$ = $1;}
 				;
 
 //possibly multiple brackets used for indexing an array
-bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET			{$$ = $3, $3->right = $1;}
+bracket			: TOKEN_LBRACKET expr TOKEN_RBRACKET bracket			{$$ = expr_create(EXPR_BRACKET, $2, $4)}
 				| TOKEN_LBRACKET expr TOKEN_RBRACKET					{$$ = $2;}
 				;
 
