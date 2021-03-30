@@ -315,7 +315,7 @@ bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET			{$$ = $3, $3->right = $
 
 
 //list of expressions for print statement and function call
-exprlist		: expr TOKEN_COMMA exprlist								{$$ = $1, $1->left = expr_create(EXPR_ARGS, $3, 0);}
+exprlist		: expr TOKEN_COMMA exprlist								{$$ = expr_create(EXPR_ARGS, $1, $3);}
 				| expr													{$$ = $1;}
 				;
 

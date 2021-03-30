@@ -8,6 +8,7 @@ struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) 
     e->kind = kind;
     e->left = left;
     e->right = right;
+    e->next = NULL;
     return e;
 }
 struct expr * expr_create_name( const char *n ) {
@@ -95,16 +96,16 @@ void expr_print(struct expr *e) {
     }
     /*currently testing*/ if(e->kind == EXPR_CURLS) {
         printf("{");
-        expr_print(e->left);
-        if(e->left->left != NULL) {
-            expr_print(e->left->left);
+        if(e->left != NULL) {
+            expr_print(e->left);
         }
         printf("}");
     }
-    /*currently testing*/ if(e->kind == EXPR_ARGS) {
-        if(e->left != NULL) {
+    if(e->kind == EXPR_ARGS) {
+        expr_print(e->left);
+        if(e->right != NULL) {
             printf(", ");
-            expr_print(e->left);
+            expr_print(e->right);
         }
     }
     /*need to test in a function*/
