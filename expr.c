@@ -55,12 +55,25 @@ void expr_print(struct expr *e) {
             if(e->string_literal[i] == 10) {
                 printf("\\n");
             }
-            if(e->string_literal[i] == 0) {
+            else if(e->string_literal[i] == 0) {
                 printf("\\0");
             }
             else{
                 printf("%c", e->string_literal[i]);
             }
         }
+    }
+    if(e->kind == EXPR_CHARLIT) {
+        printf("\'");
+        if(e->literal_value == 10) {
+            printf("\\n");
+        }
+        else if(e->literal_value == 0) {
+            printf("\\0");
+        }
+        else{
+            printf("%c", e->literal_value);
+        }
+        printf("\'");
     }
 }

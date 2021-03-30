@@ -14,9 +14,60 @@ extern void yyrestart();
 extern char *yytext;
 extern struct decl* parser_result;
 
+/* function used to modify 'yytext' for char and string literals */
+void modifyText(enum yytokentype t) {
+
+    /* creates a new array for storing characters one by one */
+    int stringSize = strlen(yytext) + 1;
+    char newyytext[stringSize];
+    int textPos = 0;
+
+    /* copies one character at a time, ignoring quotes 
+    and taking proper action for escape characters */
+    for(int i = 0; i < stringSize; i++) {
+        
+        /* in case of starting and ending quotes */
+        if((yytext[i] == '\"' && t == TOKEN_STRINGLIT) || (yytext[i] == '\'' && t == TOKEN_CHARLIT)) {
+            /* nothing should be duplicated into the 'newyytext' array */
+        }
+        
+        /* in case of escape sequence */
+        else if(yytext[i] == '\\') {
+            if(yytext[i+1] == 'n') {
+                newyytext[textPos] = 10;
+                textPos++;
+                i++;
+            }
+            else if(yytext[i+1] == '0') {
+                newyytext[textPos] = 0;
+                textPos++;
+                i++;
+            }
+            else {
+                newyytext[textPos] = yytext[i + 1];
+                textPos++;
+                i++;
+            }
+        }
+        
+        /* in case of any other character */
+        else {
+            newyytext[textPos] = yytext[i];
+            textPos++;
+        }
+    }
+
+    /* copies characters from 'newyytext' array to 'yytext' pointer,
+    overwriting the originally scanned string from the souce file 
+    with the new changes made within this function */
+    for(int i = 0; i < stringSize; i++) {
+        yytext[i] = newyytext[i];
+    }
+}
+
 /* main function */
 int main(int argc, char* argv[]) {
-    
+
     /* array that maps token value to name (implicitly through array indices) */
     char* tokenArray[46] = {   
         "ARRAY",
@@ -129,6 +180,8 @@ int main(int argc, char* argv[]) {
             }
             /* reached char literal or string literal token */
             else if((t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) && tokenOutput == 1) {
+                //cleans up the string or char literal
+                modifyText(t);
                 printf("%s %s\n", tokenArray[t - 258], yytext);
             }
             /* reached any other token */
