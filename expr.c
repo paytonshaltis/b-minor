@@ -76,4 +76,37 @@ void expr_print(struct expr *e) {
         }
         printf("\'");
     }
+    /*need to test in a function*/ if(e->kind == EXPR_FCALL) {
+        expr_print(e->left);
+        printf("(");
+        expr_print(e->right);
+        printf(")");
+    }
+    /*need to test in a function*/ if(e->kind == EXPR_GROUP) {
+        printf("(");
+        expr_print(e->left);
+        printf(")");
+    }
+    /*need to test in a function / unsure if correct*/ if(e->kind == EXPR_ARRIND) {
+        expr_print(e->left);
+        printf("[");
+        expr_print(e->right);
+        printf("]");
+    }
+    /*currently testing*/ if(e->kind == EXPR_CURLS) {
+        printf("{");
+        expr_print(e->left);
+        if(e->left->left != NULL) {
+            expr_print(e->left->left);
+        }
+        printf("}");
+    }
+    /*currently testing*/ if(e->kind == EXPR_ARGS) {
+        if(e->left != NULL) {
+            printf(", ");
+            expr_print(e->left);
+        }
+    }
+    /*need to test in a function*/
+    /*need to test in a function*/
 }

@@ -260,7 +260,7 @@ incdec			: incdec TOKEN_INCREMENT							{$$ = expr_create(EXPR_INC, $1, 0);}				
 
 //next highest priority after atomics
 group			: TOKEN_LPAREN expr TOKEN_RPAREN 					{$$ = expr_create(EXPR_GROUP, $2, 0);}															// an expresison within parentheses
-				| ident bracket										{$$ = expr_create(EXPR_ARRIND, expr_create_name($1), 0);}										// indexing an element of an array 
+				| ident bracket										{$$ = expr_create(EXPR_ARRIND, expr_create_name($1), $2);}										// indexing an element of an array 
 				| ident TOKEN_LPAREN exprlist TOKEN_RPAREN			{$$ = expr_create(EXPR_FCALL, expr_create_name($1), expr_create(EXPR_ARGS, $3, 0));}			// result of a function call (with parameters)
 				| ident TOKEN_LPAREN TOKEN_RPAREN					{$$ = expr_create(EXPR_FCALL, expr_create_name($1), 0);}										// result of a function call (without parameters)
 				| TOKEN_LCURLY exprlist TOKEN_RCURLY				{$$ = expr_create(EXPR_CURLS, $2, 0);}															// used in array initializer lists
@@ -315,7 +315,7 @@ bracket			: bracket TOKEN_LBRACKET expr TOKEN_RBRACKET			{$$ = $3, $3->right = $
 
 
 //list of expressions for print statement and function call
-exprlist		: expr TOKEN_COMMA exprlist								{$$ = $1, $1->right = expr_create(EXPR_ARGS, $3, 0);}
+exprlist		: expr TOKEN_COMMA exprlist								{$$ = $1, $1->left = expr_create(EXPR_ARGS, $3, 0);}
 				| expr													{$$ = $1;}
 				;
 
