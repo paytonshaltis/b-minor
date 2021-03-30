@@ -46,8 +46,9 @@ void type_print(struct type *t) {
     if(t->kind == TYPE_FUNCTION) {
         printf("function ");
         type_print(t->subtype);
-        //param_list_print(d->type->params);
-        printf(" (parameters)");
+        printf(" (");
+        param_list_print(t->params);
+        printf(")");
     }
 
 }

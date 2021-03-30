@@ -79,7 +79,7 @@ struct decl* parser_result = 0;
 %type <type> type array sizearr nosizearr
 %type <stmt> stmtlist unbalanced balanced otherstmt
 %type <expr> atomic group incdec unary expon multdiv addsub comparison logand logor expr exprfor exprlist bracket
-%type <param_list> paramslist paramarr emptyarrs
+%type <param_list> paramslist  
 %type <word> ident string
 %type <number> value true false
 %type <letter> char
@@ -322,17 +322,8 @@ exprlist		: expr TOKEN_COMMA exprlist								{$$ = expr_create(EXPR_ARGS, $1, $3
 //list of parameters that can be used to declare a function
 paramslist		: ident TOKEN_COLON type TOKEN_COMMA paramslist			{$$ = param_list_create($1, $3, $5);}	
 				| ident TOKEN_COLON type								{$$ = param_list_create($1, $3, 0);}
-				| paramarr TOKEN_COMMA paramslist						{$$ = $1, $1->next = $3;}
-				| paramarr												{$$ = $1;}
-				;
-
-//an empty array that can be used as a parameter in function declaration
-paramarr		: ident TOKEN_COLON emptyarrs type						{$$ = param_list_create($1, $4, $3);}
-				;
-
-//format for empty arrays in function parameters
-emptyarrs		: TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET emptyarrs	{$$ = param_list_create(0, 0, $4);}
-				| TOKEN_ARRAY TOKEN_LBRACKET TOKEN_RBRACKET				{$$ = param_list_create(0, 0, 0);}
+				| ident TOKEN_COLON nosizearr TOKEN_COMMA paramslist	{$$ = param_list_create($1, $3, $5);}
+				| ident TOKEN_COLON nosizearr							{$$ = param_list_create($1, $3, 0);}
 				;
 
 %%
