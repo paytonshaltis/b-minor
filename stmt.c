@@ -106,11 +106,11 @@ void stmt_print(struct stmt *s, int indent) {
         }
         printf(";");
         if(s->expr != NULL) {
-            expr_print(s->init_expr);
+            expr_print(s->expr);
         }
         printf(";");
         if(s->next_expr != NULL) {
-            expr_print(s->init_expr);
+            expr_print(s->next_expr);
         }
         printf(")\n");
 
