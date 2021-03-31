@@ -203,7 +203,7 @@ void expr_print(struct expr *e) {
     }
     if(e->kind == EXPR_ASSIGN) {
         expr_print(e->left);
-        printf("=");
+        printf(" = ");
         expr_print(e->right);
     }
 }

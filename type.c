@@ -43,6 +43,7 @@ void type_print(struct type *t) {
         printf("void");
     }
 
+    //for type function...
     if(t->kind == TYPE_FUNCTION) {
         printf("function ");
         type_print(t->subtype);

@@ -14,7 +14,7 @@ struct decl * decl_create( char *name, struct type *type, struct expr *value, st
     return d;
 }
 
-void decl_print( struct decl *d, int indent ) {
+void decl_print(struct decl *d, int indent) {
     //for all declarations...
     printf("%s : ", d->name);
     type_print(d->type);
@@ -34,10 +34,9 @@ void decl_print( struct decl *d, int indent ) {
         
         if(d->code != NULL) {
             printf(" = ");
-            printf("{\n");
-            //stmt_print(d->code, 1);
-            printf("\tcode goes here");
-            printf("\n}");
+            printf("\n{\n");
+            stmt_print(d->code, indent + 1);
+            printf("}");
         }
         else{
             printf(";");

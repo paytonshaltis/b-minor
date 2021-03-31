@@ -14,3 +14,130 @@ struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_exp
     s->next = next;
     return s;
 }
+
+void stmt_print(struct stmt *s, int indent) {
+    //indents to proper tabstop
+    for(int i = 0; i < indent; i++) {
+        printf("    ");
+    }
+    
+    //print statements
+    if(s->kind == STMT_PRINT) {
+        printf("print");
+        if(s->expr != NULL) {
+            printf(" ");
+            expr_print(s->expr);
+        }
+        printf(";\n");
+    }
+
+    //return statements
+    if(s->kind == STMT_RETURN) {
+        printf("return");
+        if(s->expr != NULL) {
+            printf(" ");
+            expr_print(s->expr);
+        }
+        printf(";\n");
+    }
+
+    //declaration statements
+    if(s->kind == STMT_DECL) {
+        decl_print(s->decl, indent);
+    }
+
+    //expression statements
+    if(s->kind == STMT_EXPR) {
+        expr_print(s->expr);
+        printf(";\n");
+    }
+
+    //if statements
+    if(s->kind == STMT_IF) {
+        printf("if (");
+        expr_print(s->expr);
+        printf(")\n");
+        
+        //ensures proper tabbing for block vs. single statements
+        if(s->body->kind != STMT_BLOCK) {
+            stmt_print(s->body, indent + 1);
+        }
+        else {
+            stmt_print(s->body, indent);
+        }
+    }
+
+    //if-else statements
+    if(s->kind == STMT_IF_ELSE) {
+        printf("if (");
+        expr_print(s->expr);
+        printf(")\n");
+        
+        //ensures proper tabbing for block vs. single statements
+        if(s->body->kind != STMT_BLOCK) {
+            stmt_print(s->body, indent + 1);
+        }
+        else {
+            stmt_print(s->body, indent);
+        }
+        
+        //ensures proper tabbing for else 
+        for(int i = 0; i < indent; i++) {
+            printf("    ");
+        }   
+        
+        printf("else\n");
+        
+        //ensures proper tabbing for block vs. single statements
+        if(s->else_body->kind != STMT_BLOCK) {
+            stmt_print(s->else_body, indent + 1);
+        }
+        else {
+            stmt_print(s->else_body, indent);
+        }
+    }
+
+    if(s->kind == STMT_FOR) {
+        printf("for (");
+        
+        //print each for expression if it exists
+        if(s->init_expr != NULL) {
+            expr_print(s->init_expr);
+        }
+        printf(";");
+        if(s->expr != NULL) {
+            expr_print(s->init_expr);
+        }
+        printf(";");
+        if(s->next_expr != NULL) {
+            expr_print(s->init_expr);
+        }
+        printf(")\n");
+
+        //print the body
+        if(s->body->kind != STMT_BLOCK) {
+            stmt_print(s->body, indent + 1);
+        }
+        else {
+            stmt_print(s->body, indent);
+        }
+    }
+
+    if(s->kind == STMT_BLOCK) {
+        printf("{\n");
+        stmt_print(s->body, indent + 1);
+        
+        //ensures proper tabbing for closing curly brace
+        for(int i = 0; i < indent; i++) {
+            printf("    ");
+        }
+
+        printf("}\n");
+    }
+
+    //prints the next statement in the list
+    if(s->next != NULL) {
+        stmt_print(s->next, indent);
+    }
+    
+}
