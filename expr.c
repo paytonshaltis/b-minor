@@ -36,7 +36,46 @@ struct expr * expr_create_string_literal( const char *str ) {
     return e;
 }
 
+/*returns the precedence level of an expression;
+greater number means a greater precedence level*/
+int precedence(struct expr* e) {
+
+    if(e->kind == EXPR_ASSIGN) {
+        return 1;
+    }    
+    if(e->kind == EXPR_OR) {
+        return 2;
+    }
+    if(e->kind == EXPR_AND) {
+        return 3;
+    }
+    if(e->kind == EXPR_LESS || e->kind == EXPR_LE || e->kind == EXPR_GREATER || e->kind == EXPR_GE || e->kind == EXPR_EQUAL || e->kind == EXPR_NEQUAL) {
+        return 4;
+    }
+    if(e->kind == EXPR_ADD || e->kind == EXPR_SUB) {
+        return 5;
+    }
+    if(e->kind == EXPR_MULT || e->kind == EXPR_DIV || e->kind == EXPR_MOD) {
+        return 6;
+    }
+    if(e->kind == EXPR_EXPON) {
+        return 7;
+    }
+    if(e->kind == EXPR_NOT || e->kind == EXPR_NEG) {
+        return 8;
+    }
+    if(e->kind == EXPR_INC || e->kind == EXPR_DEC) {
+        return 9;
+    }
+    if(e->kind == EXPR_ARRIND || e->kind == EXPR_FCALL || e->kind == EXPR_GROUP) {
+        return 10;
+    }
+
+    return -1;
+}
+
 void expr_print(struct expr *e) {
+
     if(e->kind == EXPR_NAME) {
         printf("%s", e->name);
     }
