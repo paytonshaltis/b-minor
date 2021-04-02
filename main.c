@@ -222,7 +222,12 @@ int main(int argc, char* argv[]) {
 
     if(printFlag == 1) {
         printf("Pretty Print:\n\n");
-        decl_print(parser_result, 0);
+        
+        // you cannot get here without passing the parsing phase,
+        // so a NULL 'parser_result' means we have an empty program
+        if(parser_result != NULL) {
+            decl_print(parser_result, 0);
+        }
         printf("\nEnd of Pretty Print\n");
     }
 

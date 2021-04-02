@@ -118,7 +118,9 @@ void expr_print(struct expr *e) {
     if(e->kind == EXPR_FCALL) {
         expr_print(e->left);
         printf("(");
-        expr_print(e->right);
+        if(e->right != NULL) {
+            expr_print(e->right);
+        }
         printf(")");
     }
     if(e->kind == EXPR_GROUP) {
