@@ -1,6 +1,7 @@
 %{
 #include "token.h"
 %}
+%option yylineno
 DIGIT  [0-9]
 LETTER [a-zA-Z]
 %%

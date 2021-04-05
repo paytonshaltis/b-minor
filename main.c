@@ -13,6 +13,7 @@ extern int yyparse();
 extern void yyrestart();
 extern char *yytext;
 extern struct decl* parser_result;
+extern int yylineno;
 
 /* function used to modify 'yytext' for char and string literals */
 void modifyText(enum yytokentype t) {
@@ -171,7 +172,7 @@ int main(int argc, char* argv[]) {
             }
             /* reached unrecognized token */
             else if(t==TOKEN_ERROR) {
-                fprintf(stderr, "Scan error: %s is not a valid token.\n", yytext);
+                fprintf(stderr, "Scan error near line %d: %s is not a valid token.\n", yylineno, yytext);
                 exit(1);
             }
             /* reached identifier or an integer literal token */
@@ -205,6 +206,9 @@ int main(int argc, char* argv[]) {
         yyin = fopen(filename,"r");
         yyrestart(yyin);
         
+        /* resets 'yylineno' for parsing */
+        yylineno = 1;
+
         /* if the source file has valid B-Minor syntax */
         if(yyparse() == 0) {
             if(parseOutput == 1) {

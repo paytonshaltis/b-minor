@@ -11,6 +11,7 @@
 extern char* yytext;
 extern int yylex();
 extern int yyerror(char* str);
+extern int yylineno;
 
 struct decl* parser_result = 0;
 
@@ -308,7 +309,7 @@ exprfor			: expr													{$$ = $1;}
 				;
 
 //possibly multiple brackets used for indexing an array
-bracket			: TOKEN_LBRACKET expr TOKEN_RBRACKET bracket			{$$ = expr_create(EXPR_BRACKET, $2, $4)}
+bracket			: TOKEN_LBRACKET expr TOKEN_RBRACKET bracket			{$$ = expr_create(EXPR_BRACKET, $2, $4);}
 				| TOKEN_LBRACKET expr TOKEN_RBRACKET					{$$ = $2;}
 				;
 
@@ -329,6 +330,6 @@ paramslist		: ident TOKEN_COLON type TOKEN_COMMA paramslist			{$$ = param_list_c
 %%
 
 int yyerror(char* str) {
-	printf("Parse error: %s\n",str);
+	printf("Parse error near line %d\n", yylineno);
 	return 1;
 }
