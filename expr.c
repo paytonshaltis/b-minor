@@ -124,9 +124,16 @@ void expr_print(struct expr *e) {
         printf(")");
     }
     if(e->kind == EXPR_GROUP) {
-        printf("(");
-        expr_print(e->left);
-        printf(")");
+        
+        /* no need for more than one set of parens (group in group) */
+        if(e->left->kind == EXPR_GROUP) {
+            expr_print(e->left);
+        }
+        else {
+            printf("(");
+            expr_print(e->left);
+            printf(")");
+        }
     }
     if(e->kind == EXPR_ARRIND) {
         expr_print(e->left);
@@ -244,7 +251,7 @@ void expr_print(struct expr *e) {
     }
     if(e->kind == EXPR_ASSIGN) {
         expr_print(e->left);
-        printf(" = ");
+        printf("=");
         expr_print(e->right);
     }
 }
