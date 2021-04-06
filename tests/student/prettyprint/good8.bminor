@@ -1,0 +1,19 @@
+// testing good parenthesis elimination when not needed
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // simplifies any expressions with nested groups
+    x : integer = ((((1 + 3))) * (((1 + 3))));
+    y : string = (((((((((((("this is not" + "needed here"))))))))))));
+
+    // simplifies any expression with either an atomic or unary operation
+    a : boolean = (false);
+    b : char = ((('c')));
+    c : integer = ((-456));
+    d : boolean = ((((!!value))));
+
+    // order of operations does not require parens here
+    i = (1 + 2) + 3 + 4;
+    j = (1 * 3 / 2) * (1) % 0;
+    k = (1 * 2) + 3 - ((4^6) / (val++ / 3));
+}

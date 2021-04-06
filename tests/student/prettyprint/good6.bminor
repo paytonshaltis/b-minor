@@ -1,0 +1,43 @@
+// testing good for-loops
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    // normal loop with three expressions
+    for(i = 0; i < 10; i++) {
+        print i;
+    }
+
+    // leaving out expressions
+    for(i = 0; i < 10;)
+        print i;
+    
+    for(i = 0;; i++)
+        print i;
+
+    for(; i < 10; i++)
+        print i;
+
+    for(i = 0;;)
+        print i;
+
+    for(; i < 10;)
+        print i;
+
+    for(;; i++)
+        print i;
+
+    // nested for loops and if statements print out correctly
+    for(;;) {
+        for(i = 0;; i++) {
+            for(j;j;j) {
+                if(j = j) {
+                    for(;;) {
+                        print "woah.";
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}

@@ -1,0 +1,13 @@
+// testing good function prototypes and implementations with and without parameters
+
+
+f1 : function string ();
+f2 : function void (ch : char, arr : array [] integer);
+
+f3 : function boolean (int : integer) = {
+    return false;
+}
+
+main : function integer (argc : integer, argv : array [] string) = {
+    return 0;
+}

@@ -1,0 +1,40 @@
+// testing good if statement constructs, including if/else and dangling else
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    if(foo(bar)) {
+        print "FooBar";
+    }
+    else {
+        if(bar(foo)) {
+            print "BarFoo";
+        }
+        else {
+            return 0;
+        }
+    }
+
+    print "===========================";
+    // the above should look similar to this code:
+
+    if(foo(bar)) 
+        print "FooBar";
+    else 
+        if(bar(foo)) 
+            print "BarFoo";
+        else 
+            return 0;
+
+    print "===========================";
+    // dangling else that looks like this:
+
+    if(foo(bar)) 
+    if(bar(foo)) 
+    print "BarFoo";
+    else 
+    return 0;
+
+    // dangling else is resolved by matching the closest if and else
+    
+    return 0;
+}

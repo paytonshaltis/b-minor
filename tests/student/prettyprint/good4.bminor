@@ -1,0 +1,9 @@
+// testing good complex expressions with several kinds within
+// note : no paren simplification needed here!
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    complex_variable : integer = (1 + 2) * 3 / 4 % 5 && 6 || -7 + (!false && apples - 8) * number;
+    a = b = c = d = 887;
+    return 0;
+}

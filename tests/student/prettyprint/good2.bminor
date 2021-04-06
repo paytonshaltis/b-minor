@@ -1,0 +1,18 @@
+// testing good global and local declarations and initializations
+
+g1 : integer;
+g2 : integer = -10;
+
+g3 : array [8] char;
+g4 : array [2] string = {"Hello", "World!"}; 
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    l1 : string;
+    l2 : string = "this is local";
+
+    l3 : boolean;
+    l4 : boolean = true;
+    
+    return 0;
+}

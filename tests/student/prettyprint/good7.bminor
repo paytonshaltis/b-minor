@@ -1,0 +1,16 @@
+// testing good function calls and array indexing
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    foo(x, y, z);
+    foobar();
+    foo(foo(foo(bar)));
+
+    one() + two(1) + three(4 && 5);
+
+    arr : array [3] array [2] array [1] char;
+    print arr[1];
+    print arr[1][2][var][567][34 % 3][catt][cat][foo()][3];
+
+    return 0;
+}

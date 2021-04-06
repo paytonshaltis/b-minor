@@ -1,0 +1,13 @@
+// testing good string and char escape sequences UNTRANSLATED
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    str1 : string = "This should have a new line here --> \n";
+    str2 : string = "And this should have a NULL-terminator character \0 <-- here!";
+
+    cha1 : char = 't';
+    cha2 : char = '\n';
+    cha3 : char = '\0';
+    
+    return 0;
+}
