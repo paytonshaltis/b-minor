@@ -1,0 +1,35 @@
+// testing bad if statement; unbalanced curly braces in main function
+// should report parse error on line 34 (this is the line after the block statement should have ended, never fully parsed)
+
+a : char = 'a';
+b : boolean = false;
+
+x : integer = -4;
+y : string;
+z : array [5] array [5] char;
+
+helper : function string (number : integer);
+
+helper : function string (number : integer) = {
+    
+    if(number == 1) {
+        return "one";
+    }
+    if(number == 2) {
+        return "two";
+    }
+    if(number == 3) {
+        return "three";
+    }
+    
+    return "unknown";
+}
+
+main: function integer (argc: integer, argv: array [] string) = {
+    
+    n : integer = atoi(argv[1]);
+    if(helper(n) == "two") 
+        print "Helper function worked!";
+    }
+    return 0;
+}

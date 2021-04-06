@@ -1,0 +1,10 @@
+// testing bad function implementation: missing the equals sign
+// should report parse error on line 8
+
+a : char = 'a';
+b : boolean = false;
+
+/* main function */
+main: function integer (argc: integer, argv: array [] string) {
+    return 0;
+}

@@ -1,0 +1,37 @@
+// testing bad backwards compatability with scanner; invalid token should report line number
+// should report scan error on line 30
+
+a : char = 'a';
+b : boolean = false;
+
+x : integer = -4;
+y : string;
+z : array [5] array [5] char;
+
+helper : function string (number : integer);
+
+helper : function string (number : integer) = {
+    
+    if(number == 1) {
+        return "one";
+    }
+    if(number == 2) {
+        return "two";
+    }
+    if(number == 3) {
+        return "three";
+    }
+    
+    return "unknown";
+}
+
+main: function integer (argc: integer, argv: array [] string) = {
+    
+    $$ = $4 + $5;
+
+    n : integer = atoi(argv[1]);
+    if(helper(n) == "two") {
+        print "Helper function worked!";
+    }
+    return 0;
+}

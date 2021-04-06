@@ -1,0 +1,38 @@
+// testing bad arrays of no defined size; even one array in a multidimensional array shouldn't parse
+// should report parse error on line 31
+
+a : char = 'a';
+b : boolean = false;
+
+x : integer = -4;
+y : string;
+z : array [5] array [5] char;
+
+helper : function string (number : integer);
+
+helper : function string (number : integer) = {
+    
+    if(number == 1) {
+        return "one";
+    }
+    if(number == 2) {
+        return "two";
+    }
+    if(number == 3) {
+        return "three";
+    }
+    
+    return "unknown";
+}
+
+main: function integer (argc: integer, argv: array [] string) = {
+
+    correct : array [3] array [2] integer = { { {1, 2}, {3, 4} }, { {5, 6}, {7, 8} }, { {9, 10}, {11, 12} } };
+    incorrect : array [5] array [6] array [7] array [] char;
+
+    n : integer = atoi(argv[1]);
+    if(helper(n) == "two") {
+        print "Helper function worked!";
+    }
+    return 0;
+}

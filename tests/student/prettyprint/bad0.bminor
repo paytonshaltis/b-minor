@@ -1,0 +1,7 @@
+// testing a statement in the global scope
+// should report parse error on line 7
+
+a : char = 'a';
+b : boolean = false;
+
+print "Hello, World!";

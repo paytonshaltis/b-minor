@@ -1,0 +1,30 @@
+// testing bad parameter lists in function implementations; name and type swapped
+// should report parse error on line 13
+
+a : char = 'a';
+b : boolean = false;
+
+x : integer = -4;
+y : string;
+z : array [5] array [5] char;
+
+helper : function string (number : integer);
+
+helper : function string (integer : number) = {
+    
+    if(number == 1) {
+        return "one";
+    }
+    if(number == 2) {
+        return "two";
+    }
+    if(number == 3) {
+        return "three";
+    }
+    
+    return "unknown";
+}
+
+main: function integer (argc: integer, argv: array [] string) = {
+    return 0;
+}

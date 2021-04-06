@@ -1,0 +1,14 @@
+// testing bad global declarations; no expressions allowed in global scope
+// should report parse error on line 10
+
+a : char = 'a';
+b : boolean = false;
+
+x : integer = -4;
+y : string;
+z : array [5] array [5] char;
+z[3][4] = 'x';
+
+main: function integer (argc: integer, argv: array [] string) = {
+    return 0;
+}
