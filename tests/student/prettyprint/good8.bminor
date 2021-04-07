@@ -3,8 +3,8 @@
 main : function integer (argc : integer, argv : array [] string) = {
 
     // simplifies any expressions with nested groups
-    x : integer = ((((1 + 3))) * (((1 + 3))));
-    y : string = (((((((((((("this is not" + "needed here"))))))))))));
+    x : integer = ((((1 + 3))) * (((1 + 3)))) + 8;
+    y : string = (((((((((((("this is not needed here"))))))))))));
 
     // simplifies any expression with either an atomic or unary operation
     a : boolean = (false);
@@ -15,5 +15,6 @@ main : function integer (argc : integer, argv : array [] string) = {
     // order of operations does not require parens here
     i = (1 + 2) + 3 + 4;
     j = (1 * 3 / 2) * (1) % 0;
-    k = (1 * 2) + 3 - ((4^6) / (val++ / 3));
+    k = (1 * 2) + 3 - ((4^6) / val++ / 3);
+    l = 5 + (((7^3) / 7) * 7);
 }

@@ -60,5 +60,6 @@ struct expr * expr_create_string_literal( const char *str );
 
 void expr_print( struct expr *e );
 int precedence(struct expr* e);
+int unaryExpr(expr_t t);
 
 #endif

@@ -74,7 +74,42 @@ int precedence(struct expr* e) {
     return -1;
 }
 
+int unaryExpr(expr_t t) {
+
+    if(t == EXPR_INTLIT || t == EXPR_STRINGLIT || t == EXPR_CHARLIT || t == EXPR_BOOLLIT || t == EXPR_NAME || t == EXPR_INC || t == EXPR_DEC || t == EXPR_NEG || t == EXPR_NOT) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void expr_print(struct expr *e) {
+
+    /* for each expression, first consider the left and right sides, if applicable */
+    
+    /* if the left side of an expression is a group, do the following: */
+    if(e->left != NULL && e->left->kind == EXPR_GROUP) {
+        
+        /* if the precedence of the expression within the group is less than OR EQUAL TO the precedence of the outer expression */
+        if(precedence(e->left->left) >= precedence(e)) {
+
+            /* we can extract the expression from the group, replacing e->left */
+            e->left = e->left->left;
+
+        }
+    }
+
+    /* if the right side of an expression is a group, do the following: */
+    if(e->right != NULL && e->right->kind == EXPR_GROUP) {
+        
+        /* if the precedence of the expression within the group is less than the precedence of the outer expression */
+        if(precedence(e->right->left) > precedence(e)) {
+
+            /* we can extract the expression from the group, replacing e->right */
+            e->right = e->right->left;
+            
+        }
+    }
 
     if(e->kind == EXPR_NAME) {
         printf("%s", e->name);
@@ -129,6 +164,12 @@ void expr_print(struct expr *e) {
         if(e->left->kind == EXPR_GROUP) {
             expr_print(e->left);
         }
+        
+        /* no need for parens around a single term / unary expression */
+        else if(unaryExpr(e->left->kind) == 1) {
+            expr_print(e->left);
+        }
+
         else {
             printf("(");
             expr_print(e->left);
