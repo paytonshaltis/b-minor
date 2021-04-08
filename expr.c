@@ -3,6 +3,7 @@
 #include <string.h>
 #include "expr.h"
 
+// basic factory function for creating an 'expr' struct (basic expression)
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
     struct expr *e = malloc(sizeof(*e));
     e->kind = kind;
@@ -10,34 +11,43 @@ struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) 
     e->right = right;
     return e;
 }
+
+// basic factory function for creating an 'expr' struct (identifier)
 struct expr * expr_create_name( const char *n ) {
     struct expr *e = expr_create(EXPR_NAME, 0, 0);
     e->name = n;
     return e;
 }
+
+// basic factory function for creating an 'expr' struct (integer literal)
 struct expr * expr_create_integer_literal( int c ) {
     struct expr *e = expr_create(EXPR_INTLIT, 0, 0);
     e->literal_value = c;
     return e;
 }
+
+// basic factory function for creating an 'expr' struct (boolean literal)
 struct expr * expr_create_boolean_literal( int c ) {
     struct expr *e = expr_create(EXPR_BOOLLIT, 0, 0);
     e->literal_value = c;
     return e;
 }
+
+// basic factory function for creating an 'expr' struct (char literal)
 struct expr * expr_create_char_literal( char c ) {
     struct expr *e = expr_create(EXPR_CHARLIT, 0, 0);
     e->literal_value = c;
     return e;
 }
+
+// basic factory function for creating an 'expr' struct (string literal)
 struct expr * expr_create_string_literal( const char *str ) {
     struct expr *e = expr_create(EXPR_STRINGLIT, 0, 0);
     e->string_literal = str;
     return e;
 }
 
-/*returns the precedence level of an expression;
-greater number means a greater precedence level*/
+// returns the precedence level of an expression; greater number means a greater precedence level
 int precedence(struct expr* e) {
 
     if(e->kind == EXPR_ASSIGN) {
@@ -74,6 +84,7 @@ int precedence(struct expr* e) {
     return -1;
 }
 
+// returns 1 if the expression t is an atomic type or some unary expression (can be removed from parenthesis if solo, for example: (var++) --> var++)
 int unaryExpr(expr_t t) {
 
     if(t == EXPR_INTLIT || t == EXPR_STRINGLIT || t == EXPR_CHARLIT || t == EXPR_BOOLLIT || t == EXPR_NAME || t == EXPR_INC || t == EXPR_DEC || t == EXPR_NEG || t == EXPR_NOT) {
@@ -83,14 +94,17 @@ int unaryExpr(expr_t t) {
     return 0;
 }
 
+// printing function for use by the pretty printer
 void expr_print(struct expr *e) {
 
-    /* for each expression, first consider the left and right sides, if applicable */
+    /* for each expression, first consider the left and right sides. NOTE: single groups are not affected here, 
+    they are dealt with in the expr_print for 'group' section below, as well as nested groups! */
     
     /* if the left side of an expression is a group, do the following: */
     if(e->left != NULL && e->left->kind == EXPR_GROUP) {
         
-        /* if the precedence of the expression within the group is less than OR EQUAL TO the precedence of the outer expression */
+        /* if the precedence of the expression within the group is greater than OR EQUAL TO the precedence of the outer expression 
+        (we include equal to because order of ops prioritizes expressions left to right, so no need for parens if left is equal priority!)*/
         if(precedence(e->left->left) >= precedence(e)) {
 
             /* we can extract the expression from the group, replacing e->left */
@@ -102,7 +116,7 @@ void expr_print(struct expr *e) {
     /* if the right side of an expression is a group, do the following: */
     if(e->right != NULL && e->right->kind == EXPR_GROUP) {
         
-        /* if the precedence of the expression within the group is less than the precedence of the outer expression */
+        /* if the precedence of the expression within the group is greater than the precedence of the outer expression */
         if(precedence(e->right->left) > precedence(e)) {
 
             /* we can extract the expression from the group, replacing e->right */
@@ -110,6 +124,8 @@ void expr_print(struct expr *e) {
             
         }
     }
+
+    /* after expressions have been extracted from groups if necessary, we can print normally */
 
     if(e->kind == EXPR_NAME) {
         printf("%s", e->name);
@@ -125,6 +141,8 @@ void expr_print(struct expr *e) {
             printf("true");
     }
     if(e->kind == EXPR_STRINGLIT) {
+        
+        // go character by character, and print escape sequences literally if found
         for(int i = 0; i < strlen(e->string_literal); i++) {
             if(e->string_literal[i] == 10) {
                 printf("\\n");
@@ -139,6 +157,8 @@ void expr_print(struct expr *e) {
     }
     if(e->kind == EXPR_CHARLIT) {
         printf("\'");
+        
+        // print escape sequences literally if found
         if(e->literal_value == 10) {
             printf("\\n");
         }
@@ -153,6 +173,8 @@ void expr_print(struct expr *e) {
     if(e->kind == EXPR_FCALL) {
         expr_print(e->left);
         printf("(");
+        
+        // in case the function call requires no parameters
         if(e->right != NULL) {
             expr_print(e->right);
         }
@@ -160,7 +182,7 @@ void expr_print(struct expr *e) {
     }
     if(e->kind == EXPR_GROUP) {
         
-        /* no need for more than one set of parens (group in group) */
+        /* no need for more than one set of parens (((((like this))))) */
         if(e->left->kind == EXPR_GROUP) {
             expr_print(e->left);
         }
@@ -170,6 +192,7 @@ void expr_print(struct expr *e) {
             expr_print(e->left);
         }
 
+        /* if parens are absolutely required */
         else {
             printf("(");
             expr_print(e->left);

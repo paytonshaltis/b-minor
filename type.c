@@ -2,23 +2,32 @@
 #include <stdlib.h>
 #include "type.h"
 
+// basic factory function for creating a 'type' struct
 struct type * type_create( type_t kind, struct type *subtype, struct param_list *params, int size ) {
     struct type *t = malloc(sizeof(*t));
-    t->kind = kind;
-    t->subtype = subtype;
-    t->params = params;
-    t->size = size;
+    t->kind = kind;                         // used for all
+    t->subtype = subtype;                   // used for functions and arrays
+    t->params = params;                     // only used for functions
+    t->size = size;                         // only used for arrays
     return t;
 }
 
+// printing function for use by the pretty printer
 void type_print(struct type *t) {
-    //for type array...
+    
+    // for type array
     if(t->kind == TYPE_ARRAY) {
+        
+        // as long as the array has a subytype
         if(t->subtype != NULL) {
+            
+            // if the array size is given
             if(t->size != 0) {
                 printf("array[%i] ", t->size);
                 type_print(t->subtype);
             }
+            
+            // if the array does not have a size (parameter passing only)
             else {
                 printf("array[] ");
                 type_print(t->subtype);   
@@ -26,7 +35,7 @@ void type_print(struct type *t) {
         }
     }
 
-    //for basic types...
+    // for the basic types
     if(t->kind == TYPE_INTEGER) {
         printf("integer");
     }
@@ -43,11 +52,13 @@ void type_print(struct type *t) {
         printf("void");
     }
 
-    //for type function...
+    // for type function
     if(t->kind == TYPE_FUNCTION) {
         printf("function ");
         type_print(t->subtype);
         printf(" (");
+        
+        // only prints parameter list if the function has parameters
         if(t->params != NULL) {
             param_list_print(t->params);
         }

@@ -224,6 +224,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    /* printing phase: done with the command line option -print */
     if(printFlag == 1) {
         printf("Pretty Print:\n\n");
         

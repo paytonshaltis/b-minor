@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "stmt.h"
 
+// basic factory function for creating a 'stmt' struct
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
     struct stmt *s = malloc(sizeof(*s));
     s->kind = kind;
@@ -15,15 +16,19 @@ struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_exp
     return s;
 }
 
+// printing function for use by pretty printer
 void stmt_print(struct stmt *s, int indent) {
-    //indents to proper tabstop
+   
+    // indents to proper tabstop
     for(int i = 0; i < indent; i++) {
         printf("    ");
     }
     
-    //print statements
+    // print statements
     if(s->kind == STMT_PRINT) {
         printf("print");
+        
+        // only prints if something follows "print"
         if(s->expr != NULL) {
             printf(" ");
             expr_print(s->expr);
@@ -31,9 +36,11 @@ void stmt_print(struct stmt *s, int indent) {
         printf(";\n");
     }
 
-    //return statements
+    // return statements
     if(s->kind == STMT_RETURN) {
         printf("return");
+        
+        // only prints if something follows "return"
         if(s->expr != NULL) {
             printf(" ");
             expr_print(s->expr);
@@ -41,24 +48,24 @@ void stmt_print(struct stmt *s, int indent) {
         printf(";\n");
     }
 
-    //declaration statements
+    // declaration statements
     if(s->kind == STMT_DECL) {
         decl_print(s->decl, indent);
     }
 
-    //expression statements
+    // expression statements
     if(s->kind == STMT_EXPR) {
         expr_print(s->expr);
         printf(";\n");
     }
 
-    //if statements
+    // if statements
     if(s->kind == STMT_IF) {
         printf("if (");
         expr_print(s->expr);
         printf(")\n");
         
-        //ensures proper tabbing for block vs. single statements
+        // ensures proper tabbing for block vs. single statements
         if(s->body->kind != STMT_BLOCK) {
             stmt_print(s->body, indent + 1);
         }
@@ -67,7 +74,7 @@ void stmt_print(struct stmt *s, int indent) {
         }
     }
 
-    //if-else statements
+    // if-else statements
     if(s->kind == STMT_IF_ELSE) {
         printf("if (");
         expr_print(s->expr);
@@ -81,14 +88,14 @@ void stmt_print(struct stmt *s, int indent) {
             stmt_print(s->body, indent);
         }
         
-        //ensures proper tabbing for else 
+        // ensures proper tabbing for else 
         for(int i = 0; i < indent; i++) {
             printf("    ");
         }   
         
         printf("else\n");
         
-        //ensures proper tabbing for block vs. single statements
+        // ensures proper tabbing for block vs. single statements
         if(s->else_body->kind != STMT_BLOCK) {
             stmt_print(s->else_body, indent + 1);
         }
@@ -97,10 +104,11 @@ void stmt_print(struct stmt *s, int indent) {
         }
     }
 
+    // for statements
     if(s->kind == STMT_FOR) {
         printf("for (");
         
-        //print each for expression if it exists
+        // print each for-loop expression if it exists
         if(s->init_expr != NULL) {
             expr_print(s->init_expr);
         }
@@ -114,7 +122,7 @@ void stmt_print(struct stmt *s, int indent) {
         }
         printf(")\n");
 
-        //print the body
+        //print the body w/ proper indenting
         if(s->body->kind != STMT_BLOCK) {
             stmt_print(s->body, indent + 1);
         }
@@ -123,6 +131,7 @@ void stmt_print(struct stmt *s, int indent) {
         }
     }
 
+    // for block statements
     if(s->kind == STMT_BLOCK) {
         printf("{\n");
         stmt_print(s->body, indent + 1);
@@ -135,7 +144,7 @@ void stmt_print(struct stmt *s, int indent) {
         printf("}\n");
     }
 
-    //prints the next statement in the list
+    // prints the next statement in the list
     if(s->next != NULL) {
         stmt_print(s->next, indent);
     }
