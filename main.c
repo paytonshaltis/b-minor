@@ -123,13 +123,15 @@ int main(int argc, char* argv[]) {
     int scanFlag = 0;
     int parseFlag = 0;
     int printFlag = 0;
+    int resolveFlag = 0;
     int index = 0;
 
     /* array of options; currently only contains "scan" and the required "all-0s" option structs */
     struct option options[] = { 
         {"scan", required_argument, &scanFlag, 1},
         {"parse", required_argument, &parseFlag, 1},
-        {"print", required_argument, &printFlag, 1}, 
+        {"print", required_argument, &printFlag, 1},
+        {"resolve", required_argument, &resolveFlag, 1}, 
         {0, 0, 0, 0} 
     };
 
@@ -151,13 +153,13 @@ int main(int argc, char* argv[]) {
     }
 
     /* tokens should only be output during the scanning phase if '-scan' option is used */
-    int tokenOutput = 1;
-    if(parseFlag == 1 || printFlag == 1) {
-       tokenOutput = 0;
+    int tokenOutput = 0;
+    if(scanFlag == 1) {
+       tokenOutput = 1;
     }
 
     /* scanning phase: done with all command line options */
-    if(scanFlag == 1 || parseFlag == 1 || printFlag == 1) {
+    if(scanFlag == 1 || parseFlag == 1 || printFlag == 1 || resolveFlag == 1) {
 
         /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
         while(1) {
@@ -193,13 +195,13 @@ int main(int argc, char* argv[]) {
     }
     
     /* parser status should only be output during the parsing phase if '-parse' option is used */
-    int parseOutput = 1;
-    if(printFlag == 1) {
-       parseOutput = 0;
+    int parseOutput = 0;
+    if(parseFlag == 1) {
+       parseOutput = 1;
     }
 
     /* parsing phase: done with all command line options other than '-scan' */
-    if(parseFlag == 1 || printFlag == 1) {
+    if(parseFlag == 1 || printFlag == 1 || resolveFlag == 1) {
         
         /* reopens and restarts the source file so parsing may
         begin from the beginning of the file after scanning */
@@ -236,6 +238,11 @@ int main(int argc, char* argv[]) {
         printf("\nEnd of Pretty Print\n");
     }
 
+    /* typechecking phase: done with the command line option -resolve */
+    if(resolveFlag == 1) {
+        printf("This is the resolution phase.\n");
+    }
+    
     /* completed each phase of the compiler */
     exit(0);
 }
