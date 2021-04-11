@@ -7,8 +7,9 @@
 #include "symbol.h"
 
 struct stack {
-    struct hash_table* thisTable;       // the hash table pointed to by this node in the stack
-    struct hash_table* nextTable;       // the next hash table pointed to by this node inthe stack
+    symbol_t thisScope;             // stores the scope of this node in the stack, either local, global, or param
+    struct hash_table* table;       // the hash table pointed to by this node in the stack
+    struct stack* next;             // the next stack node pointed to by this node in the stack
 };
 
 void scope_enter();
