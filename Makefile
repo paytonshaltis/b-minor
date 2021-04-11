@@ -37,7 +37,7 @@ hash_table.o: hash_table.c hash_table.h
 symbol.o: symbol.c symbol.h type.h
 	gcc symbol.c -c -o symbol.o
 
-scope.o: scope.c scope.h hash_table.h
+scope.o: scope.c scope.h hash_table.h symbol.h
 	gcc scope.c -c -o scope.o
 
 clean:
