@@ -1,5 +1,5 @@
-bminor: main.o scanner.o parser.o decl.o type.o stmt.o expr.o param_list.o
-	gcc main.o scanner.o parser.o decl.o type.o stmt.o expr.o param_list.o -o bminor
+bminor: main.o scanner.o parser.o decl.o type.o stmt.o expr.o param_list.o hash_table.o symbol.o
+	gcc main.o scanner.o parser.o decl.o type.o stmt.o expr.o param_list.o hash_table.o symbol.o -o bminor
 
 main.o: main.c token.h parser.c
 	gcc main.c -c -o main.o
@@ -31,5 +31,11 @@ expr.o: expr.c expr.h
 param_list.o: param_list.c param_list.h
 	gcc param_list.c -c -o param_list.o
 
+hash_table.o: hash_table.c hash_table.h
+	gcc hash_table.c -c -o hash_table.o
+
+symbol.o: symbol.c symbol.h type.h
+	gcc symbol.c -c -o symbol.o
+
 clean:
-	rm -f scanner.c scanner.o parser.c parser.o parser.output token.h main.o decl.o type.o stmt.o expr.o param_list.o bminor
+	rm -f scanner.c scanner.o parser.c parser.o parser.output token.h main.o decl.o type.o stmt.o expr.o param_list.o hash_table.o symbol.o bminor
