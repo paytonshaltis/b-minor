@@ -5,13 +5,13 @@
 #include <stdio.h>
 
 // this is the master stack that will be used by all functions below
-struct stack* theStackTop;
+struct stack_node* theStackTop;
 
 // pushes a new hash table on top of the stack, indicating entry of a new scope
 void scope_enter() {
     
     // allocates memory for the new stack node 
-    struct stack* newStackNode = malloc(sizeof(*newStackNode));
+    struct stack_node* newStackNode = malloc(sizeof(*newStackNode));
     
     // assigns a scope symbol based on the scope
     if(theStackTop == NULL) {
@@ -37,7 +37,7 @@ void scope_enter() {
 void scope_exit() {
 
     // create a pointer to point to the top node of the stack
-    struct stack* toBeDeleted = theStackTop;
+    struct stack_node* toBeDeleted = theStackTop;
 
     // if there is more than one node in the stack before exiting scope
     if(theStackTop->next != NULL) {
@@ -55,4 +55,25 @@ void scope_exit() {
 
     // frees the memory allocated to the node being deleted
     free(toBeDeleted);
+}
+
+// returns the number of hash tables in the stack; used to determine if we are in the global scope or not
+int scope_level() {
+    
+    // temporary node to keep track of position in stack
+    struct stack_node* temp = theStackTop;
+
+    // if the top of the stack does not point to a stack node, the stack is empty
+    if(temp->next == NULL) {
+        return 0;
+    }
+
+    // otherwise, we must traverse the stack and accumulate a total:
+    int total = 1;
+    while(temp->next != NULL) {
+        total++;
+        temp = temp->next;
+    }
+
+    return total;
 }
