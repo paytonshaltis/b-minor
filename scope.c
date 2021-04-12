@@ -64,7 +64,7 @@ int scope_level() {
     struct stack_node* temp = theStackTop;
 
     // if the top of the stack does not point to a stack node, the stack is empty
-    if(temp->next == NULL) {
+    if(temp == NULL) {
         return 0;
     }
 
@@ -76,4 +76,16 @@ int scope_level() {
     }
 
     return total;
+}
+
+// adds an entry to the top-most hash table, mapping name to the symbol structure sym
+void scope_bind(const char* name, struct symbol* sym) {
+
+    // if for some reason there is no scope in the stack
+    if(theStackTop == NULL) {
+        return;
+    }
+
+    // otherwise, we insert the name, symbol mapping into the hash table of the top-most node of the stack
+    hash_table_insert(theStackTop->table, name, sym);
 }
