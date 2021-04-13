@@ -82,18 +82,26 @@ void decl_resolve(struct decl* d) {
     // then we bind the 'name', 'symbol' pair into the symbol table
     // NOTE that we must first check to see if that symbol is in the current scope...
     // if the identifier is found in the table, and it is not a function, resolution error
-    if(scope_lookup_current(d->name) != NULL /*&& d->type->kind != TYPE_FUNCTION*/) {
+    if(scope_lookup_current(d->name) != NULL && d->type->kind != TYPE_FUNCTION) {
         printf("RESOLUTION ERROR: Identifier \"%s\" already in current scope in the symbol table!\n", d->name);
         totalResErrors++;
     }
-    /*
     // otherwise, if we find a function declaration in this scope, we cannot
     // allow a second prototype to be declared:
     else if(scope_lookup_current(d->name) != NULL && d->type->kind == TYPE_FUNCTION && d->code == NULL) {
         printf("RESOLUTION ERROR: Function \"%s\" already has either prototype or implementation!\n", d->name);
         totalResErrors++;
     }
-    */
+    // otherwise, if we find a function of the same name whose funcImp is 0, we are allowed to
+    // creat a function implementation for it:
+    else if(scope_lookup_current(d->name) != NULL && scope_lookup_current(d->name)->funcImp == 0 && d->type->kind == TYPE_FUNCTION && d->code != NULL) {
+        
+        // marks this function as implemented
+        d->symbol->funcImp = 1;
+
+        // overwrites the previous symbol table entry with the function implementation
+        scope_bind(d->name, d->symbol);
+    }
     else {
         scope_bind(d->name, d->symbol);
     }
