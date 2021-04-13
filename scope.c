@@ -115,3 +115,24 @@ struct symbol* scope_lookup(const char* name) {
     return NULL;
 
 }
+
+// searches the top-most node in the stack to see if an identifier has already been defined in this scope
+struct symbol* scope_lookup_current(const char* name) {
+
+    // symbol to be returned
+    struct symbol* result;
+
+    // if the stack is somehow empty, return NULL
+    if(theStackTop == NULL) {
+        return NULL;
+    }
+
+    // otherwise, see if the hash table in the top node has 'name' in its hash table
+    result = hash_table_lookup(theStackTop->table, name);
+    if(result != NULL) {
+        return result;
+    }
+
+    // this is reached if the top node in the stack does not have 'name' in its hash table
+    return NULL;
+} 
