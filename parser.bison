@@ -113,8 +113,8 @@ global			: stddecl TOKEN_SEMICOLON	{$$ = $1;}
 				;
 
 //function prototypes, declared with or without parameters
-proto			: ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, 0, 0);}
-				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, 0, 0);}
+proto			: ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_SEMICOLON					{$$ = decl_create($1, type_create(TYPE_PROTOTYPE, $4, 0, 0), 0, 0, 0);}
+				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		{$$ = decl_create($1, type_create(TYPE_PROTOTYPE, $4, $6, 0), 0, 0, 0);}
 				;
 
 //function implementations, defined with or without parameters and contain a body of statements (or none in the case of a void return)

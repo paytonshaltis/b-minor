@@ -11,7 +11,8 @@ typedef enum {
 	TYPE_BOOLEAN,
 	TYPE_VOID,
 	TYPE_ARRAY,
-	TYPE_FUNCTION
+	TYPE_FUNCTION,
+	TYPE_PROTOTYPE
 } type_t;
 
 struct type {
