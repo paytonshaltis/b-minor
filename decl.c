@@ -83,13 +83,13 @@ void decl_resolve(struct decl* d) {
     // NOTE that we must first check to see if that symbol is in the current scope...
     // if the identifier is found in the table, and it is not a function, resolution error
     if(scope_lookup_current(d->name) != NULL && d->type->kind != TYPE_FUNCTION) {
-        printf("RESOLUTION ERROR: Identifier \"%s\" already in current scope in the symbol table!\n", d->name);
+        printf("resolution error: identifier \"%s\" already in current scope in the symbol table\n", d->name);
         totalResErrors++;
     }
     // otherwise, if we find a function declaration in this scope, we cannot
     // allow a second prototype to be declared:
     else if(scope_lookup_current(d->name) != NULL && d->type->kind == TYPE_FUNCTION && d->code == NULL) {
-        printf("RESOLUTION ERROR: Function \"%s\" already has either prototype or implementation!\n", d->name);
+        printf("resolution error: cannot redeclare prototype for function \"%s\"\n", d->name);
         totalResErrors++;
     }
     // otherwise, if we find a function of the same name whose funcImp is 0, we are allowed to
@@ -101,9 +101,11 @@ void decl_resolve(struct decl* d) {
 
         // overwrites the previous symbol table entry with the function implementation
         scope_bind(d->name, d->symbol);
+        printf("overwrote function prototype with an implementation for function \"%s\"\n", d->name);
     }
     else {
         scope_bind(d->name, d->symbol);
+        printf("added identifier \"%s\" to the symbol table\n", d->name);
     }
 
     // if the declaration has code (meaning it is a function), resolve params and statements

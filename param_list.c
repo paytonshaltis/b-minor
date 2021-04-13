@@ -37,7 +37,7 @@ void param_list_resolve(struct param_list* p) {
     // we need to begin by resolving the first identifier in the parameter list
     // first we should check and see if it is in the scope (in the function)
     if(scope_lookup_current(p->name) != NULL) {
-        printf("RESOLUTION ERROR: Parameter \"%s\" was already declared!\n", p->name);
+        printf("resolution error: parameter \"%s\" was already declared\n", p->name);
         totalResErrors++;
     }
     // if the parameter was NOT found in the scope, we need to create a new symbol and enter it into the table
@@ -46,6 +46,7 @@ void param_list_resolve(struct param_list* p) {
 
         // bind this 'name', 'symbol' pair into the symbol table
         scope_bind(p->name, p->symbol);
+        printf("added identifier \"%s\" to the symbol table\n", p->name);
     }
 
     param_list_resolve(p->next);
