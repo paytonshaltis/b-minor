@@ -92,9 +92,9 @@ void decl_resolve(struct decl* d) {
     // if the declaration has code (meaning it is a function), resolve params and statements
     if(d->code != NULL) {
         scope_enter();
-        /* param_list_resolve(d->type->params); */
+        param_list_resolve(d->type->params);
         /* stmt_resolve(d->code) */
-        printf("    **Resolve params and code**\n");
+        printf("    **Resolve code**\n");
         scope_exit();
     }
 

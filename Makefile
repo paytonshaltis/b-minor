@@ -28,7 +28,7 @@ stmt.o: stmt.c stmt.h
 expr.o: expr.c expr.h scope.h
 	gcc expr.c -c -o expr.o
 
-param_list.o: param_list.c param_list.h
+param_list.o: param_list.c param_list.h scope.h
 	gcc param_list.c -c -o param_list.o
 
 hash_table.o: hash_table.c hash_table.h
