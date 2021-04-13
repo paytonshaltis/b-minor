@@ -88,13 +88,17 @@ void decl_resolve(struct decl* d) {
     }
     // otherwise, if we find a function declaration in this scope, we cannot
     // allow a second prototype to be declared:
-    else if(scope_lookup_current(d->name) != NULL && d->type->kind == TYPE_FUNCTION && d->code == NULL) {
+    else if(scope_lookup_current(d->name) != NULL && d->type->kind == TYPE_FUNCTION /* && d->code == NULL*/) {
+        /*
         printf("resolution error: cannot redeclare prototype for function \"%s\"\n", d->name);
         totalResErrors++;
+        */
+        printf("reference to function identifier \"%s\" found in the symbol table\n", d->name);
     }
+    /*
     // otherwise, if we find a function of the same name whose funcImp is 0, we are allowed to
     // creat a function implementation for it:
-    /* MAY NEED TO COMPARE PARAMETERS AND RETURN TYPES HERE!!!! */
+    // MAY NEED TO COMPARE PARAMETERS AND RETURN TYPES HERE!!!!
     else if(scope_lookup_current(d->name) != NULL && scope_lookup_current(d->name)->funcImp == 0 && d->type->kind == TYPE_FUNCTION && d->code != NULL) {
         
         // marks this function as implemented
@@ -104,6 +108,7 @@ void decl_resolve(struct decl* d) {
         scope_bind(d->name, d->symbol);
         printf("overwrote function prototype with an implementation for function \"%s\"\n", d->name);
     }
+    */
     else {
         scope_bind(d->name, d->symbol);
         printf("added identifier \"%s\" to the symbol table\n", d->name);
