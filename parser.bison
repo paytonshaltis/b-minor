@@ -117,9 +117,11 @@ proto			: ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_
 				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_SEMICOLON		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, 0, 0);}
 				;
 
-//function implementations, defined with or without parameters and contain a body of statements
+//function implementations, defined with or without parameters and contain a body of statements (or none in the case of a void return)
 function		: ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, $9, 0);}
 				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY stmtlist TOKEN_RCURLY		{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, $10, 0);}
+				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY TOKEN_RCURLY							{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, 0, 0), 0, 0, 0);}
+				| ident TOKEN_COLON TOKEN_FUNCTION type TOKEN_LPAREN paramslist TOKEN_RPAREN TOKEN_ASSIGN TOKEN_LCURLY TOKEN_RCURLY					{$$ = decl_create($1, type_create(TYPE_FUNCTION, $4, $6, 0), 0, 0, 0);}
 				;
 
 /* ========================= STANDARD, CONSTANT, AND EXPRESSION DECLARATIONS ========================= */
