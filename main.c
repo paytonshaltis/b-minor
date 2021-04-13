@@ -17,6 +17,7 @@ extern void yyrestart();
 extern char *yytext;
 extern struct decl* parser_result;
 extern int yylineno;
+extern int totalResErrors;
 
 /* function used to modify 'yytext' for char and string literals */
 void modifyText(enum yytokentype t) {
@@ -245,77 +246,14 @@ int main(int argc, char* argv[]) {
     if(resolveFlag == 1) {
         printf("This is the resolution phase.\n\n");
 
-        scope_level();
-
-        scope_exit();
-        scope_exit();
-        scope_exit();
-        scope_exit();
+        // we must enter the global scope before doing any resolutions
+        scope_enter();
         
-        scope_level();
+        // resolve the first declaration of the program
+        decl_resolve(parser_result);
 
-        struct symbol* sym = symbol_create(SYMBOL_GLOBAL, type_create(TYPE_ARRAY, type_create(TYPE_INTEGER, NULL, NULL, 0), NULL, 5), "Array of 5 Integers");
-
-        scope_bind("key1", sym);
-        scope_bind("key2", sym);
-        scope_lookup("key1");
-        scope_lookup_current("key1");
-        scope_lookup("key2");
-        scope_lookup_current("key2");
-
-        scope_level();
-        scope_enter();
-        scope_level();
-
-        scope_lookup("key1");
-        scope_lookup_current("key1");
-        scope_lookup("key2");
-        scope_lookup_current("key2");
-
-        scope_enter();
-        scope_enter();
-        scope_enter();
-        scope_enter();
-        scope_enter();
-
-        scope_level();
-
-        scope_lookup("key1");
-        scope_lookup_current("key1");
-        scope_lookup("key2");
-        scope_lookup_current("key2");
-        
-        scope_exit();
-        scope_exit();
-        scope_exit();
-        scope_exit();
-        scope_exit();
-
-        scope_level();
-
-        scope_bind("key1", sym);
-        scope_bind("key2", sym);
-
-        scope_lookup("key1");
-        scope_lookup_current("key1");
-        scope_lookup("key2");
-        scope_lookup_current("key2");
-
-        scope_enter();
-        scope_enter();
-
-        scope_lookup("key1");
-        scope_lookup_current("key1");
-        scope_lookup("key2");
-        scope_lookup_current("key2");
-
-        scope_enter();
-        scope_bind("key1", sym);
-
-        scope_lookup("key1");
-        scope_lookup_current("key1");
-        scope_lookup("key2");
-        scope_lookup_current("key2");
+        // print out the total number of resolution errors found
+        printf("There were %i resolution errors detected.\n", totalResErrors);
     }
     
     /* completed each phase of the compiler */
