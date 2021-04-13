@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "hash_table.h"
 #include "symbol.h"
 
@@ -17,5 +18,6 @@ int scope_level();
 void scope_bind(const char* name, struct symbol* sym);
 struct symbol* scope_lookup(const char* name);
 struct symbol* scope_lookup_current(const char* name);
+bool scope_unbind(const char* name);
 
 #endif

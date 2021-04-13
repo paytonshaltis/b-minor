@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 // set DEBUG to true to see debugging messages, false to turn them off
-bool DEBUG = false;
+bool DEBUG = true;
 
 // this is the master stack that will be used by all functions below
 struct stack_node* theStackTop;
@@ -194,3 +194,35 @@ struct symbol* scope_lookup_current(const char* name) {
     }
     return NULL;
 } 
+
+// unbinds the key 'key' by removing it from the top hash table (the current scope)
+bool scope_unbind(const char* key) {
+
+    // if the stack is empty, return false;
+    if(theStackTop == NULL) {
+        
+        if(DEBUG == true) {
+            printf("ERROR: Could not unbind \"%s\", the stack is empty!\n", key);
+        }
+        return false;
+    }
+    
+    // the associated symbol object returns from an hash_remove()
+    struct symbol* garbageScope = hash_table_remove(theStackTop->table, key);
+
+    // if it was successful (symbol struct returned) return true, unbind successful
+    if(garbageScope != NULL) {
+        
+        if(DEBUG == true) {
+            printf("Unbounded symbol previously bound to key \"%s\" in TOP hash table!\n", key);
+        }
+        return true;
+    }
+
+    // otherwise, the pair [key, sym] was not found in the top hash table (current scope)
+    
+    if(DEBUG == true) {
+        printf("FAILED to find symbol bound to key \"%s\" in TOP hash table!\n", key);
+    }
+    return false;
+}
