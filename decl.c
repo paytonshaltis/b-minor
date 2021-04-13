@@ -94,6 +94,7 @@ void decl_resolve(struct decl* d) {
     }
     // otherwise, if we find a function of the same name whose funcImp is 0, we are allowed to
     // creat a function implementation for it:
+    /* MAY NEED TO COMPARE PARAMETERS AND RETURN TYPES HERE!!!! */
     else if(scope_lookup_current(d->name) != NULL && scope_lookup_current(d->name)->funcImp == 0 && d->type->kind == TYPE_FUNCTION && d->code != NULL) {
         
         // marks this function as implemented
