@@ -22,7 +22,7 @@ decl.o: decl.c decl.h expr.h type.h scope.h
 type.o: type.c type.h
 	gcc type.c -c -o type.o
 
-stmt.o: stmt.c stmt.h
+stmt.o: stmt.c stmt.h scope.h
 	gcc stmt.c -c -o stmt.o
 
 expr.o: expr.c expr.h scope.h

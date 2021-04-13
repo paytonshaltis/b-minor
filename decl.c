@@ -93,8 +93,7 @@ void decl_resolve(struct decl* d) {
     if(d->code != NULL) {
         scope_enter();
         param_list_resolve(d->type->params);
-        /* stmt_resolve(d->code) */
-        printf("    **Resolve code**\n");
+        stmt_resolve(d->code);
         scope_exit();
     }
 

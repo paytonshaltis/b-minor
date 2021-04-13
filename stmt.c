@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stmt.h"
+#include "scope.h"
+
+extern int totalResErrors;
 
 // basic factory function for creating a 'stmt' struct
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
@@ -149,4 +152,23 @@ void stmt_print(struct stmt *s, int indent) {
         stmt_print(s->next, indent);
     }
     
+}
+
+// conducts name resolution on statement s
+void stmt_resolve(struct stmt* s) {
+
+    // base case for recursion
+    if(s == NULL) {
+        return;
+    }
+
+    // all of the different statement types that need to call other resolution functions
+    if(s->kind == STMT_DECL) {
+        decl_resolve(s->decl);
+    }
+    if(s->kind == STMT_EXPR) {
+        expr_resolve(s->expr);
+    }
+
+    stmt_resolve(s->next);
 }
