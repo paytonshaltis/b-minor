@@ -254,6 +254,14 @@ int main(int argc, char* argv[]) {
 
         // print out the total number of resolution errors found
         printf("There were %i resolution errors detected.\n", totalResErrors);
+
+        // use the total number of resolution errors to determine what status to exit with
+        if(totalResErrors > 0) {
+            exit(1);
+        }
+        else {
+            exit(0);
+        }
     }
     
     /* completed each phase of the compiler */
