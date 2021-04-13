@@ -12,14 +12,6 @@ void scope_enter() {
     
     // allocates memory for the new stack node 
     struct stack_node* newStackNode = malloc(sizeof(*newStackNode));
-    
-    // assigns a scope symbol based on the scope
-    if(theStackTop == NULL) {
-        newStackNode->thisScope = SYMBOL_GLOBAL;
-    }
-    else {
-        newStackNode->thisScope = SYMBOL_LOCAL;
-    }
 
     // creates a new hash_table struct for this node
     newStackNode->table = hash_table_create(0, 0);
@@ -55,6 +47,8 @@ void scope_exit() {
 
     // frees the memory allocated to the node being deleted
     free(toBeDeleted);
+
+    return;
 }
 
 // returns the number of hash tables in the stack; used to determine if we are in the global scope or not
@@ -88,4 +82,36 @@ void scope_bind(const char* name, struct symbol* sym) {
 
     // otherwise, we insert the name, symbol mapping into the hash table of the top-most node of the stack
     hash_table_insert(theStackTop->table, name, sym);
+
+    return;
+}
+
+// searches the stack of hash tables from top to bottom, looking for the first entry matching 'name'. Returns NULL if not found
+struct symbol* scope_lookup(const char* name) {
+
+    // temporary node and symbol to be returned
+    struct stack_node* temp = theStackTop;
+    struct symbol* result;
+
+    // if the stack is somehow empty, return NULL
+    if(temp == NULL) {
+        return NULL;
+    }
+
+    // otherwise, search the hash table in each node, return the symbol struct if found
+    while(temp != NULL) {
+        
+        // looks up the name in the hash table of this node, returns it if found
+        result = hash_table_lookup(temp->table, name);
+        if(result != NULL) {
+            return result;
+        }
+
+        // otherwise, move to the next node
+        temp = temp->next;
+    }
+
+    // this is reached if no node in the stack has a hash table containing the key
+    return NULL;
+
 }
