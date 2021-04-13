@@ -16,7 +16,7 @@ parser.o: parser.c token.h
 parser.c token.h: parser.bison
 	bison -v --defines=token.h --output=parser.c parser.bison 
 
-decl.o: decl.c decl.h expr.h type.h
+decl.o: decl.c decl.h expr.h type.h scope.h
 	gcc decl.c -c -o decl.o
 
 type.o: type.c type.h

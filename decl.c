@@ -1,8 +1,11 @@
 #include "decl.h"
 #include "expr.h"
 #include "type.h"
+#include "scope.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+int totalResErrors = 0;
 
 // basic factory function for creating a 'decl' struct
 struct decl * decl_create( char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ) {
@@ -56,4 +59,49 @@ void decl_print(struct decl *d, int indent) {
     if(d->next != NULL) {
         decl_print(d->next, 0);
     }
+}
+
+// conducts name resolution on the declaration d
+void decl_resolve(struct decl* d) {
+
+    // base case for recursion
+    if(d == NULL) {
+        return;
+    }
+
+    // if there exists more than 1 scope, the kind is local; otherwise, the kind is global
+    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+
+    // creates and links the symbol for d into the d struct; symbol is now linked into the AST
+    // this uses the 'kind' determined above, and the 'type' and 'name' from d
+    d->symbol = symbol_create(kind, d->type, d->name);
+
+    // next we need to resolve the expression associated with this declaration
+    /* expr_resolve(d->value); */
+    printf("    **Resolve expression**\n");
+
+    // then we bind the 'name', 'symbol' pair into the symbol table
+    // NOTE that we must first check to see if that symbol is in the current scope...
+    if(scope_lookup_current(d->name) != NULL) {
+        printf("RESOLUTION ERROR: Identifier \"%s\" already in current scope in the symbol table!\n", d->name);
+        totalResErrors++;
+    }
+    else {
+        scope_bind(d->name, d->symbol);
+    }
+
+    // if the declaration has code (meaning it is a function), resolve params and statements
+    if(d->code != NULL) {
+        scope_enter();
+        /* param_list_resolve(d->type->params); */
+        /* stmt_resolve(d->code) */
+        printf("    **Resolve params and code**\n");
+        scope_exit();
+    }
+
+    // resolve the next declaration in the code
+    decl_resolve(d->next);
+
+    return;
+
 }
