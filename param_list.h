@@ -3,6 +3,7 @@
 
 #include "type.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 struct expr;
 
@@ -18,5 +19,6 @@ void param_list_print( struct param_list *a );
 struct param_list* param_list_copy(struct param_list* p);
 
 void param_list_resolve(struct param_list* p);
+bool param_list_compare(struct param_list* p1, struct param_list* p2);
 
 #endif

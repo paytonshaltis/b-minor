@@ -66,3 +66,21 @@ void type_print(struct type *t) {
     }
 
 }
+
+// compares two types to make sure they are the same
+bool type_compare(struct type* t1, struct type* t2) {
+
+    // base case for recursion
+    if(t1 == NULL && t2 == NULL) {
+        return true;
+    }
+
+    // if the kinds are equal, check the subtypes
+    if(t1->kind == t2->kind) {
+        type_compare(t1->subtype, t2->subtype);
+        return true;
+    }
+    
+    // otherwise, return false, types are not equal
+    return false;
+}

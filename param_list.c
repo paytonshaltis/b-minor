@@ -53,3 +53,36 @@ void param_list_resolve(struct param_list* p) {
 
     return;
 }
+
+// used to compare parameter lists for determining whether function implementation matches prototype
+bool param_list_compare(struct param_list* p1, struct param_list* p2) {
+
+    // create copies of the param_list head pointers
+    struct param_list* p1copy = p1;
+    struct param_list* p2copy = p2;
+
+    // traverse the parameter lists, making sure that parameters match up
+    while(p1copy != NULL && p2copy != NULL) {
+
+        // if the name and type matches
+        if((p1copy->name == p2copy->name) && type_compare(p1copy->type, p2copy->type)) {
+
+            // move to the next parameter
+            p1copy = p1copy->next;
+            p2copy = p2copy->next;
+        }
+        
+        // if the name and type does not match
+        else {
+            return false;
+        }
+    }
+
+    // when one parameter list concludes, make sure the other has too
+    if(p1copy == NULL && p2copy == NULL) {
+        return true;
+    }
+    // otherwise, the two lists differ in size, return false;
+    return false;
+
+}
