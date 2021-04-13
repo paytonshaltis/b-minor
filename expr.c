@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "expr.h"
+#include "scope.h"
+
+extern int totalResErrors;
 
 // basic factory function for creating an 'expr' struct (basic expression)
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
@@ -317,5 +320,27 @@ void expr_print(struct expr *e) {
         expr_print(e->left);
         printf("=");
         expr_print(e->right);
+    }
+}
+
+// conducts name resolution on the expression e
+void expr_resolve(struct expr* e) {
+
+    // base case for recursion
+    if(e == NULL) {
+        return;
+    }
+
+    // different cases for the expression types
+    if(e->kind == EXPR_NAME) {
+        e->symbol = scope_lookup(e->name);
+        if(e->symbol == NULL) {
+            printf("RESOLUTION ERROR: Identifier \"%s\" not found in the current scope!\n", e->name);
+            totalResErrors++;
+        }
+    }
+    else {
+        expr_resolve(e->left);
+        expr_resolve(e->right);
     }
 }

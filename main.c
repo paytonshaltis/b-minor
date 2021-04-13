@@ -242,10 +242,11 @@ int main(int argc, char* argv[]) {
         printf("\nEnd of Pretty Print\n");
     }
 
-    /* typechecking phase: done with the command line option -resolve */
+    /* resolution phase: done with the command line option -resolve */
     if(resolveFlag == 1) {
-        printf("This is the resolution phase.\n\n");
-
+        printf("This is the resolution phase.\n");
+        printf("=============================\n");
+        
         // we must enter the global scope before doing any resolutions
         scope_enter();
         

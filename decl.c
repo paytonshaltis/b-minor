@@ -77,8 +77,7 @@ void decl_resolve(struct decl* d) {
     d->symbol = symbol_create(kind, d->type, d->name);
 
     // next we need to resolve the expression associated with this declaration
-    /* expr_resolve(d->value); */
-    printf("    **Resolve expression**\n");
+    expr_resolve(d->value);
 
     // then we bind the 'name', 'symbol' pair into the symbol table
     // NOTE that we must first check to see if that symbol is in the current scope...
