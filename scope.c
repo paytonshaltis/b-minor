@@ -3,6 +3,10 @@
 #include "symbol.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+
+// set DEBUG to true to see debugging messages, false to turn them off
+bool DEBUG = false;
 
 // this is the master stack that will be used by all functions below
 struct stack_node* theStackTop;
@@ -22,9 +26,9 @@ void scope_enter() {
     // the top of the stack should now point to the new node
     theStackTop = newStackNode;
 
-    // for debugging:
-    printf("Successfully ENTERED a new scope!\n");
-    // end debugging
+    if(DEBUG == true) {
+        printf("Successfully ENTERED a new scope!\n");
+    }
     return;
 }
 
@@ -37,9 +41,9 @@ void scope_exit() {
     // if the stack is already empty
     if(theStackTop == NULL) {
         
-        // for debugging:
-        printf("ERROR: The stack is already EMPTY!\n");
-        // end debugging
+        if(DEBUG == true) {
+            printf("ERROR: The stack is already EMPTY!\n");
+        }
         return;
     }
 
@@ -60,9 +64,9 @@ void scope_exit() {
     // frees the memory allocated to the node being deleted
     free(toBeDeleted);
 
-    // for debugging:
-    printf("Successfully EXITED a scope!\n");
-    // end debugging
+    if(DEBUG == true) {
+        printf("Successfully EXITED a scope!\n");
+    }
     return;
 }
 
@@ -75,9 +79,9 @@ int scope_level() {
     // if the top of the stack does not point to a stack node, the stack is empty
     if(temp == NULL) {
         
-        // for debugging:
-        printf("ERROR: Scope at LEVEL 0!\n");
-        // end debugging   
+        if(DEBUG == true) {
+            printf("ERROR: Scope at LEVEL 0!\n");
+        }
         return 0;
     }
 
@@ -88,9 +92,9 @@ int scope_level() {
         temp = temp->next;
     }
 
-    // for debugging:
-    printf("Scope at LEVEL %i\n", total);
-    // end debugging    
+    if(DEBUG == true) {
+        printf("Scope at LEVEL %i\n", total);
+    }
     return total;
 }
 
@@ -100,18 +104,18 @@ void scope_bind(const char* name, struct symbol* sym) {
     // if for some reason there is no scope in the stack
     if(theStackTop == NULL) {
         
-        // for debugging:
-        printf("ERROR: Could not bind because the stack is EMPTY!\n");
-        // end debugging
+        if(DEBUG == true) {
+            printf("ERROR: Could not bind because the stack is EMPTY!\n");
+        }
         return;
     }
 
     // otherwise, we insert the name, symbol mapping into the hash table of the top-most node of the stack
     hash_table_insert(theStackTop->table, name, sym);
 
-    // for debugging:
-    printf("Successfully bound key \"%s\" with symbol named \"%s\"!\n", name, sym->name);
-    // end debugging
+    if(DEBUG == true) {
+        printf("Successfully bound key \"%s\" with symbol named \"%s\"!\n", name, sym->name);
+    }
     return;
 }
 
@@ -124,10 +128,10 @@ struct symbol* scope_lookup(const char* name) {
 
     // if the stack is somehow empty, return NULL
     if(temp == NULL) {
-        
-        // for debugging:
-        printf("ERROR: The stack is EMPTY, could not find!\n");
-        // end debugging
+
+        if(DEBUG == true) {
+            printf("ERROR: The stack is EMPTY, could not find!\n");
+        }
         return NULL;
     }
 
@@ -138,22 +142,23 @@ struct symbol* scope_lookup(const char* name) {
         result = hash_table_lookup(temp->table, name);
         if(result != NULL) {
             
-            // for debugging:
-            printf("Successfully found symbol named \"%s\" which was bound to key \"%s\" in ANY hash table!\n", result->name, name);
-            // end debugging
+            if(DEBUG == true) {
+                printf("Successfully found symbol named \"%s\" which was bound to key \"%s\" in ANY hash table!\n", result->name, name);
+            }
             return result;
         }
 
         // otherwise, move to the next node
         temp = temp->next;
-        printf("    checking next table...\n");
+        if(DEBUG == true) {
+            printf("    checking next table...\n");
+        }
     }
 
     // this is reached if no node in the stack has a hash table containing the key
-    
-    // for debugging:
-    printf("FAILED to find symbol bound to key \"%s\" in ANY hash table!\n", name);
-    // end debugging
+    if(DEBUG == true) {
+        printf("FAILED to find symbol bound to key \"%s\" in ANY hash table!\n", name);
+    }
     return NULL;
 
 }
@@ -166,10 +171,10 @@ struct symbol* scope_lookup_current(const char* name) {
 
     // if the stack is somehow empty, return NULL
     if(theStackTop == NULL) {
-        
-        // for debugging:
-        printf("ERROR: The stack is EMPTY, could not find!\n");
-        // end debugging
+
+        if(DEBUG == true) {
+            printf("ERROR: The stack is EMPTY, could not find!\n");       
+        }
         return NULL;
     }
 
@@ -177,16 +182,15 @@ struct symbol* scope_lookup_current(const char* name) {
     result = hash_table_lookup(theStackTop->table, name);
     if(result != NULL) {
         
-        // for debugging:
-        printf("Successfully found symbol named \"%s\" which was bound to key \"%s\" in TOP hash table!\n", result->name, name);
-        // end debugging
+        if(DEBUG == true) {
+            printf("Successfully found symbol named \"%s\" which was bound to key \"%s\" in TOP hash table!\n", result->name, name);
+        }
         return result;
     }
 
     // this is reached if the top node in the stack does not have 'name' in its hash table
-    
-    // for debugging:
-    printf("FAILED to find symbol bound to key \"%s\" in TOP hash table!\n", name);
-    // end debugging
+    if(DEBUG == true) {
+        printf("FAILED to find symbol bound to key \"%s\" in TOP hash table!\n", name);
+    }
     return NULL;
 } 
