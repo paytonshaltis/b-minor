@@ -191,7 +191,10 @@ void stmt_resolve(struct stmt* s) {
         expr_resolve(s->expr);
     }
     if(s->kind == STMT_BLOCK) {
+        // for block statements, we must be sure to enter a new scope!
+        scope_enter();
         stmt_resolve(s->body);
+        scope_exit();
     }
 
     // resolve the next statement in the statement list
