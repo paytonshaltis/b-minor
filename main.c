@@ -6,6 +6,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include "decl.h"
+#include "scope.h"
+#include "symbol.h"
+#include "type.h"
 
 extern FILE *yyin;
 extern int yylex();
@@ -240,7 +243,135 @@ int main(int argc, char* argv[]) {
 
     /* typechecking phase: done with the command line option -resolve */
     if(resolveFlag == 1) {
-        printf("This is the resolution phase.\n");
+        printf("This is the resolution phase.\n\n");
+
+        // currently testing enter(), exit(), and level()
+        printf("The current scope level is %i (0)\n", scope_level());
+        scope_enter();
+        printf("The current scope level is %i (1)\n", scope_level());
+        scope_enter();
+        scope_enter();
+        scope_enter();
+        scope_enter();
+        printf("The current scope level is %i (5)\n", scope_level());
+        scope_exit();
+        printf("The current scope level is %i (4)\n", scope_level());
+        scope_exit();
+        scope_exit();
+        scope_exit();
+        printf("The current scope level is %i (1)\n", scope_level());
+        scope_exit();
+        printf("The current scope level is %i (0)\n", scope_level());
+        scope_exit();
+        printf("The current scope level is %i (0)\n", scope_level());
+
+        // testing lookup(), and lookup_current() with zero, one, many nodes WITHOUT finding key
+        if(scope_lookup("key1") == NULL) {
+            printf("Symbol not found in the ANY hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup("key1")->name);
+        }
+        if(scope_lookup_current("key1") == NULL) {
+            printf("Symbol not found in TOP hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup_current("key1")->name);
+        }
+        scope_enter();
+        if(scope_lookup("key1") == NULL) {
+            printf("Symbol not found in the ANY hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup("key1")->name);
+        }
+        if(scope_lookup_current("key1") == NULL) {
+            printf("Symbol not found in TOP hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup_current("key1")->name);
+        }
+        scope_enter();
+        scope_enter();
+        scope_enter();
+        scope_enter();
+        printf("The current scope level is %i (5)\n", scope_level());
+        if(scope_lookup("key1") == NULL) {
+            printf("Symbol not found in the ANY hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup("key1")->name);
+        }
+        if(scope_lookup_current("key1") == NULL) {
+            printf("Symbol not found in TOP hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup_current("key1")->name);
+        }
+        scope_exit();
+        scope_exit();
+        scope_exit();
+        scope_exit();
+        scope_exit();
+        scope_exit();
+        scope_exit();
+        scope_exit();
+
+        // testing bind(), lookup(), and lookup_current() with zero, one, many nodes WITH / WITHOUT finding key
+        struct symbol* sym = symbol_create(SYMBOL_GLOBAL, type_create(TYPE_ARRAY, type_create(TYPE_INTEGER, NULL, NULL, 0), NULL, 5), "Array of 5 Integers");
+        
+        // binded by there is no node in the stack!
+        scope_bind("key1", sym);
+        printf("The current scope level is %i (0)\n", scope_level());
+        if(scope_lookup("key1") == NULL) {
+            printf("Symbol not found in the ANY hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup("key1")->name);
+        }
+        if(scope_lookup_current("key1") == NULL) {
+            printf("Symbol not found in TOP hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s", scope_lookup_current("key1")->name);
+        }
+        
+        // enter a new scope, THEN bind the symbol (one scope, both should find in lookup)
+        scope_enter();
+        printf("The current scope level is %i (1)\n", scope_level());
+        scope_bind("key1", sym);
+        if(scope_lookup("key1") == NULL) {
+            printf("Symbol not found in the ANY hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s\n", scope_lookup("key1")->name);
+        }
+        if(scope_lookup_current("key1") == NULL) {
+            printf("Symbol not found in TOP hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s\n", scope_lookup_current("key1")->name);
+        }
+
+        // bind a new symbol, THEN enter more new scopes (multiple scopes, only lookup should find)
+        scope_bind("key2", sym);
+        scope_enter();
+        scope_enter();
+        scope_enter();
+        printf("The current scope level is %i (4)\n", scope_level());
+        if(scope_lookup("key2") == NULL) {
+            printf("Symbol not found in the ANY hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s\n", scope_lookup("key1")->name);
+        }
+        if(scope_lookup_current("key2") == NULL) {
+            printf("Symbol not found in TOP hash table!\n");
+        }
+        else {
+            printf("Symbol FOUND with name %s\n", scope_lookup_current("key1")->name);
+        }
+        
     }
     
     /* completed each phase of the compiler */

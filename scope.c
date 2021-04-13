@@ -31,6 +31,11 @@ void scope_exit() {
     // create a pointer to point to the top node of the stack
     struct stack_node* toBeDeleted = theStackTop;
 
+    // if the stack is already empty
+    if(theStackTop == NULL) {
+        return;
+    }
+
     // if there is more than one node in the stack before exiting scope
     if(theStackTop->next != NULL) {
         // the second node becomes the top of the stack
@@ -109,6 +114,7 @@ struct symbol* scope_lookup(const char* name) {
 
         // otherwise, move to the next node
         temp = temp->next;
+        printf("    checking next table...\n");
     }
 
     // this is reached if no node in the stack has a hash table containing the key
