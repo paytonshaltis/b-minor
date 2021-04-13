@@ -169,6 +169,31 @@ void stmt_resolve(struct stmt* s) {
     if(s->kind == STMT_EXPR) {
         expr_resolve(s->expr);
     }
+    if(s->kind == STMT_IF) {
+        expr_resolve(s->expr);
+        stmt_resolve(s->body);
+    }
+    if(s->kind == STMT_IF_ELSE) {
+        expr_resolve(s->expr);
+        stmt_resolve(s->body);
+        stmt_resolve(s->else_body);
+    }
+    if(s->kind == STMT_FOR) {
+        expr_resolve(s->init_expr);
+        expr_resolve(s->expr);
+        expr_resolve(s->next_expr);
+        stmt_resolve(s->body);
+    }
+    if(s->kind == STMT_PRINT) {
+        expr_resolve(s->expr);
+    }
+    if(s->kind == STMT_RETURN) {
+        expr_resolve(s->expr);
+    }
+    if(s->kind == STMT_BLOCK) {
+        stmt_resolve(s->body);
+    }
 
+    // resolve the next statement in the statement list
     stmt_resolve(s->next);
 }
