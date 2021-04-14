@@ -85,35 +85,57 @@ void decl_resolve(struct decl* d) {
     // if the declaration is NOT of type 'function'
     if(d->type->kind != TYPE_FUNCTION) {
         
-        // the identifier of 'd' should not be found in the symbol table. If so, emit an error
+        // if the identifier is found in the symbol table, emit an error (redeclaration of non function)
         if(scope_lookup_current(d->name) != NULL) {
             printf("resolution error: identifier \"%s\" already in current scope in the symbol table\n", d->name);
             totalResErrors++;
+        }
+        
+        // if the identifier is NOT found in the symbol table, add it to the table
+        else {
+            scope_bind(d->name, d->symbol);
+            printf("added identifier \"%s\" to the symbol table\n", d->name);
         }
     }
 
     // if the declaration is of type 'function'
     if(d->type->kind == TYPE_FUNCTION) {
+        
+        struct symbol* symCheck = scope_lookup_current(d->name);
 
         /* CASE (1): if it is in the symbol table and if the symbol in the table is of type TYPE_PROTOTYPE, we can update it with implementation */
-        struct symbol* symCheck = scope_lookup_current(d->name);
-        if(symCheck != NULL && symCheck->kind == TYPE_PROTOTYPE) {
+        if(symCheck != NULL && symCheck->type->kind == TYPE_PROTOTYPE) {
             
+            // unbind the prototype from the symbol table
+            scope_unbind(d->name);
+            
+            // change the kind of the declaration to TYPE_FUNCTION
+            d->symbol->type->kind = TYPE_FUNCTION;
+
+            // rebind the key and symbol structure to the symbol table
+            scope_bind(d->name, d->symbol);
+
+            // print message to identify function update
+            printf("function prototype \"%s\" updated in symbol table with implementation\n", d->name);
         }
 
-        /* CASE (2): if it is in the symbol table and if the symbol in the table is of type TYPE_FUNCTION, we must emit an error */
-
-        /* CASE (3): if it is not in the symbol table, we add it as a type TYPE_FUNCTION (do nothing, handled below) */
-    }
- 
-    else {
-        scope_bind(d->name, d->symbol);
-        printf("added identifier \"%s\" to the symbol table\n", d->name);
-    }
+        /* CASE (2): if it is in the symbol table and if the symbol in the table is of any type other than TYPE_PROTOTYPE, emit error */
+        else if(symCheck != NULL && symCheck->type->kind != TYPE_PROTOTYPE) {
+            
+            // will reach here if the same name is declared as anything other than a function prototype
+            printf("resolution error: The function \"%s\" cannot be implemented, as identifier \"%s\" already exists\n", d->name, d->name);
+            totalResErrors++;
+        }
     
+        /* CASE (3): if it is not in the symbol table, we add it as a type TYPE_FUNCTION */
+        else {
+            scope_bind(d->name, d->symbol);
+            printf("added identifier \"%s\" to the symbol table\n", d->name);
+        }
+    }
 
-    // if the declaration has code (meaning it is a function), resolve params and statements
-    if(d->code != NULL) {
+    // if the declaration if a function prototype or implementation, resolve parameters and code (if applicapble)
+    if(d->type->kind == TYPE_FUNCTION || d->type->kind == TYPE_PROTOTYPE) {
         scope_enter();
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);

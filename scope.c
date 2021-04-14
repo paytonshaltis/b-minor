@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 // set DEBUG to true to see debugging messages, false to turn them off
-bool DEBUG = true;
+bool DEBUG = false;
 
 // this is the master stack that will be used by all functions below
 struct stack_node* theStackTop;
