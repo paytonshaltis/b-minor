@@ -247,6 +247,8 @@ int main(int argc, char* argv[]) {
         printf("This is the resolution phase.\n");
         printf("=============================\n");
         
+        struct symbol* sym = symbol_create(SYMBOL_GLOBAL, type_create(TYPE_ARRAY, type_create(TYPE_INTEGER, NULL, NULL, 0), NULL, 0), "Array of Integerss");
+        
         // we must enter the global scope before doing any resolutions
         scope_enter();
         

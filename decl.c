@@ -25,8 +25,8 @@ void decl_print(struct decl *d, int indent) {
     printf("%s: ", d->name);
     type_print(d->type);
     
-    // for declarations of type other than function
-    if(d->type->kind != TYPE_FUNCTION) {
+    // for declarations of type other than function and prototype
+    if(d->type->kind != TYPE_FUNCTION && d->type->kind != TYPE_PROTOTYPE) {
 
         // if there is an initial value
         if(d->value != NULL){
@@ -36,8 +36,8 @@ void decl_print(struct decl *d, int indent) {
         printf(";\n");
     }
 
-    // for declarations of type function
-    if(d->type->kind == TYPE_FUNCTION) {
+    // for declarations of type function and prototype
+    if(d->type->kind == TYPE_FUNCTION || d->type->kind == TYPE_PROTOTYPE) {
         
         // if it is an actual function implementation rather than prototype
         if(d->code != NULL) {
@@ -79,40 +79,38 @@ void decl_resolve(struct decl* d) {
     // next we need to resolve the expression associated with this declaration
     expr_resolve(d->value);
 
-    // then we bind the 'name', 'symbol' pair into the symbol table
-    // NOTE that we must first check to see if that symbol is in the current scope...
-    // if the identifier is found in the table, and it is not a function, resolution error
-    if(scope_lookup_current(d->name) != NULL && d->type->kind != TYPE_FUNCTION) {
-        printf("resolution error: identifier \"%s\" already in current scope in the symbol table\n", d->name);
-        totalResErrors++;
-    }
-    // otherwise, if we find a function declaration in this scope, we cannot
-    // allow a second prototype to be declared:
-    else if(scope_lookup_current(d->name) != NULL && d->type->kind == TYPE_FUNCTION /* && d->code == NULL*/) {
-        /*
-        printf("resolution error: cannot redeclare prototype for function \"%s\"\n", d->name);
-        totalResErrors++;
-        */
-        printf("reference to function identifier \"%s\" found in the symbol table\n", d->name);
-    }
-    /*
-    // otherwise, if we find a function of the same name whose funcImp is 0, we are allowed to
-    // creat a function implementation for it:
-    // MAY NEED TO COMPARE PARAMETERS AND RETURN TYPES HERE!!!!
-    else if(scope_lookup_current(d->name) != NULL && scope_lookup_current(d->name)->funcImp == 0 && d->type->kind == TYPE_FUNCTION && d->code != NULL) {
-        
-        // marks this function as implemented
-        d->symbol->funcImp = 1;
+    
+    // first we must distinguish function implementation from others since they are handled differently
 
-        // overwrites the previous symbol table entry with the function implementation
-        scope_bind(d->name, d->symbol);
-        printf("overwrote function prototype with an implementation for function \"%s\"\n", d->name);
+    // if the declaration is NOT of type 'function'
+    if(d->type->kind != TYPE_FUNCTION) {
+        
+        // the identifier of 'd' should not be found in the symbol table. If so, emit an error
+        if(scope_lookup_current(d->name) != NULL) {
+            printf("resolution error: identifier \"%s\" already in current scope in the symbol table\n", d->name);
+            totalResErrors++;
+        }
     }
-    */
+
+    // if the declaration is of type 'function'
+    if(d->type->kind == TYPE_FUNCTION) {
+
+        /* CASE (1): if it is in the symbol table and if the symbol in the table is of type TYPE_PROTOTYPE, we can update it with implementation */
+        struct symbol* symCheck = scope_lookup_current(d->name);
+        if(symCheck != NULL && symCheck->kind == TYPE_PROTOTYPE) {
+            
+        }
+
+        /* CASE (2): if it is in the symbol table and if the symbol in the table is of type TYPE_FUNCTION, we must emit an error */
+
+        /* CASE (3): if it is not in the symbol table, we add it as a type TYPE_FUNCTION (do nothing, handled below) */
+    }
+ 
     else {
         scope_bind(d->name, d->symbol);
         printf("added identifier \"%s\" to the symbol table\n", d->name);
     }
+    
 
     // if the declaration has code (meaning it is a function), resolve params and statements
     if(d->code != NULL) {
