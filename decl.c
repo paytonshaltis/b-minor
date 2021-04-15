@@ -4,6 +4,7 @@
 #include "scope.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 int totalResErrors = 0;
 
@@ -98,6 +99,9 @@ void decl_resolve(struct decl* d) {
         }
     }
 
+    // flag used later to determine if parameters and code should be resolved
+    bool resolveParamCode = false;
+
     // if the declaration is of type 'function'
     if(d->type->kind == TYPE_FUNCTION) {
         
@@ -105,18 +109,31 @@ void decl_resolve(struct decl* d) {
 
         /* CASE (1): if it is in the symbol table and if the symbol in the table is of type TYPE_PROTOTYPE, we can update it with implementation */
         if(symCheck != NULL && symCheck->type->kind == TYPE_PROTOTYPE) {
-            
-            // unbind the prototype from the symbol table
-            scope_unbind(d->name);
-            
-            // change the kind of the declaration to TYPE_FUNCTION
-            d->symbol->type->kind = TYPE_FUNCTION;
 
-            // rebind the key and symbol structure to the symbol table
-            scope_bind(d->name, d->symbol);
+            // if the parameters match between prototype and implementation
+            if(param_list_compare(d->type->params, symCheck->type->params)) {
+                
+                // set the flag to true so we know to resolve params and code
+                resolveParamCode = true;
 
-            // print message to identify function update
-            printf("function prototype \"%s\" updated in symbol table with implementation\n", d->name);
+                // unbind the prototype from the symbol table
+                scope_unbind(d->name);
+                
+                // change the kind of the declaration to TYPE_FUNCTION
+                d->symbol->type->kind = TYPE_FUNCTION;
+
+                // rebind the key and symbol structure to the symbol table
+                scope_bind(d->name, d->symbol);
+
+                // print message to identify function update
+                printf("function prototype \"%s\" updated in symbol table with implementation\n", d->name);
+            }
+            
+            // if the parameters do not match
+            else {
+                printf("resolution error: function implementation for \"%s\" does not match prototype's parameters\n", d->name);
+                totalResErrors++;
+            }
         }
 
         /* CASE (2): if it is in the symbol table and if the symbol in the table is of any type other than TYPE_PROTOTYPE, emit error */
@@ -129,13 +146,18 @@ void decl_resolve(struct decl* d) {
     
         /* CASE (3): if it is not in the symbol table, we add it as a type TYPE_FUNCTION */
         else {
+            
+            // set the flag to true so we know to resolve params and code
+            resolveParamCode = true;
+
+            // bind the name and symbol to the symbol table
             scope_bind(d->name, d->symbol);
             printf("added identifier \"%s\" to the symbol table\n", d->name);
         }
     }
 
-    // if the declaration if a function prototype or implementation, resolve parameters and code (if applicapble)
-    if(d->type->kind == TYPE_FUNCTION || d->type->kind == TYPE_PROTOTYPE) {
+    // if the declaration is a function prototype or implementation (with matching prototypes), resolve parameters and code (if applicapble)
+    if((d->type->kind == TYPE_FUNCTION && resolveParamCode) || d->type->kind == TYPE_PROTOTYPE) {
         scope_enter();
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);

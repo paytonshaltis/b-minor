@@ -53,7 +53,7 @@ void type_print(struct type *t) {
     }
 
     // for type function
-    if(t->kind == TYPE_FUNCTION) {
+    if(t->kind == TYPE_FUNCTION || t->kind == TYPE_PROTOTYPE) {
         printf("function ");
         type_print(t->subtype);
         printf(" (");
@@ -82,7 +82,6 @@ bool type_compare(struct type* t1, struct type* t2) {
         }
         
     }
-    
     // otherwise, return false, types are not equal
     return false;
 }

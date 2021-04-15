@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "param_list.h"
 #include "scope.h"
 
@@ -65,7 +66,7 @@ bool param_list_compare(struct param_list* p1, struct param_list* p2) {
     while(p1copy != NULL && p2copy != NULL) {
 
         // if the name and type matches
-        if((p1copy->name == p2copy->name) && type_compare(p1copy->type, p2copy->type)) {
+        if(strcmp(p1copy->name, p2copy->name) == 0 && type_compare(p1copy->type, p2copy->type)) {
 
             // move to the next parameter
             p1copy = p1copy->next;
