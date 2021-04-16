@@ -81,7 +81,9 @@ void decl_resolve(struct decl* d) {
     // next we need to resolve the expression associated with this declaration
     expr_resolve(d->value);
 
-    
+    // flag used later to determine if parameters and code should be resolved
+    bool resolveParamCode = false;
+
     // first we must distinguish function implementation from others since they are handled differently
 
     // if the declaration is NOT of type 'function'
@@ -97,11 +99,9 @@ void decl_resolve(struct decl* d) {
         else {
             scope_bind(d->name, d->symbol);
             printf("added identifier \"%s\" to the symbol table\n", d->name);
+            resolveParamCode = true;
         }
     }
-
-    // flag used later to determine if parameters and code should be resolved
-    bool resolveParamCode = false;
 
     // if the declaration is of type 'function'
     if(d->type->kind == TYPE_FUNCTION) {
@@ -158,7 +158,7 @@ void decl_resolve(struct decl* d) {
     }
 
     // if the declaration is a function prototype or implementation (with matching prototypes), resolve parameters and code (if applicapble)
-    if((d->type->kind == TYPE_FUNCTION && resolveParamCode) || d->type->kind == TYPE_PROTOTYPE) {
+    if((d->type->kind == TYPE_FUNCTION && resolveParamCode) || (d->type->kind == TYPE_PROTOTYPE && resolveParamCode)) {
         scope_enter();
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);
