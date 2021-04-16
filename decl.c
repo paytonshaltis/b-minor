@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 int totalResErrors = 0;
+int totalTypeErrors = 0;
 
 // basic factory function for creating a 'decl' struct
 struct decl * decl_create( char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ) {

@@ -18,6 +18,7 @@ extern char *yytext;
 extern struct decl* parser_result;
 extern int yylineno;
 extern int totalResErrors;
+extern int totalTypeErrors;
 
 /* function used to modify 'yytext' for char and string literals */
 void modifyText(enum yytokentype t) {
@@ -128,14 +129,16 @@ int main(int argc, char* argv[]) {
     int parseFlag = 0;
     int printFlag = 0;
     int resolveFlag = 0;
+    int typecheckFlag = 0;
     int index = 0;
 
-    /* array of options; currently only contains "scan" and the required "all-0s" option structs */
+    /* array of options; all possible command-line options and the required "all-0s" option structs */
     struct option options[] = { 
         {"scan", required_argument, &scanFlag, 1},
         {"parse", required_argument, &parseFlag, 1},
         {"print", required_argument, &printFlag, 1},
-        {"resolve", required_argument, &resolveFlag, 1}, 
+        {"resolve", required_argument, &resolveFlag, 1},
+        {"typecheck", required_argument, &typecheckFlag, 1}, 
         {0, 0, 0, 0} 
     };
 
@@ -163,7 +166,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* scanning phase: done with all command line options */
-    if(scanFlag == 1 || parseFlag == 1 || printFlag == 1 || resolveFlag == 1) {
+    if(scanFlag == 1 || parseFlag == 1 || printFlag == 1 || resolveFlag == 1 || typecheckFlag == 1) {
 
         /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
         while(1) {
@@ -205,7 +208,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* parsing phase: done with all command line options other than '-scan' */
-    if(parseFlag == 1 || printFlag == 1 || resolveFlag == 1) {
+    if(parseFlag == 1 || printFlag == 1 || resolveFlag == 1 || typecheckFlag == 1) {
         
         /* reopens and restarts the source file so parsing may
         begin from the beginning of the file after scanning */
@@ -242,10 +245,10 @@ int main(int argc, char* argv[]) {
         printf("\nEnd of Pretty Print\n");
     }
 
-    /* resolution phase: done with the command line option -resolve */
-    if(resolveFlag == 1) {
+    /* resolution phase: done with the command line option -resolve and -typecheck*/
+    if(resolveFlag == 1 || typecheckFlag == 1) {
         printf("This is the resolution phase.\n");
-        printf("=============================\n");
+        printf("=============================\n\n");
                 
         // we must enter the global scope before doing any resolutions
         scope_enter();
@@ -254,17 +257,22 @@ int main(int argc, char* argv[]) {
         decl_resolve(parser_result);
 
         // print out the total number of resolution errors found
-        printf("There were %i resolution errors detected.\n", totalResErrors);
+        printf("\n~~ There were %i resolution errors detected. ~~\n\n", totalResErrors);
 
-        // use the total number of resolution errors to determine what status to exit with
-        if(totalResErrors > 0) {
-            exit(1);
-        }
-        else {
-            exit(0);
-        }
     }
     
+    /* typechecking phase: done with the command line option -typecheck */
+    if(typecheckFlag == 1) {
+        printf("This is the typechecking phase.\n");
+        printf("=============================\n\n");
+    }
+
     /* completed each phase of the compiler */
-    exit(0);
+    // use the total number of resolution and typechecking errors to determine exit code
+    if(totalResErrors > 0 || totalTypeErrors > 0) {
+        exit(1);
+    }
+    else {
+        exit(0);
+    }
 }
