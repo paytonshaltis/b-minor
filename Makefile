@@ -25,7 +25,7 @@ type.o: type.c type.h
 stmt.o: stmt.c stmt.h scope.h
 	gcc stmt.c -c -o stmt.o
 
-expr.o: expr.c expr.h scope.h
+expr.o: expr.c expr.h scope.h symbol.h
 	gcc expr.c -c -o expr.o
 
 param_list.o: param_list.c param_list.h scope.h

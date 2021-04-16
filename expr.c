@@ -3,6 +3,7 @@
 #include <string.h>
 #include "expr.h"
 #include "scope.h"
+#include "symbol.h"
 
 extern int totalResErrors;
 
@@ -335,11 +336,28 @@ void expr_resolve(struct expr* e) {
     if(e->kind == EXPR_NAME) {
         e->symbol = scope_lookup(e->name);
         if(e->symbol == NULL) {
-            printf("resolution error: identifier \"%s\" not found in the current scope\n", e->name);
+            printf("resolution error: \"%s\" not found in scope\n", e->name);
             totalResErrors++;
         }
         else {
-            printf("reference to identifier \"%s\" found in symbol table\n", e->name);
+            
+            // print proper message depending on scope
+            if(scope_lookup(e->name)->type->kind == TYPE_PROTOTYPE) {
+                printf("prototype \"%s\" referenced from symbol table\n", e->name);
+            }
+            else if(scope_lookup(e->name)->type->kind == TYPE_FUNCTION) {
+                printf("function \"%s\" referenced from symbol table\n", e->name);
+            }
+            else if(scope_lookup(e->name)->kind == SYMBOL_GLOBAL) {
+                printf("global \"%s\" referenced from symbol table\n", e->name);
+            }
+            if(scope_lookup(e->name)->kind == SYMBOL_LOCAL) {
+                printf("local \"%s\" referenced from symbol table\n", e->name);
+            }
+            if(scope_lookup(e->name)->kind == SYMBOL_PARAM) {
+                printf("parameter \"%s\" referenced from symbol table\n", e->name);
+            }
+               
         }
     }
     else {

@@ -91,14 +91,27 @@ void decl_resolve(struct decl* d) {
         
         // if the identifier is found in the symbol table, emit an error (redeclaration of non function)
         if(scope_lookup_current(d->name) != NULL) {
-            printf("resolution error: identifier \"%s\" already in current scope in the symbol table\n", d->name);
+            printf("resolution error: identifier \"%s\" already declared in current scope\n", d->name);
             totalResErrors++;
         }
         
         // if the identifier is NOT found in the symbol table, add it to the table
         else {
             scope_bind(d->name, d->symbol);
-            printf("added identifier \"%s\" to the symbol table\n", d->name);
+            
+            // print proper message depending on scope
+            if(scope_lookup_current(d->name)->type->kind == TYPE_PROTOTYPE) {
+                printf("prototype \"%s\" added to symbol table\n", d->name);
+            }
+            else if(scope_lookup_current(d->name)->kind == SYMBOL_GLOBAL) {
+                printf("global \"%s\" added to symbol table\n", d->name);
+            }
+            if(scope_lookup_current(d->name)->kind == SYMBOL_LOCAL) {
+                printf("local \"%s\" added to symbol table\n", d->name);
+            }
+            if(scope_lookup_current(d->name)->kind == SYMBOL_PARAM) {
+                printf("parameter \"%s\" added to symbol table\n", d->name);
+            }
             resolveParamCode = true;
         }
     }
@@ -127,12 +140,12 @@ void decl_resolve(struct decl* d) {
                 scope_bind(d->name, d->symbol);
 
                 // print message to identify function update
-                printf("function prototype \"%s\" updated in symbol table with implementation\n", d->name);
+                printf("implementation for \"%s\" updated in symbol table\n", d->name);
             }
             
             // if the parameters do not match
             else {
-                printf("resolution error: function implementation for \"%s\" does not match prototype's parameters\n", d->name);
+                printf("resolution error: implementation for \"%s\" does not match prototype\n", d->name);
                 totalResErrors++;
             }
         }
@@ -141,7 +154,7 @@ void decl_resolve(struct decl* d) {
         else if(symCheck != NULL && symCheck->type->kind != TYPE_PROTOTYPE) {
             
             // will reach here if the same name is declared as anything other than a function prototype
-            printf("resolution error: The function \"%s\" cannot be implemented, as identifier \"%s\" already exists\n", d->name, d->name);
+            printf("resolution error: function \"%s\" cannot be implemented, \"%s\" already declared in current scope\n", d->name, d->name);
             totalResErrors++;
         }
     
@@ -153,7 +166,7 @@ void decl_resolve(struct decl* d) {
 
             // bind the name and symbol to the symbol table
             scope_bind(d->name, d->symbol);
-            printf("added identifier \"%s\" to the symbol table\n", d->name);
+            printf("function \"%s\" added to the symbol table\n", d->name);
         }
     }
 
