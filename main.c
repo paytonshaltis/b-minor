@@ -266,7 +266,12 @@ int main(int argc, char* argv[]) {
         printf("This is the typechecking phase.\n");
         printf("=============================\n\n");
 
-        expr_typecheck(expr_create(EXPR_EQUAL, expr_create(EXPR_CHARLIT, 0, 0), expr_create(EXPR_CHARLIT, 0, 0)));
+        struct expr* e = expr_create(EXPR_MULT, expr_create(EXPR_GROUP, expr_create(EXPR_SUB, expr_create(EXPR_INTLIT, 0, 0), expr_create_name("a")), 0), expr_create(EXPR_INTLIT, 0, 0));
+
+        expr_print(e);
+        printf("\n");
+        expr_typecheck(e);
+        // (97 - a) * 3;
     }
 
     /* completed each phase of the compiler */

@@ -384,7 +384,8 @@ struct type* expr_typecheck(struct expr* e) {
     // switch statement for all kinds of expressions
     switch(e->kind) {
         
-        // the most basic cases; basic types: returns that type
+        /* NORMAL CASES: understandably similar to one another */
+        // the most basic cases; basic expressions: returns that type
         case EXPR_INTLIT:
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
@@ -421,7 +422,7 @@ struct type* expr_typecheck(struct expr* e) {
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         
-        // the binary arithmetic: both left and right expressions should be integers: returns integer
+        // the binary arithmetic: both left and right expressions should be integers, returns integer
         case EXPR_EXPON:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot exponentiate non-integer types\n");
@@ -488,7 +489,7 @@ struct type* expr_typecheck(struct expr* e) {
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
         
-        // the integer, string, and char equivalence expressions : left and right must match, returns boolean
+        // the integer, string, and char equivalence expressions: left and right must match, returns boolean
         case EXPR_NEQUAL:
         case EXPR_EQUAL:
             if((lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) && 
@@ -499,6 +500,30 @@ struct type* expr_typecheck(struct expr* e) {
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
+
+        /* SPECIAL CASES: not as uniform as the ones above */
+        // a group expression: simply typecheck the expressions stored within the parens
+        case EXPR_GROUP:
+            result = lt;
+            break;
+        
+        // an identifier expression: should find and return the type from the symbol table
+        case EXPR_NAME:
+            
+            // if the identifier is NOT found in the symbol table
+            if(scope_lookup(e->name) == NULL) {
+                printf("typechecking error: identifier \"%s\" may not have been declared\n", e->name);
+                break;
+            }
+
+            // if the identifier IS found in the symbol table
+            else {
+                result = scope_lookup(e->name)->type;
+                printf("Variable 'a' is of type: ");
+                type_print(scope_lookup(e->name)->type);
+                printf("\n");
+                break;
+            }
     }
 
     // types of left and right expressions no longer needed, delete these

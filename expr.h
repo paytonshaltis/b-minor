@@ -10,7 +10,7 @@ typedef enum {
 	EXPR_CHARLIT,	//
 	EXPR_STRINGLIT,	//
 	EXPR_FCALL,		// st/args	r: sym tab
-	EXPR_GROUP,		// expr_typecheck(lt)
+	EXPR_GROUP,		//
 	EXPR_ARRIND,	// sym tab  r: sym tab	
 	EXPR_BRACKET,	// inside	r: i
 	EXPR_CURLS,		// special case

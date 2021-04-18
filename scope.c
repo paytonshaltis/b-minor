@@ -121,11 +121,11 @@ void scope_bind(const char* name, struct symbol* sym) {
 
 // searches the stack of hash tables from top to bottom, looking for the first entry matching 'name'. Returns NULL if not found
 struct symbol* scope_lookup(const char* name) {
-
+    
     // temporary node and symbol to be returned
     struct stack_node* temp = theStackTop;
     struct symbol* result;
-
+    
     // if the stack is somehow empty, return NULL
     if(temp == NULL) {
 
@@ -134,7 +134,7 @@ struct symbol* scope_lookup(const char* name) {
         }
         return NULL;
     }
-
+    
     // otherwise, search the hash table in each node, return the symbol struct if found
     while(temp != NULL) {
         
@@ -147,7 +147,7 @@ struct symbol* scope_lookup(const char* name) {
             }
             return result;
         }
-
+        
         // otherwise, move to the next node
         temp = temp->next;
         if(DEBUG == true) {
