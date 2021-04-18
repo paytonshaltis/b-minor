@@ -228,7 +228,6 @@ int main(int argc, char* argv[]) {
 
         /* if the source file does not have valid B-Minor syntax */
         else {
-            printf("Parse failed!\n");
             exit(1);
         }
     }

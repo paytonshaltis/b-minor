@@ -332,6 +332,6 @@ paramslist		: ident TOKEN_COLON type TOKEN_COMMA paramslist			{$$ = param_list_c
 %%
 
 int yyerror(char* str) {
-	printf("Parse error near line %d\n", yylineno);
+	printf("Parse failed near line %d\n", yylineno);
 	return 1;
 }
