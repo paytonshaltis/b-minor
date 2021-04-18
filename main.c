@@ -9,6 +9,7 @@
 #include "scope.h"
 #include "symbol.h"
 #include "type.h"
+#include "expr.h"
 
 extern FILE *yyin;
 extern int yylex();
@@ -264,6 +265,8 @@ int main(int argc, char* argv[]) {
     if(typecheckFlag == 1) {
         printf("This is the typechecking phase.\n");
         printf("=============================\n\n");
+
+        expr_typecheck(expr_create(EXPR_EQUAL, expr_create(EXPR_CHARLIT, 0, 0), expr_create(EXPR_CHARLIT, 0, 0)));
     }
 
     /* completed each phase of the compiler */

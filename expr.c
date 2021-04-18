@@ -365,3 +365,146 @@ void expr_resolve(struct expr* e) {
         expr_resolve(e->right);
     }
 }
+
+// function used to typecheck expressions; returns the type of expression, even in case of error
+struct type* expr_typecheck(struct expr* e) {
+
+    // base case for recursion
+    if(e == NULL) {
+        return NULL;
+    }
+
+    // typecheck the left and right expressions, storing their addresses
+    struct type* lt = expr_typecheck(e->left);
+    struct type* rt = expr_typecheck(e->right);
+
+    // the result to be returned (even if typechecking fails!)
+    struct type* result;
+
+    // switch statement for all kinds of expressions
+    switch(e->kind) {
+        
+        // the most basic cases; basic types: returns that type
+        case EXPR_INTLIT:
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        case EXPR_STRINGLIT:
+            result = type_create(TYPE_STRING, 0, 0, 0);
+            break;
+        case EXPR_CHARLIT:
+            result = type_create(TYPE_CHAR, 0, 0, 0);
+            break;
+        case EXPR_BOOLLIT:
+            result = type_create(TYPE_BOOLEAN, 0, 0, 0);
+            break;
+        
+        // the unary arithmetic: the left expression should be an integer: returns integer
+        case EXPR_INC:
+            if(lt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot increment non-integer type\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break; 
+        case EXPR_DEC:
+            if(lt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot decrement non-integer type\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        case EXPR_NEG:
+            if(lt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot negate non-integer type\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        
+        // the binary arithmetic: both left and right expressions should be integers: returns integer
+        case EXPR_EXPON:
+            if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot exponentiate non-integer types\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        case EXPR_MOD:
+            if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot modulo non-integer types\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        case EXPR_DIV:
+            if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot divide non-integer types\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        case EXPR_MULT:
+            if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot multiply non-integer types\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        case EXPR_SUB:
+            if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot subtract non-integer type\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+        case EXPR_ADD:
+            if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot add non-integer type\n");
+                break;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+
+        // the binary integer logical arithmetic: left / right expressions should be integers, returns boolean
+        case EXPR_GE:
+        case EXPR_GREATER:
+        case EXPR_LE:
+        case EXPR_LESS:
+            if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+                printf("typechecking error: cannot perform integer comparison on non-integer type\n");
+                break;
+            }
+            result = type_create(TYPE_BOOLEAN, 0, 0, 0);
+            break;
+        
+        // the birary boolean logical arithmetic: left / right expressions should be booleans, returns boolean
+        case EXPR_NOT:
+        case EXPR_AND:
+        case EXPR_OR:
+            if(lt->kind != TYPE_BOOLEAN || rt->kind != TYPE_BOOLEAN) {
+                printf("typechecking error: cannot perform boolean logic on non-boolean type\n");
+                break;
+            }
+            result = type_create(TYPE_BOOLEAN, 0, 0, 0);
+            break;
+        
+        // the integer, string, and char equivalence expressions : left and right must match, returns boolean
+        case EXPR_NEQUAL:
+        case EXPR_EQUAL:
+            if((lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) && 
+               (lt->kind != TYPE_STRING || rt->kind != TYPE_STRING) && 
+               (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR)) {
+                printf("typechecking error: cannot perform equivalence on non-matching, non-applicable type\n");
+                break;
+            }
+            result = type_create(TYPE_BOOLEAN, 0, 0, 0);
+            break;
+    }
+
+    // types of left and right expressions no longer needed, delete these
+    // type_delete(lt);
+    // type_delete(rt);
+
+    // returns the result, regardless of typechecking error
+    return result;
+}
