@@ -124,8 +124,8 @@ void decl_resolve(struct decl* d) {
         /* CASE (1): if it is in the symbol table and if the symbol in the table is of type TYPE_PROTOTYPE, we can update it with implementation */
         if(symCheck != NULL && symCheck->type->kind == TYPE_PROTOTYPE) {
 
-            // if the parameters match between prototype and implementation
-            if(param_list_compare(d->type->params, symCheck->type->params)) {
+            // if the parameters AND return types match between prototype and implementation
+            if(param_list_compare(d->type->params, symCheck->type->params) && (d->type->subtype->kind == symCheck->type->subtype->kind)) {
                 
                 // set the flag to true so we know to resolve params and code
                 resolveParamCode = true;
@@ -188,10 +188,12 @@ void decl_resolve(struct decl* d) {
 // conducts typechecking on declarations
 void decl_typecheck(struct decl* d) {
     
+    // base case for recursion (the declaration after the last)
     if(d == NULL) {
         return;
     }
 
+    // if a variable is declared with an expression, we need to typecheck
     if(d->value) {
         struct type* t;
         t = expr_typecheck(d->value);
@@ -199,8 +201,17 @@ void decl_typecheck(struct decl* d) {
             printf("typechecking error: declaration type does not match expression\n");
         }
     }
-    if(d->code) {
-        stmt_typecheck(d->code);
+    
+    // if a declaration is a function implementation, we need to make sure it 
+    // returns the correct type, then typecheck its statements
+    if(d->type->kind == TYPE_FUNCTION) {
+        
+        // check and see if it is the global scope as an implementation; if it was rejected
+        // by name resolution (not matching prototype, etc.) then it may cause seg faults
+        // if we try messing with its code
+        if(scope_lookup(d->name) != NULL && scope_lookup(d->name)->type->kind == TYPE_FUNCTION) {
+            stmt_typecheck(d->code);
+        }
     }
 
     // typecheck the next declaration
