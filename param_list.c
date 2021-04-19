@@ -87,3 +87,37 @@ bool param_list_compare(struct param_list* p1, struct param_list* p2) {
     return false;
 
 }
+
+// returns a copy of the param list structure
+struct param_list* param_list_copy(struct param_list* p) {
+    
+    // if the parameter list is NULL, return NULL
+    if(p == NULL) {
+        return NULL;
+    }
+    
+    // creates a new param_list using parameters from before, copying the next one
+    struct param_list* result = param_list_create(p->name, p->type, param_list_copy(p->next));
+    return result;
+
+}
+
+// recursively deletes a param_list struct
+void param_list_delete(struct param_list* p) {
+
+    // base case for recursion
+    if(p == NULL) {
+        return;
+    }
+
+    // frees the subfields of the param_list struct
+    param_list_delete(p->next);
+    type_delete(p->type);
+    if(p->name != NULL) {
+        free(p->name);
+    }
+
+    // free this param_list struct itself
+    if(p != NULL)
+        free(p);
+}

@@ -211,7 +211,7 @@ void stmt_typecheck(struct stmt* s) {
     switch(s->kind) {
         case STMT_EXPR:
             t = expr_typecheck(s->expr);
-            //type_delete(t);
+            type_delete(t);
             break;
         case STMT_IF:
             t = expr_typecheck(s->expr);
@@ -219,7 +219,7 @@ void stmt_typecheck(struct stmt* s) {
                 printf("typechecking error: condition of 'if' statement must return boolean type\n");
                 break;
             }
-            //type_delete(t)
+            type_delete(t);
             stmt_typecheck(s->body);
             break;
         case STMT_IF_ELSE:
@@ -228,7 +228,7 @@ void stmt_typecheck(struct stmt* s) {
                 printf("typechecking error: condition of 'if' statement must return boolean type\n");
                 break;
             }
-            //type_delete(t)
+            type_delete(t);
             stmt_typecheck(s->body);
             stmt_typecheck(s->else_body);
             break;
@@ -240,7 +240,7 @@ void stmt_typecheck(struct stmt* s) {
                     break;
                 }
             }
-            //type_delete(t);
+            type_delete(t);
             if(s->expr != NULL) {
                 t = expr_typecheck(s->expr);
                 if(t->kind != TYPE_BOOLEAN) {
@@ -248,7 +248,7 @@ void stmt_typecheck(struct stmt* s) {
                     break;
                 }
             }
-            //type_delete(t);
+            type_delete(t);
             if(s->next_expr != NULL) {
                 t = expr_typecheck(s->next_expr);
                 if(t->kind != TYPE_INTEGER) {
@@ -256,7 +256,7 @@ void stmt_typecheck(struct stmt* s) {
                     break;
                 }
             }
-            //type_delete(t);
+            type_delete(t);
             stmt_typecheck(s->body);
             break;
         case STMT_PRINT:

@@ -16,9 +16,10 @@ struct param_list {
 
 struct param_list * param_list_create( char *name, struct type *type, struct param_list *next );
 void param_list_print( struct param_list *a );
-struct param_list* param_list_copy(struct param_list* p);
 
 void param_list_resolve(struct param_list* p);
 bool param_list_compare(struct param_list* p1, struct param_list* p2);
+struct param_list* param_list_copy(struct param_list* p);
+void param_list_delete(struct param_list* p);
 
 #endif

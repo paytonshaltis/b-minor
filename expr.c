@@ -492,7 +492,7 @@ struct type* expr_typecheck(struct expr* e) {
         /* SPECIAL CASES: not as uniform as the ones above */
         // a group expression: simply typecheck the expressions stored within the parens
         case EXPR_GROUP:
-            result = lt;
+            result = type_copy(lt);
             break;
         
         // an identifier expression: should find and return the type from the symbol table
@@ -513,10 +513,7 @@ struct type* expr_typecheck(struct expr* e) {
         
         // an assignment expression: left and right must be of the same type
         case EXPR_ASSIGN:               
-            if((lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) && 
-               (lt->kind != TYPE_STRING || rt->kind != TYPE_STRING) && 
-               (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR) &&
-               (lt->kind != TYPE_BOOLEAN || rt->kind != TYPE_BOOLEAN)) {
+            if(!type_compare(lt, rt)) {
                     printf("typechecking error: cannot assign different types\n");
                }
             result = type_copy(lt);
@@ -559,8 +556,8 @@ struct type* expr_typecheck(struct expr* e) {
     }
 
     // types of left and right expressions no longer needed, delete these
-    // type_delete(lt);
-    // type_delete(rt);
+    type_delete(lt);
+    type_delete(rt);
 
     // returns the result, regardless of typechecking error
     return result;

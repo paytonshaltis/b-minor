@@ -89,12 +89,28 @@ bool type_compare(struct type* t1, struct type* t2) {
 // copies and returns a new 'type' struct
 struct type* type_copy(struct type* t) {
     
-    // returns NULL if t was NULL
+    // if the type was NULL, return NULL
     if(t == NULL) {
         return NULL;
     }
 
-    // creates copy of type t, returns it
-    struct type* result = type_create(t->kind, t->subtype, t->params, t->size);
+    // creates copy of type t, copying its subtype and parameter list, and returns copy
+    struct type* result = type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params), t->size);
     return result;
+}
+
+// deletes a type recursively
+void type_delete(struct type* t) {
+
+    // base case for recursion
+    if(t == NULL) {
+        return;
+    }
+
+    // deletes all subfields of a type struct
+    type_delete(t->subtype);
+    param_list_delete(t->params);
+
+    // free this struct
+    free(t);
 }
