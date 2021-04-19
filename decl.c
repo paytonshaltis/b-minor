@@ -197,11 +197,14 @@ void decl_typecheck(struct decl* d) {
     if(d->value) {
         struct type* t;
         t = expr_typecheck(d->value);
-        if(!type_compare(t, d->symbol->type)) {
+        
+        // makes sure identifiers have symbol structs; may not if implementation does not match
+        // prototype, and the implementation contains identifiers!
+        if(d->symbol != NULL && !type_compare(t, d->symbol->type)) {
             printf("typechecking error: declaration type does not match expression\n");
         }
     }
-    
+
     // if a declaration is a function implementation, we need to make sure it 
     // returns the correct type, then typecheck its statements
     if(d->type->kind == TYPE_FUNCTION) {
@@ -209,7 +212,7 @@ void decl_typecheck(struct decl* d) {
         // check and see if it is the global scope as an implementation; if it was rejected
         // by name resolution (not matching prototype, etc.) then it may cause seg faults
         // if we try messing with its code
-        if(scope_lookup(d->name) != NULL && scope_lookup(d->name)->type->kind == TYPE_FUNCTION) {
+        if(d->code) {
             stmt_typecheck(d->code);
         }
     }
