@@ -4,15 +4,15 @@
 #include "symbol.h"
 
 typedef enum {
-	EXPR_NAME,		// sym tab	r: sym tab
+	EXPR_NAME,		//
 	EXPR_INTLIT,	//
 	EXPR_BOOLLIT,	//
 	EXPR_CHARLIT,	//
 	EXPR_STRINGLIT,	//
 	EXPR_FCALL,		// st/args	r: sym tab
 	EXPR_GROUP,		//
-	EXPR_ARRIND,	// sym tab  r: sym tab	
-	EXPR_BRACKET,	// inside	r: i
+	EXPR_ARRIND,	//	
+	EXPR_BRACKET,	//
 	EXPR_CURLS,		// special case
 	EXPR_INC,		//
 	EXPR_DEC,		//
@@ -32,7 +32,7 @@ typedef enum {
 	EXPR_LESS,		//
 	EXPR_AND,		//
 	EXPR_OR,		//
-	EXPR_ASSIGN,	// sym tab	r: sym table
+	EXPR_ASSIGN,	//
 	EXPR_ARGS		// inside	r: type of all
 } expr_t;
 

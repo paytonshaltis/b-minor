@@ -75,13 +75,21 @@ bool type_compare(struct type* t1, struct type* t2) {
         return true;
     }
 
-    // if the kinds are the same, check the subtypes
+    // if the kinds are the same, check the subtypes & sizes
     if(t1->kind == t2->kind) {
-        if(type_compare(t1->subtype, t2->subtype)) {
+        if(type_compare(t1->subtype, t2->subtype) && t1->size == t2->size) {
             return true;
         }
         
     }
     // otherwise, return false, types are not equal
     return false;
+}
+
+// copies and returns a new 'type' struct
+struct type* type_copy(struct type* t) {
+    
+    // creates copy of type t, returns it
+    struct type* result = type_create(t->kind, t->subtype, t->params, t->size);
+    return result;
 }

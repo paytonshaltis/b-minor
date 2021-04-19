@@ -184,3 +184,25 @@ void decl_resolve(struct decl* d) {
     return;
 
 }
+
+// conducts typechecking on declarations
+void decl_typecheck(struct decl* d) {
+    
+    if(d == NULL) {
+        return;
+    }
+
+    if(d->value) {
+        struct type* t;
+        t = expr_typecheck(d->value);
+        if(!type_compare(t, d->symbol->type)) {
+            printf("typechecking error: declaration type does not match expression\n");
+        }
+    }
+    if(d->code) {
+        //stmt_typecheck(d->code);
+    }
+
+    // typecheck the next declaration
+    decl_typecheck(d->next);
+}

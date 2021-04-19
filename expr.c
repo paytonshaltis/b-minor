@@ -145,7 +145,7 @@ void expr_print(struct expr *e) {
             printf("true");
     }
     if(e->kind == EXPR_STRINGLIT) {
-        
+
         // go character by character, and print escape sequences literally if found
         for(int i = 0; i < strlen(e->string_literal); i++) {
             if(e->string_literal[i] == 10) {
@@ -381,6 +381,9 @@ struct type* expr_typecheck(struct expr* e) {
     // the result to be returned (even if typechecking fails!)
     struct type* result;
 
+    // used in the bracket expressions
+    struct expr* temp;
+    
     // switch statement for all kinds of expressions
     switch(e->kind) {
         
@@ -510,20 +513,63 @@ struct type* expr_typecheck(struct expr* e) {
         // an identifier expression: should find and return the type from the symbol table
         case EXPR_NAME:
             
-            // if the identifier is NOT found in the symbol table
-            if(scope_lookup(e->name) == NULL) {
+            // see if the identifier has a symbol struct binded to it
+            if(e->symbol == NULL) {
                 printf("typechecking error: identifier \"%s\" may not have been declared\n", e->name);
                 break;
             }
-
-            // if the identifier IS found in the symbol table
+            
+            // copies the type from the 'symbol' struct for the identifier
             else {
-                result = scope_lookup(e->name)->type;
-                printf("Variable 'a' is of type: ");
-                type_print(scope_lookup(e->name)->type);
-                printf("\n");
+                result = type_copy(e->symbol->type);
                 break;
             }
+        
+        // an assignment expression: left and right must be of the same type
+        case EXPR_ASSIGN:
+            if(!type_compare(lt, rt)) {
+                   printf("typechecking error: cannot assign different types\n");
+                   break;
+               }
+            else {
+                printf("Type assign worked\n");
+                result = type_copy(lt);
+                break;
+            }
+        
+        // dereferencing an array at some index: left should be type array, right should be bracket type
+        case EXPR_ARRIND:
+            if(lt->kind == TYPE_ARRAY) {
+                if(rt->kind != TYPE_INTEGER) {
+                    printf("typechecking error: array index must be of type integer\n");
+                    break;
+                }
+                // need to find the actual subtype of this array; may be several 'arrays' down
+                while(lt->subtype != NULL) {
+                    lt = lt->subtype;
+                }
+                result = type_copy(lt);
+                break;
+            }
+            else {
+                printf("typechecking error: identifier \"%s\" is not an array\n", e->name);
+                result = type_copy(lt);
+                break;
+            }
+
+        // multiple brackets: used by EXPR_ARRIND, make sure each subsequent index is an integer
+        case EXPR_BRACKET:
+            temp = e;
+            while(temp->right != NULL) {
+                if(temp->left->kind != TYPE_INTEGER) {
+                    printf("typechecking error: array index must be of type integer\n");
+                    break;
+                }
+                temp = temp->right;
+            }
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
+
     }
 
     // types of left and right expressions no longer needed, delete these
