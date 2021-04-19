@@ -200,7 +200,7 @@ void decl_typecheck(struct decl* d) {
         }
     }
     if(d->code) {
-        //stmt_typecheck(d->code);
+        stmt_typecheck(d->code);
     }
 
     // typecheck the next declaration

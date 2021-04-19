@@ -89,6 +89,11 @@ bool type_compare(struct type* t1, struct type* t2) {
 // copies and returns a new 'type' struct
 struct type* type_copy(struct type* t) {
     
+    // returns NULL if t was NULL
+    if(t == NULL) {
+        return NULL;
+    }
+
     // creates copy of type t, returns it
     struct type* result = type_create(t->kind, t->subtype, t->params, t->size);
     return result;

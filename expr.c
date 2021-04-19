@@ -381,9 +381,6 @@ struct type* expr_typecheck(struct expr* e) {
     // the result to be returned (even if typechecking fails!)
     struct type* result;
 
-    // used in the bracket expressions
-    struct expr* temp;
-    
     // switch statement for all kinds of expressions
     switch(e->kind) {
         
@@ -406,21 +403,18 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_INC:
             if(lt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot increment non-integer type\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break; 
         case EXPR_DEC:
             if(lt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot decrement non-integer type\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_NEG:
             if(lt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot negate non-integer type\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
@@ -429,42 +423,36 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_EXPON:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot exponentiate non-integer types\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_MOD:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot modulo non-integer types\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_DIV:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot divide non-integer types\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_MULT:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot multiply non-integer types\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_SUB:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot subtract non-integer type\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_ADD:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot add non-integer type\n");
-                break;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
@@ -476,7 +464,6 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_LESS:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot perform integer comparison on non-integer type\n");
-                break;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
@@ -487,7 +474,6 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_OR:
             if(lt->kind != TYPE_BOOLEAN || rt->kind != TYPE_BOOLEAN) {
                 printf("typechecking error: cannot perform boolean logic on non-boolean type\n");
-                break;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
@@ -499,7 +485,6 @@ struct type* expr_typecheck(struct expr* e) {
                (lt->kind != TYPE_STRING || rt->kind != TYPE_STRING) && 
                (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR)) {
                 printf("typechecking error: cannot perform equivalence on non-matching, non-applicable type\n");
-                break;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
@@ -515,7 +500,8 @@ struct type* expr_typecheck(struct expr* e) {
             
             // see if the identifier has a symbol struct binded to it
             if(e->symbol == NULL) {
-                printf("typechecking error: identifier \"%s\" may not have been declared\n", e->name);
+                printf("typechecking error: identifier \"%s\" may not have been declared (defaults to integer for remainder of typechecking)\n", e->name);
+                result = type_create(TYPE_INTEGER, 0, 0, 0);
                 break;
             }
             
@@ -526,23 +512,25 @@ struct type* expr_typecheck(struct expr* e) {
             }
         
         // an assignment expression: left and right must be of the same type
-        case EXPR_ASSIGN:
-            if(!type_compare(lt, rt)) {
-                   printf("typechecking error: cannot assign different types\n");
-                   break;
+        case EXPR_ASSIGN:               
+            if((lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) && 
+               (lt->kind != TYPE_STRING || rt->kind != TYPE_STRING) && 
+               (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR) &&
+               (lt->kind != TYPE_BOOLEAN || rt->kind != TYPE_BOOLEAN)) {
+                    printf("typechecking error: cannot assign different types\n");
                }
-            else {
-                printf("Type assign worked\n");
-                result = type_copy(lt);
-                break;
-            }
+            result = type_copy(lt);
+            break;
         
         // dereferencing an array at some index: left should be type array, right should be bracket type
+        /*
         case EXPR_ARRIND:
+            if(lt == NULL) {
+                break;
+            }
             if(lt->kind == TYPE_ARRAY) {
                 if(rt->kind != TYPE_INTEGER) {
                     printf("typechecking error: array index must be of type integer\n");
-                    break;
                 }
                 // need to find the actual subtype of this array; may be several 'arrays' down
                 while(lt->subtype != NULL) {
@@ -551,7 +539,7 @@ struct type* expr_typecheck(struct expr* e) {
                 result = type_copy(lt);
                 break;
             }
-            else {
+            else {      
                 printf("typechecking error: identifier \"%s\" is not an array\n", e->name);
                 result = type_copy(lt);
                 break;
@@ -559,17 +547,15 @@ struct type* expr_typecheck(struct expr* e) {
 
         // multiple brackets: used by EXPR_ARRIND, make sure each subsequent index is an integer
         case EXPR_BRACKET:
-            temp = e;
-            while(temp->right != NULL) {
-                if(temp->left->kind != TYPE_INTEGER) {
+            if(rt != NULL) {
+                if(lt->kind != TYPE_INTEGER) {
                     printf("typechecking error: array index must be of type integer\n");
                     break;
                 }
-                temp = temp->right;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
-
+        */
     }
 
     // types of left and right expressions no longer needed, delete these

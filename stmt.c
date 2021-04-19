@@ -200,3 +200,76 @@ void stmt_resolve(struct stmt* s) {
     // resolve the next statement in the statement list
     stmt_resolve(s->next);
 }
+
+void stmt_typecheck(struct stmt* s) {
+    
+    if(s == NULL) {
+        return;
+    }
+
+    struct type* t;
+    switch(s->kind) {
+        case STMT_EXPR:
+            t = expr_typecheck(s->expr);
+            //type_delete(t);
+            break;
+        case STMT_IF:
+            t = expr_typecheck(s->expr);
+            if(t->kind != TYPE_BOOLEAN) {
+                printf("typechecking error: condition of 'if' statement must return boolean type\n");
+                break;
+            }
+            //type_delete(t)
+            stmt_typecheck(s->body);
+            break;
+        case STMT_IF_ELSE:
+            t = expr_typecheck(s->expr);
+            if(t->kind != TYPE_BOOLEAN) {
+                printf("typechecking error: condition of 'if' statement must return boolean type\n");
+                break;
+            }
+            //type_delete(t)
+            stmt_typecheck(s->body);
+            stmt_typecheck(s->else_body);
+            break;
+        case STMT_FOR:
+            if(s->init_expr != NULL) {
+                t = expr_typecheck(s->init_expr);
+                if(t->kind != TYPE_INTEGER) {
+                    printf("typechecking error: first expression in 'for-loop' must return integer type\n");
+                    break;
+                }
+            }
+            //type_delete(t);
+            if(s->expr != NULL) {
+                t = expr_typecheck(s->expr);
+                if(t->kind != TYPE_BOOLEAN) {
+                    printf("typechecking error: second expression in 'for-loop' must return boolean type\n");
+                    break;
+                }
+            }
+            //type_delete(t);
+            if(s->next_expr != NULL) {
+                t = expr_typecheck(s->next_expr);
+                if(t->kind != TYPE_INTEGER) {
+                    printf("typechecking error: third expression in 'for-loop' must return integer type\n");
+                    break;
+                }
+            }
+            //type_delete(t);
+            stmt_typecheck(s->body);
+            break;
+        case STMT_PRINT:
+            expr_typecheck(s->expr);
+            break;
+        case STMT_RETURN:
+            expr_typecheck(s->expr);
+            break;
+        case STMT_BLOCK:
+            stmt_typecheck(s->body);
+            break;
+        case STMT_DECL:
+            decl_typecheck(s->decl);
+    }
+    stmt_typecheck(s->next);
+}

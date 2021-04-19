@@ -5,13 +5,13 @@
 
 typedef enum {
 	STMT_DECL,
-	STMT_EXPR,
-	STMT_IF,
-	STMT_IF_ELSE,
-	STMT_FOR,
-	STMT_PRINT,
-	STMT_RETURN,
-	STMT_BLOCK
+	STMT_EXPR,		// done
+	STMT_IF,		// done
+	STMT_IF_ELSE,	// done
+	STMT_FOR,		// done
+	STMT_PRINT,		// done
+	STMT_RETURN,	// done
+	STMT_BLOCK		// done
 } stmt_t;
 
 struct stmt {
@@ -29,6 +29,7 @@ struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_exp
 void stmt_print( struct stmt *s, int indent );
 
 void stmt_resolve(struct stmt* s);
+void stmt_typecheck(struct stmt* s);
 
 
 #endif
