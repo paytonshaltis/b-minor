@@ -3,6 +3,7 @@
 #include <string.h>
 #include "param_list.h"
 #include "scope.h"
+#include "expr.h"
 
 extern int totalResErrors;
 
@@ -120,4 +121,55 @@ void param_list_delete(struct param_list* p) {
     // free this param_list struct itself
     if(p != NULL)
         free(p);
+}
+
+// returns true if a function call matches parameters
+bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
+    //printf("Starting function...\n");
+
+    // base case / case for no args function call
+    if(calledArgs == NULL && p == NULL) {
+        //printf("Both are NULL, made it to the end!\n");
+        return true;
+    }
+
+    // if one or the other becomes NULL first, return false
+    if(calledArgs == NULL) {
+        //printf("Called arguments ran out\n");
+        return false;
+    }
+
+    if(p == NULL) {
+        //printf("Parameters ran out\n");
+        return false;
+    }
+    // check the next item in the parameter list and expression list, ensure same type
+    // if calledArgs->left == NULL, type_compare calledArgs->right should be the last expression
+    if(calledArgs->left != NULL && calledArgs->right->kind == EXPR_ARGS) {
+        if(type_compare(expr_typecheck(calledArgs->left), p->type)) {
+            //printf("First two match, let's try more\n");
+
+            // if the types match, move on to the next in each list
+            return param_list_fcall_compare(calledArgs->right, p->next);
+        }
+
+        // else return false
+        return false;
+    }
+    //printf("Got here IMPORTANT\n");
+    if(calledArgs->left != NULL && calledArgs->right->kind != EXPR_ARGS) {
+        //printf("The last two arguments!!!\n");
+        if(type_compare(expr_typecheck(calledArgs->left), p->type)) {
+            //printf("First two match, let's try more\n");
+            if(p->next != NULL && type_compare(expr_typecheck(calledArgs->right), p->next->type)) {
+                //printf("Last two match!\n");
+                return param_list_fcall_compare(calledArgs->right->right, p->next->next);
+            }
+            return false;
+        }
+
+        // else return false
+        return false;
+    }
+    return false;
 }

@@ -519,6 +519,51 @@ struct type* expr_typecheck(struct expr* e) {
             result = type_copy(lt);
             break;
         
+        // a function call: need to return the subtype of the function named e->name, and make sure params match
+        case EXPR_FCALL:
+            //printf("Starting a fucntion call typecheck\n");
+
+            // should only do if the identifier of the call is a function or prototype
+            if(lt->kind == TYPE_FUNCTION || lt->kind == TYPE_PROTOTYPE) {
+                
+                // for multiple arguments (more than 1), send the EXPR_ARGS expression
+                if(e->right != NULL && e->right->left->kind == EXPR_ARGS) {
+                    //printf("args call\n");
+                    if(!param_list_fcall_compare(e->right->left, e->left->symbol->type->params)) {
+                        printf("typechecking error: function arguments do not match parameters\n");
+                    }
+                    result = type_copy(lt->subtype);
+                    break;
+                }
+                // for a single arg (1), send only the expression in question
+                else if(e->right != NULL && e->right->left->kind != EXPR_ARGS) {
+                    //printf("SINGLE ARG!\n");
+                    // if the first param matches the type of the only argument, and there are no more params, we are good
+                    if(!((expr_typecheck(e->right->left)->kind == e->left->symbol->type->params->type->kind) && e->left->symbol->type->params->next == NULL)) {
+                        printf("typechecking error: function argument does not match parameter(s)\n");
+                    }
+                    result = type_copy(lt->subtype);
+                    break;
+                }
+                // for a no args argument (0), send NULL
+                else {
+                    if(!param_list_fcall_compare(NULL, e->left->symbol->type->params)) {
+                        printf("typechecking error: function arguments do not match parameters\n");
+                    }
+                    result = type_copy(lt->subtype);
+                    break;
+                }
+            }
+            else {
+                printf("typechecking error: identifier \"%s\" is not a function\n", e->left->name);
+                result = type_copy(lt);
+                break;
+            }
+        
+        // arguments for a function call; always returns type integer so that freeing works (checked in different function)
+        case EXPR_ARGS:
+            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            break;
         // dereferencing an array at some index: left should be type array, right should be bracket type
         /*
         case EXPR_ARRIND:

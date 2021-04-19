@@ -77,6 +77,7 @@ bool type_compare(struct type* t1, struct type* t2) {
 
     // if the kinds are the same, check the subtypes & sizes
     if(t1->kind == t2->kind) {
+        fflush(stdout);
         if(type_compare(t1->subtype, t2->subtype) && t1->size == t2->size) {
             return true;
         }

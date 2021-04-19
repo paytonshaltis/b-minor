@@ -170,8 +170,9 @@ void decl_resolve(struct decl* d) {
         }
     }
 
-    // if the declaration is a function prototype or implementation (with matching prototypes), resolve parameters and code (if applicapble)
-    if((d->type->kind == TYPE_FUNCTION && resolveParamCode) || (d->type->kind == TYPE_PROTOTYPE && resolveParamCode)) {
+    // if the declaration is a function prototype, resolve parameters and code (if applicapble) **NOTE - To properly typecheck, even if implementation does not match
+    // a prototype, we should still resolve everything within so that typechecking may work appropriately**
+    if((d->type->kind == TYPE_FUNCTION) || (d->type->kind == TYPE_PROTOTYPE)) {
         scope_enter();
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);
