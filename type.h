@@ -27,6 +27,7 @@ void type_print( struct type *t );
 struct type* type_copy(struct type* t);
 
 bool type_compare(struct type* t1, struct type* t2);
+bool type_compare_no_size(struct type* t1, struct type* t2);
 void type_delete(struct type* t);
 
 #endif

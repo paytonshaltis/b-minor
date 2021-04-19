@@ -44,7 +44,7 @@ void param_list_resolve(struct param_list* p) {
     }
     // if the parameter was NOT found in the scope, we need to create a new symbol and enter it into the table
     else {
-        p->symbol = symbol_create(SYMBOL_PARAM, p->type, p->name);
+        p->symbol = symbol_create(SYMBOL_PARAM, type_copy(p->type), strdup(p->name));
 
         // bind this 'name', 'symbol' pair into the symbol table
         scope_bind(p->name, p->symbol);
@@ -98,7 +98,7 @@ struct param_list* param_list_copy(struct param_list* p) {
     }
     
     // creates a new param_list using parameters from before, copying the next one
-    struct param_list* result = param_list_create(p->name, p->type, param_list_copy(p->next));
+    struct param_list* result = param_list_create(strdup(p->name), type_copy(p->type), param_list_copy(p->next));
     return result;
 
 }
@@ -114,10 +114,11 @@ void param_list_delete(struct param_list* p) {
     // frees the subfields of the param_list struct
     param_list_delete(p->next);
     type_delete(p->type);
+    
     if(p->name != NULL) {
         free(p->name);
     }
-
+    
     // free this param_list struct itself
     if(p != NULL)
         free(p);
@@ -146,7 +147,7 @@ bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
     // check the next item in the parameter list and expression list, ensure same type
     // if calledArgs->left == NULL, type_compare calledArgs->right should be the last expression
     if(calledArgs->left != NULL && calledArgs->right->kind == EXPR_ARGS) {
-        if(type_compare(expr_typecheck(calledArgs->left), p->type)) {
+        if(type_compare_no_size(expr_typecheck(calledArgs->left), p->type)) {
             //printf("First two match, let's try more\n");
 
             // if the types match, move on to the next in each list
@@ -159,9 +160,9 @@ bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
     //printf("Got here IMPORTANT\n");
     if(calledArgs->left != NULL && calledArgs->right->kind != EXPR_ARGS) {
         //printf("The last two arguments!!!\n");
-        if(type_compare(expr_typecheck(calledArgs->left), p->type)) {
+        if(type_compare_no_size(expr_typecheck(calledArgs->left), p->type)) {
             //printf("First two match, let's try more\n");
-            if(p->next != NULL && type_compare(expr_typecheck(calledArgs->right), p->next->type)) {
+            if(p->next != NULL && type_compare_no_size(expr_typecheck(calledArgs->right), p->next->type)) {
                 //printf("Last two match!\n");
                 return param_list_fcall_compare(calledArgs->right->right, p->next->next);
             }

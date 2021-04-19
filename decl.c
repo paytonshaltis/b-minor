@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 int totalResErrors = 0;
 int totalTypeErrors = 0;
@@ -76,7 +77,7 @@ void decl_resolve(struct decl* d) {
 
     // creates and links the symbol for d into the d struct; symbol is now linked into the AST
     // this uses the 'kind' determined above, and the 'type' and 'name' from d
-    d->symbol = symbol_create(kind, d->type, d->name);
+    d->symbol = symbol_create(kind, type_copy(d->type), strdup(d->name));
 
     // next we need to resolve the expression associated with this declaration
     expr_resolve(d->value);

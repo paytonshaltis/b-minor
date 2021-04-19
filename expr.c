@@ -604,6 +604,8 @@ struct type* expr_typecheck(struct expr* e) {
     type_delete(lt);
     type_delete(rt);
 
+
+
     // returns the result, regardless of typechecking error
     return result;
 }

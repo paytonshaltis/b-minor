@@ -87,6 +87,26 @@ bool type_compare(struct type* t1, struct type* t2) {
     return false;
 }
 
+// compares two types to make sure they are the same (no sizes for arrays!)
+bool type_compare_no_size(struct type* t1, struct type* t2) {
+
+    // base case for recursion
+    if(t1 == NULL && t2 == NULL) {
+        return true;
+    }
+
+    // if the kinds are the same, check the subtypes
+    if(t1->kind == t2->kind) {
+        fflush(stdout);
+        if(type_compare(t1->subtype, t2->subtype)) {
+            return true;
+        }
+        
+    }
+    // otherwise, return false, types are not equal
+    return false;
+}
+
 // copies and returns a new 'type' struct
 struct type* type_copy(struct type* t) {
     
