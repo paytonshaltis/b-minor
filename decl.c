@@ -197,14 +197,27 @@ void decl_typecheck(struct decl* d) {
 
     // if a variable is declared with an expression, we need to typecheck
     if(d->value) {
-        struct type* t;
-        t = expr_typecheck(d->value);
         
-        // makes sure identifiers have symbol structs; may not if implementation does not match
-        // prototype, and the implementation contains identifiers!
-        if(d->symbol != NULL && !type_compare(t, d->symbol->type)) {
-            printf("typechecking error: declaration type does not match expression\n");
-            totalTypeErrors++;
+        // for all types other than array
+        if(d->type->kind != TYPE_ARRAY) {
+            struct type* t;
+            t = expr_typecheck(d->value);
+            
+            // makes sure identifiers have symbol structs; may not if implementation does not match
+            // prototype, and the implementation contains identifiers!
+            if(d->symbol != NULL && !type_compare(t, d->symbol->type)) {
+                printf("typechecking error: declaration type does not match expression\n");
+                totalTypeErrors++;
+            }
+        }
+
+        // for initializations of type arrays
+        if(d->type->kind == TYPE_ARRAY) {
+            
+            // we need to make sure that the initializer list matches the function...
+            printf("Initializer list for array detected!\n");
+            expr_print(d->value->left);
+            printf("\n");
         }
     }
 

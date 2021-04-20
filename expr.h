@@ -11,8 +11,8 @@ typedef enum {
 	EXPR_STRINGLIT,	//
 	EXPR_FCALL,		//
 	EXPR_GROUP,		//
-	EXPR_ARRIND,	// tough	
-	EXPR_BRACKET,	// tough
+	EXPR_ARRIND,	//	
+	EXPR_BRACKET,	//
 	EXPR_CURLS,		// special case
 	EXPR_INC,		//
 	EXPR_DEC,		//

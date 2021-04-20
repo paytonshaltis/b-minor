@@ -695,6 +695,11 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_BRACKET:
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
+
+        // array initializer list: should simply return the array type that can accept this initializer
+        case EXPR_CURLS:
+            break;
+
     
     }
 
