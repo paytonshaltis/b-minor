@@ -13,7 +13,7 @@ typedef enum {
 	EXPR_GROUP,		//
 	EXPR_ARRIND,	//	
 	EXPR_BRACKET,	//
-	EXPR_CURLS,		// special case
+	EXPR_CURLS,		//
 	EXPR_INC,		//
 	EXPR_DEC,		//
 	EXPR_NOT,		//
