@@ -202,7 +202,7 @@ void stmt_resolve(struct stmt* s) {
     stmt_resolve(s->next);
 }
 
-void stmt_typecheck(struct stmt* s) {
+void stmt_typecheck(struct stmt* s, struct type* ft) {
     
     if(s == NULL) {
         return;
@@ -222,7 +222,7 @@ void stmt_typecheck(struct stmt* s) {
                 break;
             }
             type_delete(t);
-            stmt_typecheck(s->body);
+            stmt_typecheck(s->body, ft);
             break;
         case STMT_IF_ELSE:
             t = expr_typecheck(s->expr);
@@ -232,8 +232,8 @@ void stmt_typecheck(struct stmt* s) {
                 break;
             }
             type_delete(t);
-            stmt_typecheck(s->body);
-            stmt_typecheck(s->else_body);
+            stmt_typecheck(s->body, ft);
+            stmt_typecheck(s->else_body, ft);
             break;
         case STMT_FOR:
             if(s->init_expr != NULL) {
@@ -263,19 +263,36 @@ void stmt_typecheck(struct stmt* s) {
                 }
             }
             type_delete(t);
-            stmt_typecheck(s->body);
+            stmt_typecheck(s->body, ft);
             break;
         case STMT_PRINT:
             expr_typecheck(s->expr);
             break;
         case STMT_RETURN:
-            expr_typecheck(s->expr);
+            // void function returning some value
+            if(ft->kind == TYPE_VOID && s->expr != NULL) {
+                printf("typechecking error: void function must not return value\n");
+                totalTypeErrors++;
+                break;
+            }
+            // non-void function not returning a value
+            else if (ft->kind != TYPE_VOID && s->expr == NULL) {
+                printf("typechecking error: non-void function must return a value\n");
+                totalTypeErrors++;
+                break;
+            }
+            // functions that return other types
+            else if(expr_typecheck(s->expr)->kind != ft->kind) {
+                printf("typechecking error: return type does not match function subtype\n");
+                totalTypeErrors++;
+                break;
+            }
             break;
         case STMT_BLOCK:
-            stmt_typecheck(s->body);
+            stmt_typecheck(s->body, ft);
             break;
         case STMT_DECL:
             decl_typecheck(s->decl);
     }
-    stmt_typecheck(s->next);
+    stmt_typecheck(s->next, ft);
 }

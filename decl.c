@@ -212,11 +212,9 @@ void decl_typecheck(struct decl* d) {
     // returns the correct type, then typecheck its statements
     if(d->type->kind == TYPE_FUNCTION) {
         
-        // check and see if it is the global scope as an implementation; if it was rejected
-        // by name resolution (not matching prototype, etc.) then it may cause seg faults
-        // if we try messing with its code
+        // additional param of the function type is sent; used for return statements
         if(d->code) {
-            stmt_typecheck(d->code);
+            stmt_typecheck(d->code, d->type->subtype);
         }
     }
 
