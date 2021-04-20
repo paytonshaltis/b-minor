@@ -381,7 +381,8 @@ struct type* expr_typecheck(struct expr* e) {
 
     // the result to be returned (even if typechecking fails!)
     struct type* result;
-
+    struct expr* temp;
+    int totalDerefs = 0;
     // switch statement for all kinds of expressions
     switch(e->kind) {
         
@@ -528,7 +529,11 @@ struct type* expr_typecheck(struct expr* e) {
         // an assignment expression: left and right must be of the same type
         case EXPR_ASSIGN:               
             if(!type_compare(lt, rt)) {
-                    printf("typechecking error: cannot assign different types\n");
+                    printf("typechecking error: cannot assign type (");
+                    type_print(lt);
+                    printf(") to type (");
+                    type_print(rt);
+                    printf(")\n");
                     totalTypeErrors++;
                }
             result = type_copy(lt);
@@ -583,40 +588,41 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_ARGS:
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
+        
         // dereferencing an array at some index: left should be type array, right should be bracket type
-        /*
         case EXPR_ARRIND:
-            if(lt == NULL) {
-                break;
-            }
             if(lt->kind == TYPE_ARRAY) {
-                if(rt->kind != TYPE_INTEGER) {
-                    printf("typechecking error: array index must be of type integer\n");
+                printf("This is an array\n");
+                
+                // arr[1]
+                if(e->right->kind != EXPR_BRACKET) {
+                    printf("Single dereference\n");
+                    if(expr_typecheck(e->right)->kind == TYPE_INTEGER) {
+                        printf("Single dereference success\n");
+                        result = type_copy(lt->subtype);
+                        break;
+                    }                   
                 }
-                // need to find the actual subtype of this array; may be several 'arrays' down
-                while(lt->subtype != NULL) {
-                    lt = lt->subtype;
+
+                //arr[1][2]
+                else if(e->right->kind == EXPR_BRACKET) {
+
                 }
-                result = type_copy(lt);
+
+                // still need to return valid type
+                result = type_copy(lt->subtype);
                 break;
             }
-            else {      
-                printf("typechecking error: identifier \"%s\" is not an array\n", e->name);
+            else {
                 result = type_copy(lt);
                 break;
             }
 
-        // multiple brackets: used by EXPR_ARRIND, make sure each subsequent index is an integer
+        // array dereference brackets; doesn't matter what it returns, just done so it can be freed later
         case EXPR_BRACKET:
-            if(rt != NULL) {
-                if(lt->kind != TYPE_INTEGER) {
-                    printf("typechecking error: array index must be of type integer\n");
-                    break;
-                }
-            }
-            result = type_create(TYPE_INTEGER, 0, 0, 0);
+            result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
-        */
+    
     }
 
     // types of left and right expressions no longer needed, delete these
