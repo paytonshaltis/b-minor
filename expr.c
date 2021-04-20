@@ -6,6 +6,7 @@
 #include "symbol.h"
 
 extern int totalResErrors;
+extern int totalTypeErrors;
 
 // basic factory function for creating an 'expr' struct (basic expression)
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
@@ -403,18 +404,21 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_INC:
             if(lt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot increment non-integer type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break; 
         case EXPR_DEC:
             if(lt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot decrement non-integer type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_NEG:
             if(lt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot negate non-integer type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
@@ -423,36 +427,42 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_EXPON:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot exponentiate non-integer types\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_MOD:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot modulo non-integer types\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_DIV:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot divide non-integer types\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_MULT:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot multiply non-integer types\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_SUB:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot subtract non-integer type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_ADD:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot add non-integer type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
@@ -464,6 +474,7 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_LESS:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
                 printf("typechecking error: cannot perform integer comparison on non-integer type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
@@ -474,6 +485,7 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_OR:
             if(lt->kind != TYPE_BOOLEAN || rt->kind != TYPE_BOOLEAN) {
                 printf("typechecking error: cannot perform boolean logic on non-boolean type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
@@ -485,6 +497,7 @@ struct type* expr_typecheck(struct expr* e) {
                (lt->kind != TYPE_STRING || rt->kind != TYPE_STRING) && 
                (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR)) {
                 printf("typechecking error: cannot perform equivalence on non-matching, non-applicable type\n");
+                totalTypeErrors++;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
@@ -501,6 +514,7 @@ struct type* expr_typecheck(struct expr* e) {
             // see if the identifier has a symbol struct binded to it
             if(e->symbol == NULL) {
                 printf("typechecking error: identifier \"%s\" may not have been declared (defaults to integer for remainder of typechecking)\n", e->name);
+                totalTypeErrors++;
                 result = type_create(TYPE_INTEGER, 0, 0, 0);
                 break;
             }
@@ -515,6 +529,7 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_ASSIGN:               
             if(!type_compare(lt, rt)) {
                     printf("typechecking error: cannot assign different types\n");
+                    totalTypeErrors++;
                }
             result = type_copy(lt);
             break;
@@ -531,6 +546,7 @@ struct type* expr_typecheck(struct expr* e) {
                     //printf("args call\n");
                     if(!param_list_fcall_compare(e->right->left, e->left->symbol->type->params)) {
                         printf("typechecking error: function arguments do not match parameters\n");
+                        totalTypeErrors++;
                     }
                     result = type_copy(lt->subtype);
                     break;
@@ -541,6 +557,7 @@ struct type* expr_typecheck(struct expr* e) {
                     // if the first param matches the type of the only argument, and there are no more params, we are good
                     if(type_compare_no_size(expr_typecheck(e->right->left), e->left->symbol->type->params->type) == false) {
                         printf("typechecking error: function argument does not match parameter(s)\n");
+                        totalTypeErrors++;
                     }
                     result = type_copy(lt->subtype);
                     break;
@@ -549,6 +566,7 @@ struct type* expr_typecheck(struct expr* e) {
                 else {
                     if(!param_list_fcall_compare(NULL, e->left->symbol->type->params)) {
                         printf("typechecking error: function arguments do not match parameters\n");
+                        totalTypeErrors++;
                     }
                     result = type_copy(lt->subtype);
                     break;
@@ -556,6 +574,7 @@ struct type* expr_typecheck(struct expr* e) {
             }
             else {
                 printf("typechecking error: identifier \"%s\" is not a function\n", e->left->name);
+                totalTypeErrors++;
                 result = type_copy(lt);
                 break;
             }

@@ -9,7 +9,7 @@ typedef enum {
 	EXPR_BOOLLIT,	//
 	EXPR_CHARLIT,	//
 	EXPR_STRINGLIT,	//
-	EXPR_FCALL,		// st/args	r: sym tab
+	EXPR_FCALL,		//
 	EXPR_GROUP,		//
 	EXPR_ARRIND,	// tough	
 	EXPR_BRACKET,	// tough
@@ -33,7 +33,7 @@ typedef enum {
 	EXPR_AND,		//
 	EXPR_OR,		//
 	EXPR_ASSIGN,	//
-	EXPR_ARGS		// inside	r: type of all
+	EXPR_ARGS		//
 } expr_t;
 
 struct expr {

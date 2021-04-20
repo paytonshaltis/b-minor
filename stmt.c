@@ -4,6 +4,7 @@
 #include "scope.h"
 
 extern int totalResErrors;
+extern int totalTypeErrors;
 
 // basic factory function for creating a 'stmt' struct
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
@@ -217,6 +218,7 @@ void stmt_typecheck(struct stmt* s) {
             t = expr_typecheck(s->expr);
             if(t->kind != TYPE_BOOLEAN) {
                 printf("typechecking error: condition of 'if' statement must return boolean type\n");
+                totalTypeErrors++;
                 break;
             }
             type_delete(t);
@@ -226,6 +228,7 @@ void stmt_typecheck(struct stmt* s) {
             t = expr_typecheck(s->expr);
             if(t->kind != TYPE_BOOLEAN) {
                 printf("typechecking error: condition of 'if' statement must return boolean type\n");
+                totalTypeErrors++;
                 break;
             }
             type_delete(t);
@@ -237,6 +240,7 @@ void stmt_typecheck(struct stmt* s) {
                 t = expr_typecheck(s->init_expr);
                 if(t->kind != TYPE_INTEGER) {
                     printf("typechecking error: first expression in 'for-loop' must return integer type\n");
+                    totalTypeErrors++;
                     break;
                 }
             }
@@ -245,6 +249,7 @@ void stmt_typecheck(struct stmt* s) {
                 t = expr_typecheck(s->expr);
                 if(t->kind != TYPE_BOOLEAN) {
                     printf("typechecking error: second expression in 'for-loop' must return boolean type\n");
+                    totalTypeErrors++;
                     break;
                 }
             }
@@ -253,6 +258,7 @@ void stmt_typecheck(struct stmt* s) {
                 t = expr_typecheck(s->next_expr);
                 if(t->kind != TYPE_INTEGER) {
                     printf("typechecking error: third expression in 'for-loop' must return integer type\n");
+                    totalTypeErrors++;
                     break;
                 }
             }

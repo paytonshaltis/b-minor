@@ -204,6 +204,7 @@ void decl_typecheck(struct decl* d) {
         // prototype, and the implementation contains identifiers!
         if(d->symbol != NULL && !type_compare(t, d->symbol->type)) {
             printf("typechecking error: declaration type does not match expression\n");
+            totalTypeErrors++;
         }
     }
 
