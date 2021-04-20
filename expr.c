@@ -526,7 +526,7 @@ struct type* expr_typecheck(struct expr* e) {
             // should only do if the identifier of the call is a function or prototype
             if(lt->kind == TYPE_FUNCTION || lt->kind == TYPE_PROTOTYPE) {
                 
-                // for multiple arguments (more than 1), send the EXPR_ARGS expression
+                // for multiple arguments (2+), send the EXPR_ARGS expression
                 if(e->right != NULL && e->right->left->kind == EXPR_ARGS) {
                     //printf("args call\n");
                     if(!param_list_fcall_compare(e->right->left, e->left->symbol->type->params)) {
@@ -539,7 +539,7 @@ struct type* expr_typecheck(struct expr* e) {
                 else if(e->right != NULL && e->right->left->kind != EXPR_ARGS) {
                     //printf("SINGLE ARG!\n");
                     // if the first param matches the type of the only argument, and there are no more params, we are good
-                    if(!((expr_typecheck(e->right->left)->kind == e->left->symbol->type->params->type->kind) && e->left->symbol->type->params->next == NULL)) {
+                    if(type_compare_no_size(expr_typecheck(e->right->left), e->left->symbol->type->params->type) == false) {
                         printf("typechecking error: function argument does not match parameter(s)\n");
                     }
                     result = type_copy(lt->subtype);

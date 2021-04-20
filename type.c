@@ -92,12 +92,14 @@ bool type_compare_no_size(struct type* t1, struct type* t2) {
 
     // base case for recursion
     if(t1 == NULL && t2 == NULL) {
+
         return true;
     }
 
     // if the kinds are the same, check the subtypes
     if(t1->kind == t2->kind) {
-        if(type_compare(t1->subtype, t2->subtype)) {
+
+        if(type_compare_no_size(t1->subtype, t2->subtype)) {
             return true;
         }
         
