@@ -530,9 +530,9 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_ASSIGN:               
             if(!type_compare(lt, rt)) {
                     printf("typechecking error: cannot assign type (");
-                    type_print(lt);
-                    printf(") to type (");
                     type_print(rt);
+                    printf(") to type (");
+                    type_print(lt);
                     printf(")\n");
                     totalTypeErrors++;
                }
@@ -592,21 +592,54 @@ struct type* expr_typecheck(struct expr* e) {
         // dereferencing an array at some index: left should be type array, right should be bracket type
         case EXPR_ARRIND:
             if(lt->kind == TYPE_ARRAY) {
-                printf("This is an array\n");
+
                 
                 // arr[1]
                 if(e->right->kind != EXPR_BRACKET) {
-                    printf("Single dereference\n");
+
                     if(expr_typecheck(e->right)->kind == TYPE_INTEGER) {
-                        printf("Single dereference success\n");
+
                         result = type_copy(lt->subtype);
                         break;
-                    }                   
+                    }
+                    else {
+                        printf("typechecking error: array index must be type integer\n");
+                        totalTypeErrors++;
+                    }               
                 }
 
                 //arr[1][2]
                 else if(e->right->kind == EXPR_BRACKET) {
+                    totalDerefs++;
+                    temp = e->right;
+                    while(temp->right->kind == EXPR_BRACKET) {
 
+                        if(expr_typecheck(temp->left)->kind != TYPE_INTEGER) {
+                            printf("typechecking error: array indices must be type integer\n");
+                            totalTypeErrors++;
+                        }
+                        totalDerefs++;
+                        temp = temp->right;
+                    }
+                    if(expr_typecheck(temp->left)->kind != TYPE_INTEGER) {
+                        printf("typechecking error: array indices must be type integer\n");
+                        totalTypeErrors++;
+                    }
+                    if(expr_typecheck(temp->right)->kind != TYPE_INTEGER) {
+                        printf("typechecking error: array indices must be type integer\n");
+                        totalTypeErrors++;
+                    }
+                    totalDerefs++;
+                    result = type_copy(lt->subtype);
+                    for(int i = 0; i < totalDerefs - 1; i++) {
+                        if(result->subtype != NULL) {
+                            result = type_copy(result->subtype);
+                        }
+                        else {
+                            printf("typechecking error: cannot index array outside of dimensions\n");
+                        }
+                    }
+                    break;
                 }
 
                 // still need to return valid type
