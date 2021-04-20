@@ -541,45 +541,59 @@ struct type* expr_typecheck(struct expr* e) {
         
         // a function call: need to return the subtype of the function named e->name, and make sure params match
         case EXPR_FCALL:
-            //printf("Starting a fucntion call typecheck\n");
 
             // should only do if the identifier of the call is a function or prototype
             if(lt->kind == TYPE_FUNCTION || lt->kind == TYPE_PROTOTYPE) {
                 
                 // for multiple arguments (2+), send the EXPR_ARGS expression
                 if(e->right != NULL && e->right->left->kind == EXPR_ARGS) {
-                    //printf("args call\n");
+                    
+                    // if the arguments and function parameters do not match, emit an error
                     if(!param_list_fcall_compare(e->right->left, e->left->symbol->type->params)) {
                         printf("typechecking error: function arguments do not match parameters\n");
                         totalTypeErrors++;
                     }
+                    
+                    // either way, result becomes the function's subtype
                     result = type_copy(lt->subtype);
                     break;
                 }
+
                 // for a single arg (1), send only the expression in question
                 else if(e->right != NULL && e->right->left->kind != EXPR_ARGS) {
-                    //printf("SINGLE ARG!\n");
+
                     // if the first param matches the type of the only argument, and there are no more params, we are good
                     if(type_compare_no_size(expr_typecheck(e->right->left), e->left->symbol->type->params->type) == false) {
                         printf("typechecking error: function argument does not match parameter(s)\n");
                         totalTypeErrors++;
                     }
+
+                    // either way, result becomes the function's subtype
                     result = type_copy(lt->subtype);
                     break;
                 }
+
                 // for a no args argument (0), send NULL
                 else {
+                    
+                    // as long as the parameter in the function is NULL, we are good
                     if(!param_list_fcall_compare(NULL, e->left->symbol->type->params)) {
                         printf("typechecking error: function arguments do not match parameters\n");
                         totalTypeErrors++;
                     }
+
+                    // either way, result becomes the function's subtype
                     result = type_copy(lt->subtype);
                     break;
                 }
             }
+            
+            // if the identifier being called is not a function or prototype
             else {
                 printf("typechecking error: identifier \"%s\" is not a function\n", e->left->name);
                 totalTypeErrors++;
+                
+                // result becomes the type of the identifier to allow for continued typecheckin
                 result = type_copy(lt);
                 break;
             }
@@ -591,36 +605,50 @@ struct type* expr_typecheck(struct expr* e) {
         
         // dereferencing an array at some index: left should be type array, right should be bracket type
         case EXPR_ARRIND:
+            
+            // if the identifier being indexed is of type array
             if(lt->kind == TYPE_ARRAY) {
-
                 
-                // arr[1]
+                // singly-indexed arrays (arr[1]) must be treated differently
                 if(e->right->kind != EXPR_BRACKET) {
-
+                    
+                    // if the single index is of type integer
                     if(expr_typecheck(e->right)->kind == TYPE_INTEGER) {
 
+                        // the result becomes the subtype of the identifier, break here
                         result = type_copy(lt->subtype);
                         break;
                     }
+                    
+                    // if the index is NOT of type integer
                     else {
                         printf("typechecking error: array index must be type integer\n");
                         totalTypeErrors++;
-                    }               
+                    }         
                 }
 
-                //arr[1][2]
+                // multi-indexed arrays (arr[1][2]) must be treated differently
                 else if(e->right->kind == EXPR_BRACKET) {
+                    
+                    // begin counting the number of dereferences to get type later
                     totalDerefs++;
+                    
+                    // navigate through all EXPR_BRACKETs
                     temp = e->right;
                     while(temp->right->kind == EXPR_BRACKET) {
 
+                        // make sure that each index is of type integer
                         if(expr_typecheck(temp->left)->kind != TYPE_INTEGER) {
                             printf("typechecking error: array indices must be type integer\n");
                             totalTypeErrors++;
                         }
+                        
+                        // move on to the next dereference
                         totalDerefs++;
                         temp = temp->right;
                     }
+                    
+                    // the last two indices, should both be of type integer
                     if(expr_typecheck(temp->left)->kind != TYPE_INTEGER) {
                         printf("typechecking error: array indices must be type integer\n");
                         totalTypeErrors++;
@@ -630,23 +658,35 @@ struct type* expr_typecheck(struct expr* e) {
                         totalTypeErrors++;
                     }
                     totalDerefs++;
+
+                    // using the totalDerefs, get the type by traversing the identifier's subtypes
                     result = type_copy(lt->subtype);
                     for(int i = 0; i < totalDerefs - 1; i++) {
+                        
+                        // grab the next subtype
                         if(result->subtype != NULL) {
                             result = type_copy(result->subtype);
                         }
+
+                        // once the subtypes are used up (indexed into a non-existent higher dimension)
                         else {
                             printf("typechecking error: cannot index array outside of dimensions\n");
                         }
                     }
+                    
+                    // important: break here with the result we have; either the desired type or the furthest subtype of the array
                     break;
                 }
 
-                // still need to return valid type
+                // valid type for all TYPE_ARRAY that did not typecheck correctly
                 result = type_copy(lt->subtype);
                 break;
             }
+            
+            // if the identifier being indexed is NOT of type array
             else {
+                
+                // return the type of the identifier to allow for continued typechecking
                 result = type_copy(lt);
                 break;
             }

@@ -126,50 +126,54 @@ void param_list_delete(struct param_list* p) {
 
 // returns true if a function call matches parameters
 bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
-    //printf("Starting function...\n");
 
     // base case / case for no args function call
     if(calledArgs == NULL && p == NULL) {
-        //printf("Both are NULL, made it to the end!\n");
         return true;
     }
 
     // if one or the other becomes NULL first, return false
     if(calledArgs == NULL) {
-        //printf("Called arguments ran out\n");
+        return false;
+    }
+    if(p == NULL) {
         return false;
     }
 
-    if(p == NULL) {
-        //printf("Parameters ran out\n");
-        return false;
-    }
     // check the next item in the parameter list and expression list, ensure same type
-    // if calledArgs->left == NULL, type_compare calledArgs->right should be the last expression
+    
+    // this block means that there are more than 2 expressions left, since the right side is an EXPR_ARGS
     if(calledArgs->left != NULL && calledArgs->right->kind == EXPR_ARGS) {
+        
+        // check and see if the next type in each list matches
         if(type_compare_no_size(expr_typecheck(calledArgs->left), p->type)) {
-            //printf("First two match, let's try more\n");
 
             // if the types match, move on to the next in each list
             return param_list_fcall_compare(calledArgs->right, p->next);
         }
 
-        // else return false
+        // if the next types don't match; return false
         return false;
     }
-    //printf("Got here IMPORTANT\n");
+
+    // this block means that there are only 2 expressions left, since the right side is NOT an EXPR_ARGS
     if(calledArgs->left != NULL && calledArgs->right->kind != EXPR_ARGS) {
-        //printf("The last two arguments!!!\n");
+        
+        // check and see if the second to last type in each list match
         if(type_compare_no_size(expr_typecheck(calledArgs->left), p->type)) {
-            //printf("First two match, let's try more\n");
+            
+            // make sure that there is still another parameter left to check to see if the last types match
             if(p->next != NULL && type_compare_no_size(expr_typecheck(calledArgs->right), p->next->type)) {
-                //printf("Last two match!\n");
+
+                // should both be NULL, this will be the last call to this function to hit the base case
                 return param_list_fcall_compare(calledArgs->right->right, p->next->next);
             }
+            
+            // if there isn't another param or the last types don't match; return false
             return false;
         }
 
-        // else return false
+        // if the second to last types don't match; return false
         return false;
     }
     return false;
