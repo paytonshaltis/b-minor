@@ -698,6 +698,7 @@ struct type* expr_typecheck(struct expr* e) {
 
         // array initializer lists are dealt with in 'decl_typecheck()'. This is here for the switch case
         case EXPR_CURLS:
+            result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
 
     

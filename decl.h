@@ -20,5 +20,7 @@ void decl_print( struct decl *d, int indent );
 
 void decl_resolve(struct decl* d);
 void decl_typecheck(struct decl* d);
+void decl_check_initList(struct type* t, struct expr* initList);
+int count_list_elements(struct expr* e, struct type* t);
 
 #endif

@@ -213,11 +213,9 @@ void decl_typecheck(struct decl* d) {
 
         // for initializations of type arrays
         if(d->type->kind == TYPE_ARRAY) {
-            
+        
             // we need to make sure that the initializer list matches the function...
-            printf("Initializer list for array detected!\n");
-            expr_print(d->value->left);
-            printf("\n");
+            decl_check_initList(d->type, d->value);
         }
     }
 
@@ -233,4 +231,81 @@ void decl_typecheck(struct decl* d) {
 
     // typecheck the next declaration
     decl_typecheck(d->next);
+}
+
+// function being used to verify an array's initializer list
+void decl_check_initList(struct type* t, struct expr* initList) {
+
+    struct type* temp = t;
+    struct type* trav = t;
+    struct expr* list = initList;
+
+    // need to make sure that there is one element per outer array time
+    int numElements = count_list_elements(list->left, t->subtype);
+
+    // ensure sizes match up
+    if(trav->size != numElements) {
+        printf("typechecking error: initializer list of size %i does not match the array of size %i\n", numElements, trav->size);
+        totalTypeErrors++;
+    }
+
+    trav = trav->subtype;
+
+}
+
+// counts the number of elements in an initializer list (non-nested initializer lists)
+int count_list_elements(struct expr* e, struct type* t) {
+
+    // traverses through, counting the number of elements in list e
+    int total = 1;
+    while(e->right != NULL) {
+        
+        // if any element is another initializer list
+        if(e->left->kind == EXPR_CURLS) {
+            if(count_list_elements(e->left->left, t->subtype) == t->size) {
+                printf("Inner list worked!\n");
+            }
+            else {
+                printf("typechecking error: array size does not match list\n");
+                totalTypeErrors++;
+            }
+        }
+
+        // make sure each element is the correct type
+        else if(!type_compare(expr_typecheck(e->left), t)) {
+            printf("typechecking error: array of type (");
+            type_print(t);
+            printf(") cannot be initialized with type (");
+            type_print(expr_typecheck(e->left));
+            printf(")\n");
+            totalTypeErrors++;
+        }
+        
+        total++;
+        e = e->right;
+    }
+
+    // if any element is another initializer list
+    if(e->kind == EXPR_CURLS) {
+        if(count_list_elements(e->left, t->subtype) == t->size) {
+            printf("Inner list worked!\n");
+        }
+        else {
+            printf("typechecking error: array size does not match list\n");
+            totalTypeErrors++;
+        }
+    }
+
+    // check the final element, which will be e now
+    else if(!type_compare(expr_typecheck(e), t)) {
+        printf("typechecking error: array of type (");
+        type_print(t);
+        printf(") cannot be initialized with type (");
+        type_print(expr_typecheck(e));
+        printf(")\n");
+        totalTypeErrors++;
+    }
+
+    // returns the total number of elements in the initializer list
+    return total;
 }
