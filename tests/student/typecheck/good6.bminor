@@ -1,3 +1,40 @@
 // testing good array initializer lists
 
 
+/* all of these array initializer lists work in the global scope */
+// simple one-dimensional array initializer lists
+arr1_1 : array [3] integer = { 1, 2, 3 };
+arr1_2 : array [4] string = { "I", "love", "these", "arrays!" };
+arr1_3 : array [1] boolean = { false };
+
+// these 2-dimensional arrays can have initializer lists too
+arr2_1 : array [3] array [2] integer = { { 2, 4 }, 
+                                       { 6, 8 }, 
+                                       { 10, 12 } };
+arr2_2 : array [2] array [4] string = { { "hi", "hello", "greetings", "salutations" }, 
+                                      { "bye", "goodbye", "adios", "see ya" } };
+
+// the rare 3-dimensional array works as well as higher dimensions!
+arr3_1 : array [3] array [2] array [1] char = { { { 'a' }, { 'r' } }, 
+                                              { { 'r' }, { 'a' } }, 
+                                              { { 'y' }, { 's'} } } ;
+
+/* all of these array initializer lists work in functions too */
+arrayFunction : function void () = {
+
+    arr1_1 : array [3] integer = { 1, 2, 3 };
+    arr1_2 : array [4] string = { "I", "love", "these", "arrays!" };
+    arr1_3 : array [1] boolean = { false };
+
+    arr2_1 : array [3] array [2] integer = { { 2, 4 }, 
+                                        { 6, 8 }, 
+                                        { 10, 12 } };
+    arr2_2 : array [2] array [4] string = { { "hi", "hello", "greetings", "salutations" }, 
+                                        { "bye", "goodbye", "adios", "see ya" } };
+
+    arr3_1 : array [3] array [2] array [1] char = { { { 'a' }, { 'r' } }, 
+                                                { { 'r' }, { 'a' } }, 
+                                                { { 'y' }, { 's'} } } ;
+
+    return;
+}

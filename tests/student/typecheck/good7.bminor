@@ -1,0 +1,22 @@
+// testing good array assignments of smaller arrays into multidimensional ones
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    // creating some one-dimensional arrays
+    arr1_1 : array [5] integer = { 10, 9, 8, 7, 6 };
+    arr1_2 : array [3] string = { "these", "are", "strings" };
+    arr1_3 : array [2] boolean = { true, false };
+
+    // creating two-dimensional arrays that will be initialized with literals and above arrays
+    arr2_1 : array [3] array [5] integer = { arr1_1, { 1, 2, 3, 4, 5 }, arr1_1 };
+    arr2_2 : array [2] array [3] string = { arr1_2, arr1_2 };
+    arr2_3 : array [3] array [2] boolean = { arr1_3, arr1_3, { false, true} };
+
+    // even higher-dimension arrays can be initialized with other arrays, both 1D and 2D
+    arr3_1 : array [2] array [3] array [5] integer = { arr2_1, { arr1_1, { 1, 2, 3, 4, 5 }, arr1_1 } };
+                                                    // ------  -------------------------------------
+                                                    // 2D arr | 2D arr constructed from 1D arrs
+
+    return 0;
+}

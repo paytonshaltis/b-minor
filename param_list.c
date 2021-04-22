@@ -134,9 +134,11 @@ bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
 
     // if one or the other becomes NULL first, return false
     if(calledArgs == NULL) {
+
         return false;
     }
     if(p == NULL) {
+
         return false;
     }
 
@@ -144,7 +146,7 @@ bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
     
     // this block means that there are more than 2 expressions left, since the right side is an EXPR_ARGS
     if(calledArgs->left != NULL && calledArgs->right->kind == EXPR_ARGS) {
-        
+
         // check and see if the next type in each list matches
         if(type_compare_no_size(expr_typecheck(calledArgs->left), p->type)) {
 
@@ -166,7 +168,8 @@ bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
             if(p->next != NULL && type_compare_no_size(expr_typecheck(calledArgs->right), p->next->type)) {
 
                 // should both be NULL, this will be the last call to this function to hit the base case
-                return param_list_fcall_compare(calledArgs->right->right, p->next->next);
+                // NOTE - NULL is send since we KNOW that there are no more called arguments!
+                return param_list_fcall_compare(NULL, p->next->next);
             }
             
             // if there isn't another param or the last types don't match; return false
