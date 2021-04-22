@@ -1,0 +1,48 @@
+// testing bad function calls, including bad recursion
+// see typechecking and resolution errors in standard output for details
+
+
+// function prototypes and implementations
+proto1 : function void (x : integer);
+proto2 : function integer ();
+
+fnctn1 : function void (x : string, y : boolean) = {
+
+    print "The number is ", x, ", and the boolean value is ", y;
+    return;
+}
+fnctn2 : function string () = {
+
+    return "this is returned every time... seems useless...";
+
+}
+
+// main function that will call the functions above
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    // function arguments to be passed
+    x : integer = 5;
+    y : string = "yes";
+    z : boolean = false;
+
+    // passes both variables and literals to prototypes and implementations
+    proto1();                                                                   // no args to a function that needs them
+    proto1(76, "string");                                                       // extra args to a function
+    fnctn1('y', "z");                                                           // incorrect types of args to a function
+    fnctn1("literal");                                                          // not enough args to a function   
+
+    // calling functions without parameters
+    proto2(x, y, "words");                                                      // args to a function that doesn't need them
+    fnctn2();
+
+    // using function calls in expressions
+    print fnctn2(), proto1(-90);
+    bool : boolean = 9 * proto2();                                              // incorrectly using return values of function calls
+
+    // recursion works too
+    argCount : integer = 2;
+    argValues : array [1] string = {"command line argument"};
+    main(argCount, argValues, argCount);                                        // extra, duplicate arguments in recursive call
+    
+    return 0;
+}

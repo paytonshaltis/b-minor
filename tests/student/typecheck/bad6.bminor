@@ -1,0 +1,21 @@
+// testing bad array initializer lists
+// see typechecking and resolution errors in standard output for details
+
+
+/* initializer lists in the global scope */
+// simple one-dimensional array initializer lists
+arr1_1 : array [3] integer = { 1, 2, '3' };                                                 // mis-matched initializer types
+arr1_2 : array [4] string = { "I", "love", "these", "arrays!", "extra", "words" };          // too many elements
+arr1_3 : array [2] boolean = { false };                                                     // not enough elements
+
+// these 2-dimensional arrays can have initializer lists too
+arr2_1 : array [3] array [2] integer = { 2,                                                 // each element of a 2D array must be a 1D array
+                                       { 6, 8 }, 
+                                       { 10, 12 } };
+arr2_2 : array [2] array [4] string = { { "hi", "hello", "greetings" },                     // too few elements in 2D array
+                                      { "bye", "goodbye", "adios", "see ya", "bye-bye" } }; // too many elements in 2D array
+
+// the rare 3-dimensional array works as well as higher dimensions!
+arr3_1 : array [3] array [2] array [1] char = { 'a', 'r',                                   // each element of a 3D array must be a 2D array 
+                                              { { 'r' }, { 'a' } }, 
+                                              { { 'y' }, { 's'} } } ;

@@ -1,0 +1,35 @@
+// testing bad array indexing, including assigning entire arrays to multidimensional array indices
+// see typechecking and resolution errors in standard output for details
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // creating some one-dimensional arrays
+    arr1_1 : array [5] integer = { 10, 9, 8, 7, 6 };
+    arr1_2 : array [3] string = { "these", "are", "strings" };
+    arr1_3 : array [2] boolean = { true, false };
+
+    // declaring (but not initializing) two-dimensional arrays
+    arr2_1 : array [3] array [5] integer;
+    arr2_2 : array [2] array [3] string;
+    arr2_3 : array [3] array [2] boolean;
+
+    // we can now improperly index these arrays to different dimensions (NOTE - Bminor does NOT have bounds checking!)
+    arr2_1[0] = arr1_2;                                                                                             // mis-matched array types
+    arr2_1[1][4] = "this shouldn't be here!";                                                                       // mis-matched array types
+
+    arr2_2[1] = arr2_2;                                                                                             // cannot assign array as an element of the same array
+    arr2_2[0][2] = "compilers";
+
+    arr2_3[2] = arr1_3;
+    arr2_3[1][0] = false && true;
+
+    // yet again, higher-dimensional arrays also work just the same:
+    arr3_1 : array [2] array [3] array [5] integer;
+
+    arr3_1[0] = arr1_1;             // assign a 1D array to an index                                                // not assigning arrays with correct dimensions
+    arr3_1[1][2] = arr2_1;          // assign a 2D array to an index                                                // not assigning arrays with correct dimensions
+    arr3_1[0][1][4][5][4] = 68 + 9; // trying to index too far                                                      // if an array is indexed outside of its dimensions, it uses the type furthest in (here, integer) 
+
+    return 0;
+}

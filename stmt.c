@@ -209,6 +209,9 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
     }
 
     struct type* t;
+    struct expr* temp;
+    struct type* printType;
+    
     switch(s->kind) {
         case STMT_EXPR:
             t = expr_typecheck(s->expr);
@@ -266,7 +269,58 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             stmt_typecheck(s->body, ft);
             break;
         case STMT_PRINT:
-            expr_typecheck(s->expr);
+            // need to check each expression being printed to make sure they are of the valid type
+            
+            // if only one expression is being printed:
+            if(s->expr->kind != EXPR_ARGS) {
+                
+                // set temp to that expression
+                temp = s->expr;
+                
+                // typecheck the expression and print if it isn't the right type
+                printType = expr_typecheck(temp);
+                if(printType->kind == TYPE_FUNCTION || printType->kind == TYPE_ARRAY || printType->kind == TYPE_VOID || printType->kind == TYPE_PROTOTYPE) {
+                    printf("\033[0;31mtypechecking error\033[0;0m: cannot print type (");
+                    type_print(printType);
+                    printf(")\n");
+                    totalTypeErrors++;
+                    break;
+                }
+            }
+            // if more than one expression is being printed:
+            else {
+                temp = s->expr;
+
+                // loop while there are more than two expressions left to check
+                while(temp->right->kind == EXPR_ARGS) {
+
+                    // make sure the expression type is not function, array, or void
+                    printType = expr_typecheck(temp->left);
+                    if(printType->kind == TYPE_FUNCTION || printType->kind == TYPE_ARRAY || printType->kind == TYPE_VOID || printType->kind == TYPE_PROTOTYPE) {
+                        printf("\033[0;31mtypechecking error\033[0;0m: cannot print type (");
+                        type_print(printType);
+                        printf(")\n");
+                        totalTypeErrors++;
+                    }
+                    temp = temp->right;
+                }
+
+                // when there are two expression left to check, check left and right individually
+                printType = expr_typecheck(temp->left);
+                if(printType->kind == TYPE_FUNCTION || printType->kind == TYPE_ARRAY || printType->kind == TYPE_VOID || printType->kind == TYPE_PROTOTYPE) {
+                    printf("\033[0;31mtypechecking error\033[0;0m: cannot print type (");
+                    type_print(printType);
+                    printf(")\n");
+                    totalTypeErrors++;
+                }
+                printType = expr_typecheck(temp->right);
+                if(printType->kind == TYPE_FUNCTION || printType->kind == TYPE_ARRAY || printType->kind == TYPE_VOID || printType->kind == TYPE_PROTOTYPE) {
+                    printf("\033[0;31mtypechecking error\033[0;0m: cannot print type (");
+                    type_print(printType);
+                    printf(")\n");
+                    totalTypeErrors++;
+                }
+            }
             break;
         case STMT_RETURN:
             // void function returning some value
@@ -285,9 +339,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             }
             // functions that return other types
             else if(s->expr != NULL && expr_typecheck(s->expr)->kind != ft->kind) {
-                printf("\033[0;31mtypechecking error\033[0;0m: returned type (");
-                type_print(expr_typecheck(s->expr));
-                printf(") does not match function type (");
+                printf("\033[0;31mtypechecking error\033[0;0m: returned type does not match function type (");
                 type_print(ft);
                 printf(")\n");
                 totalTypeErrors++;
