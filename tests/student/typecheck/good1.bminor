@@ -1,0 +1,16 @@
+// testing good function prototypes and implementations
+
+
+/* function prototypes with and without parameters */
+fnx1 : function void ();
+fnx2 : function integer ();
+
+fnx3 : function string (x : integer, y : char, z : array [] boolean);
+fnx4 : function char (x : array [] array [] string);
+
+/* function implementations for each of the above prototypes */
+fnx1 : function void () = {}
+fnx2 : function integer () = {}
+
+fnx3 : function string (x : integer, y : char, z : array [] boolean) = {}
+fnx4 : function char (x : array [] array [] string) = {}

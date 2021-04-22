@@ -1,0 +1,12 @@
+// testing good global declarations of basic types
+
+
+a : integer;
+b : string;
+c : char;
+d : boolean;
+
+e : integer = -56;
+f : string = "hello world!\n";
+g : char = 'o';
+h : boolean = false;

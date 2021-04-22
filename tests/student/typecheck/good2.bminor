@@ -1,0 +1,16 @@
+// testing good local vs. global variable references
+
+
+var1 : integer = 10;
+var2 : string = "some words";
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    print var2;
+
+    var1 = -var1;
+    var2 : boolean = false;
+
+    var2 = !(var2);
+    return 0;
+}

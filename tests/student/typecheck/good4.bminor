@@ -1,0 +1,47 @@
+// testing good function calls, including recursion
+
+
+// function prototypes and implementations
+proto1 : function void (x : integer);
+proto2 : function integer ();
+
+fnctn1 : function void (x : string, y : boolean) = {
+
+    print "The number is ", x, ", and the boolean value is ", y;
+    return;
+}
+fnctn2 : function string () = {
+
+    return "this is returned every time... seems useless...";
+
+}
+
+// main function that will call the functions above
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    // function arguments to be passed
+    x : integer = 5;
+    y : string = "yes";
+    z : boolean = false;
+
+    // passes both variables and literals to prototypes and implementations
+    proto1(x);
+    proto1(76);
+    fnctn1(y, z);
+    fnctn1("literal", false);
+
+    // calling functions without parameters
+    proto2();
+    fnctn2();
+
+    // using function calls in expressions
+    print fnctn2(), proto1(-90);
+    int : integer = 9 * proto2();
+
+    // recursion works too
+    argCount : integer = 2;
+    argValues : array [1] string = {"command line argument"};
+    main(argCount, argValues);
+    
+    return 0;
+}

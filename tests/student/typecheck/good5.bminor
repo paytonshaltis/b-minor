@@ -1,0 +1,79 @@
+// testing good statement typechecking
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    t : boolean = true;
+    f : boolean = false;
+
+    // if and if-else statements
+    if(t || f) {
+        print "You will always see me...";
+    }
+    
+    if(65 >= 0) {
+        print "The condition holds!";
+    }
+    else {
+        print "The condition does NOT hold!";
+    }
+
+    // print and return statements
+    print "This is ", t, ", not ", f, "!";
+    return (1 + 2 * 3 / 4);
+
+    // block statements
+    scope : integer;
+    {
+        scope : integer;
+        {
+            scope : integer;
+        }
+    }
+
+    // for-loops with and without expressions
+    i : integer;
+    /* all 3 expressions */
+    for(i = 0; i < 10; i++) {
+        print "i\n";
+    }
+
+    /* only 2 expressions */
+    for(; i < 10; i++) {
+        print "i\n";
+    }
+    for(i = 0; ; i++) {
+        print "i\n";
+    }
+    for(i = 0; i < 10;) {
+        print "i\n";
+    }
+
+    /* only 1 expression */
+    for(i = 0; ;) {
+        print "i\n";
+    }
+    for(; i < 10;) {
+        print "i\n";
+    }
+    for(; ; i++) {
+        print "i\n";
+    }
+
+    /* 0 expressions (for-ever loop) */
+    for(;;) {
+        return 0;
+    }
+
+    /* nested for-loops */
+    for(;;) {
+        for(i = 0; i < 10; i++) {
+            j : integer;
+            for(j = 0; j < 10; j++) {
+                print "Counting to 100: ", (i*10) + j;
+            }
+        }
+    }
+    
+    return 0;
+}

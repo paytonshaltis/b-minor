@@ -1,0 +1,33 @@
+// testing good complex expressions for typechecking the basic types
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // integers used for testing
+    x : integer = 5;
+    y : integer = -9;
+    z : integer = (3 / 4);
+
+    // identifier for each testing each type
+    a : integer = 1;
+    b : string = "abc";
+    c : char = 'C';
+    d : boolean = true;
+
+    // all of the arithmetic possible on integers, returns integer
+    exp : integer;
+    exp = ((x * 4) + (x % y)) ^ ((99 / z) - (-56) * x++) - (y--);
+
+    // all of the comparisons possible on integers AND boolean operations, returns boolean
+    comp : boolean;
+    comp = !((x < y) && (z > x) || (y <= z) && (0 >= y));
+
+    // all of the equality operations on integer, string, char, and booleans
+    result : boolean;
+    result = (a == 9) && (a != -9);
+    result = (b == "def") && (b != "ghi");
+    result = (c == 'c') && (c != 'D');
+    result = (d == true) && (d != false);
+
+    return 0;
+}

@@ -243,8 +243,8 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
                     totalTypeErrors++;
                     break;
                 }
+                type_delete(t);
             }
-            type_delete(t);
             if(s->expr != NULL) {
                 t = expr_typecheck(s->expr);
                 if(t->kind != TYPE_BOOLEAN) {
@@ -252,8 +252,8 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
                     totalTypeErrors++;
                     break;
                 }
+                type_delete(t);
             }
-            type_delete(t);
             if(s->next_expr != NULL) {
                 t = expr_typecheck(s->next_expr);
                 if(t->kind != TYPE_INTEGER) {
@@ -261,8 +261,8 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
                     totalTypeErrors++;
                     break;
                 }
+                type_delete(t);
             }
-            type_delete(t);
             stmt_typecheck(s->body, ft);
             break;
         case STMT_PRINT:
@@ -284,7 +284,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
                 break;
             }
             // functions that return other types
-            else if(expr_typecheck(s->expr)->kind != ft->kind) {
+            else if(s->expr != NULL && expr_typecheck(s->expr)->kind != ft->kind) {
                 printf("\033[0;31mtypechecking error\033[0;0m: returned type (");
                 type_print(expr_typecheck(s->expr));
                 printf(") does not match function type (");

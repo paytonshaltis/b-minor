@@ -685,7 +685,8 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_EQUAL:
             if((lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) && 
                (lt->kind != TYPE_STRING || rt->kind != TYPE_STRING) && 
-               (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR)) {
+               (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR) &&
+               (lt->kind != TYPE_BOOLEAN || rt->kind != TYPE_BOOLEAN)) {
                 printf("\033[0;31mtypechecking error\033[0;0m: cannot compute equivalence on ");
                 type_print(lt);
                 if(e->left->name != NULL) {
