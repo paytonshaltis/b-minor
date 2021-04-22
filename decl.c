@@ -92,7 +92,7 @@ void decl_resolve(struct decl* d) {
         
         // if the identifier is found in the symbol table, emit an error (redeclaration of non function)
         if(scope_lookup_current(d->name) != NULL) {
-            printf("resolution error: identifier \"%s\" already declared in current scope\n", d->name);
+            printf("\033[0;31mresolution error\033[0;0m: identifier \"%s\" already declared in current scope\n", d->name);
             totalResErrors++;
         }
         
@@ -102,16 +102,16 @@ void decl_resolve(struct decl* d) {
             
             // print proper message depending on scope
             if(scope_lookup_current(d->name)->type->kind == TYPE_PROTOTYPE) {
-                printf("prototype \"%s\" added to symbol table\n", d->name);
+                printf("\033[38;5;46madded\033[0;0m prototype \"%s\" to symbol table\n", d->name);
             }
             else if(scope_lookup_current(d->name)->kind == SYMBOL_GLOBAL) {
-                printf("global \"%s\" added to symbol table\n", d->name);
+                printf("\033[38;5;46madded\033[0;0m global \"%s\" to symbol table\n", d->name);
             }
             if(scope_lookup_current(d->name)->kind == SYMBOL_LOCAL) {
-                printf("local \"%s\" added to symbol table\n", d->name);
+                printf("\033[38;5;46madded\033[0;0m local \"%s\" to symbol table\n", d->name);
             }
             if(scope_lookup_current(d->name)->kind == SYMBOL_PARAM) {
-                printf("parameter \"%s\" added to symbol table\n", d->name);
+                printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table\n", d->name);
             }
             resolveParamCode = true;
         }
@@ -141,12 +141,12 @@ void decl_resolve(struct decl* d) {
                 scope_bind(d->name, d->symbol);
 
                 // print message to identify function update
-                printf("implementation for \"%s\" updated in symbol table\n", d->name);
+                printf("\033[38;5;46madded\033[0;0m implementation for \"%s\" to symbol table\n", d->name);
             }
             
             // if the parameters do not match
             else {
-                printf("resolution error: implementation for \"%s\" does not match prototype\n", d->name);
+                printf("\033[0;31mresolution error\033[0;0m: implementation for \"%s\" does not match prototype\n", d->name);
                 totalResErrors++;
             }
         }
@@ -155,7 +155,7 @@ void decl_resolve(struct decl* d) {
         else if(symCheck != NULL && symCheck->type->kind != TYPE_PROTOTYPE) {
             
             // will reach here if the same name is declared as anything other than a function prototype
-            printf("resolution error: function \"%s\" cannot be implemented, \"%s\" already declared in current scope\n", d->name, d->name);
+            printf("\033[0;31mresolution error\033[0;0m: function \"%s\" cannot be implemented, \"%s\" already declared in current scope\n", d->name, d->name);
             totalResErrors++;
         }
     
@@ -167,7 +167,7 @@ void decl_resolve(struct decl* d) {
 
             // bind the name and symbol to the symbol table
             scope_bind(d->name, d->symbol);
-            printf("function \"%s\" added to the symbol table\n", d->name);
+            printf("\033[38;5;46madded\033[0;0m function \"%s\" to symbol table\n", d->name);
         }
     }
 
@@ -206,7 +206,7 @@ void decl_typecheck(struct decl* d) {
             // makes sure identifiers have symbol structs; may not if implementation does not match
             // prototype, and the implementation contains identifiers!
             if(d->symbol != NULL && !type_compare(t, d->symbol->type)) {
-                printf("typechecking error: declaration type does not match expression\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: declaration type does not match expression\n");
                 totalTypeErrors++;
             }
         }
@@ -245,7 +245,7 @@ void decl_check_initList(struct type* t, struct expr* initList) {
 
     // ensure sizes match up
     if(trav->size != numElements) {
-        printf("typechecking error: initializer list of size %i does not match the array of size %i\n", numElements, trav->size);
+        printf("\033[0;31mtypechecking error\033[0;0m: initializer list of size %i does not match array of size %i\n", numElements, trav->size);
         totalTypeErrors++;
     }
 
@@ -263,17 +263,18 @@ int count_list_elements(struct expr* e, struct type* t) {
         // if any element is another initializer list
         if(e->left->kind == EXPR_CURLS) {
             if(count_list_elements(e->left->left, t->subtype) == t->size) {
-                printf("Inner list worked!\n");
+                // used for debugging
+                //printf("Inner list worked!\n");
             }
             else {
-                printf("typechecking error: array size does not match list\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: array size does not match initializer list size\n");
                 totalTypeErrors++;
             }
         }
 
         // make sure each element is the correct type
         else if(!type_compare(expr_typecheck(e->left), t)) {
-            printf("typechecking error: array of type (");
+            printf("\033[0;31mtypechecking error\033[0;0m: array of type (");
             type_print(t);
             printf(") cannot be initialized with type (");
             type_print(expr_typecheck(e->left));
@@ -288,17 +289,18 @@ int count_list_elements(struct expr* e, struct type* t) {
     // if any element is another initializer list
     if(e->kind == EXPR_CURLS) {
         if(count_list_elements(e->left, t->subtype) == t->size) {
-            printf("Inner list worked!\n");
+            // used for debugging
+            //printf("Inner list worked!\n");
         }
         else {
-            printf("typechecking error: array size does not match list\n");
+            printf("\033[0;31mtypechecking error\033[0;0m: array size does not match initializer list size\n");
             totalTypeErrors++;
         }
     }
 
     // check the final element, which will be e now
     else if(!type_compare(expr_typecheck(e), t)) {
-        printf("typechecking error: array of type (");
+        printf("\033[0;31mtypechecking error\033[0;0m: array of type (");
         type_print(t);
         printf(") cannot be initialized with type (");
         type_print(expr_typecheck(e));

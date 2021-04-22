@@ -337,26 +337,26 @@ void expr_resolve(struct expr* e) {
     if(e->kind == EXPR_NAME) {
         e->symbol = scope_lookup(e->name);
         if(e->symbol == NULL) {
-            printf("resolution error: \"%s\" not found in scope\n", e->name);
+            printf("\033[0;31mresolution error\033[0;0m: \"%s\" not found in scope\n", e->name);
             totalResErrors++;
         }
         else {
             
             // print proper message depending on scope
             if(scope_lookup(e->name)->type->kind == TYPE_PROTOTYPE) {
-                printf("prototype \"%s\" referenced from symbol table\n", e->name);
+                printf("\033[38;5;45mreferenced\033[0;0m prototype \"%s\" from symbol table\n", e->name);
             }
             else if(scope_lookup(e->name)->type->kind == TYPE_FUNCTION) {
-                printf("function \"%s\" referenced from symbol table\n", e->name);
+                printf("\033[38;5;45mreferenced\033[0;0m function \"%s\" from symbol table\n", e->name);
             }
             else if(scope_lookup(e->name)->kind == SYMBOL_GLOBAL) {
-                printf("global \"%s\" referenced from symbol table\n", e->name);
+                printf("\033[38;5;45mreferenced\033[0;0m global \"%s\" from symbol table\n", e->name);
             }
             if(scope_lookup(e->name)->kind == SYMBOL_LOCAL) {
-                printf("local \"%s\" referenced from symbol table\n", e->name);
+                printf("\033[38;5;45mreferenced\033[0;0m local \"%s\" from symbol table\n", e->name);
             }
             if(scope_lookup(e->name)->kind == SYMBOL_PARAM) {
-                printf("parameter \"%s\" referenced from symbol table\n", e->name);
+                printf("\033[38;5;45mreferenced\033[0;0m parameter \"%s\" from symbol table\n", e->name);
             }
                
         }
@@ -383,6 +383,7 @@ struct type* expr_typecheck(struct expr* e) {
     struct type* result;
     struct expr* temp;
     int totalDerefs = 0;
+
     // switch statement for all kinds of expressions
     switch(e->kind) {
         
@@ -404,21 +405,48 @@ struct type* expr_typecheck(struct expr* e) {
         // the unary arithmetic: the left expression should be an integer: returns integer
         case EXPR_INC:
             if(lt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot increment non-integer type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot increment ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s)\n", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break; 
         case EXPR_DEC:
             if(lt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot decrement non-integer type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot decrement ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s)\n", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_NEG:
             if(lt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot negate non-integer type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot negate ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s)\n", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
@@ -427,42 +455,150 @@ struct type* expr_typecheck(struct expr* e) {
         // the binary arithmetic: both left and right expressions should be integers, returns integer
         case EXPR_EXPON:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot exponentiate non-integer types\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot exponentiate ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) with ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") with ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_MOD:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot modulo non-integer types\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot compute modulo on ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) and ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") and ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_DIV:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot divide non-integer types\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot divide ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) by ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") by ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_MULT:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot multiply non-integer types\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot multiply ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) and ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") and ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_SUB:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot subtract non-integer type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot subtract ");
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s) from ", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") from ");
+                }
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s)\n", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
         case EXPR_ADD:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot add non-integer type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot add ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) to ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") to ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_INTEGER, 0, 0, 0);
@@ -474,18 +610,71 @@ struct type* expr_typecheck(struct expr* e) {
         case EXPR_LE:
         case EXPR_LESS:
             if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
-                printf("typechecking error: cannot perform integer comparison on non-integer type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot perform integer comparison between ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) and ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") and ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
         
-        // the birary boolean logical arithmetic: left / right expressions should be booleans, returns boolean
+        // the unary boolean logical arithmetic: left expression should be boolean, returns boolean
         case EXPR_NOT:
+            if(lt->kind != TYPE_BOOLEAN) {
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot perform boolean logic on ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s)\n", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") \n");
+                }
+                totalTypeErrors++;
+            }
+            result = type_create(TYPE_BOOLEAN, 0, 0, 0);
+            break;
+
+        // the birary boolean logical arithmetic: left / right expressions should be booleans, returns boolean
         case EXPR_AND:
         case EXPR_OR:
             if(lt->kind != TYPE_BOOLEAN || rt->kind != TYPE_BOOLEAN) {
-                printf("typechecking error: cannot perform boolean logic on non-boolean type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot perform boolean logic on ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) and ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") and ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
@@ -497,7 +686,25 @@ struct type* expr_typecheck(struct expr* e) {
             if((lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) && 
                (lt->kind != TYPE_STRING || rt->kind != TYPE_STRING) && 
                (lt->kind != TYPE_CHAR || rt->kind != TYPE_CHAR)) {
-                printf("typechecking error: cannot perform equivalence on non-matching, non-applicable type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot compute equivalence on ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) and ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") and ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
                 totalTypeErrors++;
             }
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
@@ -514,7 +721,7 @@ struct type* expr_typecheck(struct expr* e) {
             
             // see if the identifier has a symbol struct binded to it
             if(e->symbol == NULL) {
-                printf("typechecking error: identifier \"%s\" may not have been declared (defaults to integer for remainder of typechecking)\n", e->name);
+                printf("\033[0;31mtypechecking error\033[0;0m: identifier (%s) may not have been declared (defaults to integer for remainder of typechecking)\n", e->name);
                 totalTypeErrors++;
                 result = type_create(TYPE_INTEGER, 0, 0, 0);
                 break;
@@ -529,12 +736,26 @@ struct type* expr_typecheck(struct expr* e) {
         // an assignment expression: left and right must be of the same type
         case EXPR_ASSIGN:               
             if(!type_compare(lt, rt)) {
-                    printf("typechecking error: cannot assign type (");
-                    type_print(rt);
-                    printf(") to type (");
-                    type_print(lt);
-                    printf(")\n");
-                    totalTypeErrors++;
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot assign different types: ");
+                type_print(lt);
+                if(e->left->name != NULL) {
+                    printf(" (%s) and ", e->left->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->left);
+                    printf(") and ");
+                }
+                type_print(rt);
+                if(e->right->name != NULL) {
+                    printf(" (%s)\n", e->right->name);
+                }
+                else {
+                    printf(" (");
+                    expr_print(e->right);
+                    printf(") \n");
+                }
+                totalTypeErrors++;
                }
             result = type_copy(lt);
             break;
@@ -550,7 +771,7 @@ struct type* expr_typecheck(struct expr* e) {
                     
                     // if the arguments and function parameters do not match, emit an error
                     if(!param_list_fcall_compare(e->right->left, e->left->symbol->type->params)) {
-                        printf("typechecking error: function arguments do not match parameters\n");
+                        printf("\033[0;31mtypechecking error\033[0;0m: function call arguments do not match function (%s) parameter(s)\n", e->left->name);
                         totalTypeErrors++;
                     }
                     
@@ -563,8 +784,8 @@ struct type* expr_typecheck(struct expr* e) {
                 else if(e->right != NULL && e->right->left->kind != EXPR_ARGS) {
 
                     // if the first param matches the type of the only argument, and there are no more params, we are good
-                    if(type_compare_no_size(expr_typecheck(e->right->left), e->left->symbol->type->params->type) == false) {
-                        printf("typechecking error: function argument does not match parameter(s)\n");
+                    if(type_compare_no_size(expr_typecheck(e->right->left), e->left->symbol->type->params->type) == false || e->left->symbol->type->params->next != NULL) {
+                        printf("\033[0;31mtypechecking error\033[0;0m: function call argument does not match function (%s) parameter(s)\n", e->left->name);
                         totalTypeErrors++;
                     }
 
@@ -578,7 +799,7 @@ struct type* expr_typecheck(struct expr* e) {
                     
                     // as long as the parameter in the function is NULL, we are good
                     if(!param_list_fcall_compare(NULL, e->left->symbol->type->params)) {
-                        printf("typechecking error: function arguments do not match parameters\n");
+                        printf("\033[0;31mtypechecking error\033[0;0m: function (%s) requires at least one argument, none passed\n", e->left->name);
                         totalTypeErrors++;
                     }
 
@@ -590,7 +811,7 @@ struct type* expr_typecheck(struct expr* e) {
             
             // if the identifier being called is not a function or prototype
             else {
-                printf("typechecking error: identifier \"%s\" is not a function\n", e->left->name);
+                printf("\033[0;31mtypechecking error\033[0;0m: identifier (%s) is not a function\n", e->left->name);
                 totalTypeErrors++;
                 
                 // result becomes the type of the identifier to allow for continued typecheckin
@@ -622,7 +843,7 @@ struct type* expr_typecheck(struct expr* e) {
                     
                     // if the index is NOT of type integer
                     else {
-                        printf("typechecking error: array index must be type integer\n");
+                        printf("\033[0;31mtypechecking error\033[0;0m: array index for (%s) must be type integer\n", e->left->name);
                         totalTypeErrors++;
                     }         
                 }
@@ -639,7 +860,7 @@ struct type* expr_typecheck(struct expr* e) {
 
                         // make sure that each index is of type integer
                         if(expr_typecheck(temp->left)->kind != TYPE_INTEGER) {
-                            printf("typechecking error: array indices must be type integer\n");
+                            printf("\033[0;31mtypechecking error\033[0;0m: array indices for (%s) must be type integer\n", e->left->name);
                             totalTypeErrors++;
                         }
                         
@@ -650,11 +871,11 @@ struct type* expr_typecheck(struct expr* e) {
                     
                     // the last two indices, should both be of type integer
                     if(expr_typecheck(temp->left)->kind != TYPE_INTEGER) {
-                        printf("typechecking error: array indices must be type integer\n");
+                        printf("\033[0;31mtypechecking error\033[0;0m: array indices for (%s) must be type integer\n", e->left->name);
                         totalTypeErrors++;
                     }
                     if(expr_typecheck(temp->right)->kind != TYPE_INTEGER) {
-                        printf("typechecking error: array indices must be type integer\n");
+                        printf("\033[0;31mtypechecking error\033[0;0m: array indices for (%s) must be type integer\n", e->left->name);
                         totalTypeErrors++;
                     }
                     totalDerefs++;
@@ -670,7 +891,7 @@ struct type* expr_typecheck(struct expr* e) {
 
                         // once the subtypes are used up (indexed into a non-existent higher dimension)
                         else {
-                            printf("typechecking error: cannot index array outside of dimensions\n");
+                            printf("\033[0;31mtypechecking error\033[0;0m: cannot index array (%s) outside of its dimensions\n", e->left->name);
                         }
                     }
                     
@@ -686,6 +907,9 @@ struct type* expr_typecheck(struct expr* e) {
             // if the identifier being indexed is NOT of type array
             else {
                 
+                printf("\033[0;31mtypechecking error\033[0;0m: identifier (%s) is not of type array\n", e->left->name);
+                totalTypeErrors++;
+
                 // return the type of the identifier to allow for continued typechecking
                 result = type_copy(lt);
                 break;
