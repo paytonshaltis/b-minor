@@ -217,7 +217,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
         case STMT_IF:
             t = expr_typecheck(s->expr);
             if(t->kind != TYPE_BOOLEAN) {
-                printf("typechecking error: condition of 'if' statement must return boolean type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: condition of 'if' statement must return boolean type\n");
                 totalTypeErrors++;
                 break;
             }
@@ -227,7 +227,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
         case STMT_IF_ELSE:
             t = expr_typecheck(s->expr);
             if(t->kind != TYPE_BOOLEAN) {
-                printf("typechecking error: condition of 'if' statement must return boolean type\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: condition of 'if' statement must return boolean type\n");
                 totalTypeErrors++;
                 break;
             }
@@ -239,7 +239,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             if(s->init_expr != NULL) {
                 t = expr_typecheck(s->init_expr);
                 if(t->kind != TYPE_INTEGER) {
-                    printf("typechecking error: first expression in 'for-loop' must return integer type\n");
+                    printf("\033[0;31mtypechecking error\033[0;0m: first expression in 'for-loop' must return integer type\n");
                     totalTypeErrors++;
                     break;
                 }
@@ -248,7 +248,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             if(s->expr != NULL) {
                 t = expr_typecheck(s->expr);
                 if(t->kind != TYPE_BOOLEAN) {
-                    printf("typechecking error: second expression in 'for-loop' must return boolean type\n");
+                    printf("\033[0;31mtypechecking error\033[0;0m: second expression in 'for-loop' must return boolean type\n");
                     totalTypeErrors++;
                     break;
                 }
@@ -257,7 +257,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             if(s->next_expr != NULL) {
                 t = expr_typecheck(s->next_expr);
                 if(t->kind != TYPE_INTEGER) {
-                    printf("typechecking error: third expression in 'for-loop' must return integer type\n");
+                    printf("\033[0;31mtypechecking error\033[0;0m: third expression in 'for-loop' must return integer type\n");
                     totalTypeErrors++;
                     break;
                 }
@@ -271,19 +271,25 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
         case STMT_RETURN:
             // void function returning some value
             if(ft->kind == TYPE_VOID && s->expr != NULL) {
-                printf("typechecking error: void function must not return value\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: void function must not return value\n");
                 totalTypeErrors++;
                 break;
             }
             // non-void function not returning a value
             else if (ft->kind != TYPE_VOID && s->expr == NULL) {
-                printf("typechecking error: non-void function must return a value\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: non-void function type (");
+                type_print(ft);
+                printf(") must return a value\n");
                 totalTypeErrors++;
                 break;
             }
             // functions that return other types
             else if(expr_typecheck(s->expr)->kind != ft->kind) {
-                printf("typechecking error: return type does not match function subtype\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: returned type (");
+                type_print(expr_typecheck(s->expr));
+                printf(") does not match function type (");
+                type_print(ft);
+                printf(")\n");
                 totalTypeErrors++;
                 break;
             }

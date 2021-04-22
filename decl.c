@@ -206,7 +206,11 @@ void decl_typecheck(struct decl* d) {
             // makes sure identifiers have symbol structs; may not if implementation does not match
             // prototype, and the implementation contains identifiers!
             if(d->symbol != NULL && !type_compare(t, d->symbol->type)) {
-                printf("\033[0;31mtypechecking error\033[0;0m: declaration type does not match expression\n");
+                printf("\033[0;31mtypechecking error\033[0;0m: cannot declare ");
+                type_print(d->type);
+                printf(" (%s) with ", d->name);
+                expr_print(d->value);
+                printf("\n");
                 totalTypeErrors++;
             }
         }

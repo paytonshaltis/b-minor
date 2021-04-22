@@ -247,7 +247,8 @@ int main(int argc, char* argv[]) {
 
     /* resolution phase: done with the command line option -resolve and -typecheck*/
     if(resolveFlag == 1 || typecheckFlag == 1) {
-        printf("This is the resolution phase.\n");
+
+        printf("\nThis is the resolution phase\n");
         printf("=============================\n\n");
                 
         // we must enter the global scope before doing any resolutions
@@ -257,24 +258,29 @@ int main(int argc, char* argv[]) {
         decl_resolve(parser_result);
 
         // print out the total number of resolution errors found
-        printf("\n~~ There were %i resolution errors detected. ~~\n\n", totalResErrors);
-
+        if(totalResErrors == 1) {
+            printf("\n~~ There was %i resolution error detected. ~~\n\n", totalResErrors);
+        }
+        else {
+            printf("\n~~ There were %i resolution errors detected. ~~\n\n", totalResErrors);
+        }
     }
     
     /* typechecking phase: done with the command line option -typecheck */
     if(typecheckFlag == 1) {
-        printf("This is the typechecking phase.\n");
+        printf("\nThis is the typechecking phase\n");
         printf("=============================\n\n");
 
-        /*
-        struct expr* e = expr_create(EXPR_ASSIGN, expr_create(EXPR_GROUP, expr_create(EXPR_EQUAL, expr_create(EXPR_INTLIT, 0, 0), expr_create(EXPR_INTLIT, 0, 0)), 0), expr_create(EXPR_BOOLLIT, 0, 0));
-        expr_print(e);
-        printf("\n");
-        expr_typecheck(e);
-        // (8 = 3) = 3;
-        */
+        // just need to call the decl_typecheck() function on the first declaration of the AST
+        decl_typecheck(parser_result);
 
-       decl_typecheck(parser_result);
+        // print out the totla number of typechecking errors found
+        if(totalTypeErrors == 1) {
+            printf("\n~~ There was %i typechecking error detected. ~~\n\n", totalTypeErrors);        
+        }
+        else {
+            printf("\n~~ There were %i typechecking errors detected. ~~\n\n", totalTypeErrors);
+        }
     }
 
     /* completed each phase of the compiler */
