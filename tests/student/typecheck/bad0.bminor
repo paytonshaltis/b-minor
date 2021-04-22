@@ -1,0 +1,13 @@
+// testing bad global declarations of basic types
+// see typechecking and resolution errors in standard output for details
+
+
+a : integer;
+b : string;
+c : char;
+d : boolean;
+
+e : integer = false;    // these types are mis-matched             
+f : string = 'e';
+g : char = "hello";
+h : boolean = 0;        // boolean values are not 1s and 0s

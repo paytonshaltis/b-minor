@@ -1,0 +1,40 @@
+// testing bad complex expressions for typechecking the basic types
+// see typechecking and resolution errors in standard output for details
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // integers used for testing
+    x : integer = 5;
+    y : integer = -9;
+    z : integer = (3 / 4);
+
+    // identifier for each testing each type
+    a : integer = 1;
+    b : string = "abc";
+    c : char = 'C';
+    d : boolean = true;
+
+    // several type errors here; binary arithmetic only allowed between integers, returns integer
+    exp : boolean;
+    exp = ((x * a) + (b % y)) ^ ((c / z) - (-56) * d++) - (y--);                            
+
+    // several type errors here; boolean arithmetic only allowed between booleans, returns boolean
+    comp : boolean;
+    comp = !((x < y) && 1 || 0 && (0 >= y));
+
+    // several type errors here; equality comparisons only allowed on the same type, EXCLUDING ARRAYS AND FUNCTIONS
+    result : boolean;
+    result2 : integer;
+    arr : array [5] integer; 
+
+    result = (a == 9) && (a != -9);
+    result = (b == 'd') && (45 != "ghi");
+    result = (main == 45);
+    result = (arr == 67);
+    result2 = (c == "c") && (c != 'D');
+    result2 = (d == true) && (-98 * 3 != false);
+
+
+    return 0;
+}

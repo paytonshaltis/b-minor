@@ -1,0 +1,17 @@
+// testing bad function prototypes and implementations
+// see typechecking and resolution errors in standard output for details
+
+
+/* function prototypes with and without parameters */
+fnx1 : function void ();
+fnx2 : function integer ();
+
+fnx3 : function string (x : integer, y : char, z : array [] boolean);
+fnx4 : function char (x : array [] array [] string);
+
+/* incorrect function implementations for each of the above prototypes */
+fnx1 : function void (a : integer, a : integer) = {}                        // same parameter names
+fnx2 : function integer (z : array [] integer) = {}                         // more params than needed
+
+fnx3 : function string (x : integer, y : string, z : boolean) = {}          // wrong param types
+fnx4 : function char () = {}                                                // less params than needed
