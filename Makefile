@@ -41,4 +41,4 @@ scope.o: scope.c scope.h hash_table.h symbol.h
 	gcc scope.c -c -o scope.o
 
 clean:
-	rm -f scanner.c scanner.o parser.c parser.o parser.output token.h main.o decl.o type.o stmt.o expr.o param_list.o hash_table.o symbol.o scope.o bminor
+	rm -f scanner.c scanner.o parser.c parser.o parser.output token.h main.o decl.o type.o stmt.o expr.o param_list.o hash_table.o symbol.o scope.o *.s bminor

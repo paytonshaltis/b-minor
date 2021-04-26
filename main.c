@@ -293,6 +293,22 @@ int main(int argc, char* argv[]) {
     /* codegen phase: done with the command line option -codegen */
     if(codegenFlag == 1) {
         printf("This is the Code Generation phase.\n");
+        printf("=============================\n\n");
+        
+        // print an error and exit with code 1 if no output name is given
+        if(argc < 4) {
+            printf("\033[0;31mcodegen usage error\033[0;0m: ./bminor -codegen <source.bminor> <outputname.s>\n");
+            exit(1);
+        }
+
+        // otherwise, we need to create a file that uses the same name as the fourth command-line argument
+        FILE* fp = fopen(argv[3], "w+");
+
+        // call decl_codegen(), which recursively generates code for the entire program
+        //decl_codegen(parser_result);
+
+        // close the file after writing has concluded
+        fclose(fp);
     }
 
     /* completed each phase of the compiler */
