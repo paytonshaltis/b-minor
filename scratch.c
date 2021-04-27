@@ -1,7 +1,7 @@
-#include "scratch.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "scratch.h"
 
 /*
 implements a scratch table; houses the scratch registers and indicates whether or 

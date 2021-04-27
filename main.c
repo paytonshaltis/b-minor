@@ -11,6 +11,7 @@
 #include "type.h"
 #include "expr.h"
 #include "scratch.h"
+#include "label.h"
 
 extern FILE *yyin;
 extern int yylex();
@@ -307,6 +308,13 @@ int main(int argc, char* argv[]) {
 
         // call decl_codegen(), which recursively generates code for the entire program
         //decl_codegen(parser_result);
+
+        int label1 = label_create();
+        int label2 = label_create();
+        int label3 = label_create();
+
+        printf("First three label numbs:\n%i\n%i\n%i\n", label1, label2, label3);
+        printf("First three label names:\n%s\n%s\n%s\n", label_name(1), label_name(2), label_name(3));
 
         // close the file after writing has concluded
         fclose(fp);
