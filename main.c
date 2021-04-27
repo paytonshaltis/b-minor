@@ -10,6 +10,7 @@
 #include "symbol.h"
 #include "type.h"
 #include "expr.h"
+#include "scratch.h"
 
 extern FILE *yyin;
 extern int yylex();
