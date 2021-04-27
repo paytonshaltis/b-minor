@@ -15,3 +15,14 @@ struct symbol * symbol_create(symbol_t kind, struct type *type, char *name) {
 
     return s;
 }
+
+// returns the name that contains the stack address for a symbol
+const char* symbol_codegen(struct symbol *s) {
+
+    // if the current scope is global, just return the name
+    if(s->kind == SYMBOL_GLOBAL) {
+        return s->name;
+    }
+
+    // if the current scope is local, use 'which' to compute stack address
+}

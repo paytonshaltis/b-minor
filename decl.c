@@ -108,10 +108,10 @@ void decl_resolve(struct decl* d) {
                 printf("\033[38;5;46madded\033[0;0m global \"%s\" to symbol table\n", d->name);
             }
             if(scope_lookup_current(d->name)->kind == SYMBOL_LOCAL) {
-                printf("\033[38;5;46madded\033[0;0m local \"%s\" to symbol table\n", d->name);
+                printf("\033[38;5;46madded\033[0;0m local \"%s\" to symbol table (which = %i)\n", d->name, d->symbol->which);
             }
             if(scope_lookup_current(d->name)->kind == SYMBOL_PARAM) {
-                printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table\n", d->name);
+                printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table (which = %i)\n", d->name, d->symbol->which);
             }
             resolveParamCode = true;
         }

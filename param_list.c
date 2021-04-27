@@ -48,7 +48,7 @@ void param_list_resolve(struct param_list* p) {
 
         // bind this 'name', 'symbol' pair into the symbol table
         scope_bind(p->name, p->symbol);
-        printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table\n", p->name);
+        printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table (which = %i)\n", p->name, p->symbol->which);
     }
 
     param_list_resolve(p->next);
