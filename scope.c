@@ -120,8 +120,13 @@ void scope_bind(const char* name, struct symbol* sym) {
     
     hash_table_insert(theStackTop->table, name, sym);
 
+
+
     if(DEBUG == true) {
         printf("Successfully bound key \"%s\" with symbol named \"%s\"!\n", name, sym->name);
+        
+        // print the stack address after binding to make sure it works properly
+        printf("Stack Address: %s\n", symbol_codegen(sym));
     }
     return;
 }
