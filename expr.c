@@ -4,6 +4,7 @@
 #include "expr.h"
 #include "scope.h"
 #include "symbol.h"
+#include "scratch.h"
 
 extern int totalResErrors;
 extern int totalTypeErrors;
@@ -937,4 +938,26 @@ struct type* expr_typecheck(struct expr* e) {
 
     // returns the result, regardless of typechecking error
     return result;
+}
+
+void expr_codegen(struct expr* e) {
+
+    // if the expression is NULL, we should return
+    if(e == NULL) {
+        return;
+    }
+
+    // switches all kinds of expressions
+    switch(e->kind) {
+
+        // Leaf node: allocate register and load value
+
+        // for variables
+        case EXPR_NAME:
+            e->reg = scratch_alloc();
+            printf("mov %s %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+            break;
+
+        // Interior node: generate children, then add them
+    }
 }
