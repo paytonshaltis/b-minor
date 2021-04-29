@@ -26,6 +26,6 @@ const char* symbol_codegen(struct symbol *s) {
 
     // if the current scope is local, use 'which' to compute stack address
     char* result = malloc(sizeof(char) * 16);
-    sprintf(result, "[sp, %i]", (s->which + 1) * 4);
+    sprintf(result, "[sp, %i]", (s->which + 2) * 8);
     return result;
 }
