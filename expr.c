@@ -1052,6 +1052,18 @@ void expr_codegen(struct expr* e) {
             e->reg = e->left->reg;
         break;
 
+        case EXPR_NEG:
+            expr_codegen(e->left);
+            printf("neg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+        break;
+
+        case EXPR_NOT:
+            expr_codegen(e->left);
+            printf("mvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+        break;
+
         case EXPR_GROUP:
             expr_codegen(e->left);
             e->reg = e->left->reg;
@@ -1064,6 +1076,8 @@ void expr_codegen(struct expr* e) {
             e->reg = e->right->reg;
         break;
 
+        case EXPR_CURLS:
+        case EXPR_BRACKET:
         default:
         break;
         
