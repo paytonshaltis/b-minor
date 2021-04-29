@@ -1,0 +1,9 @@
+// test sourcecode for debugging codegen
+
+x : integer;
+
+main : function integer () = {
+    y : integer;
+    y = 9;
+    x = (x + 10) * y - x*4;
+}
