@@ -958,6 +958,21 @@ void expr_codegen(struct expr* e) {
             printf("ldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
         break;
 
+        case EXPR_INTLIT:
+            e->reg = scratch_alloc();
+            printf("ldr\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+        break;
+
+        case EXPR_BOOLLIT:
+            e->reg = scratch_alloc();
+            printf("ldr\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+        break;
+
+        case EXPR_CHARLIT:
+            e->reg = scratch_alloc();
+            printf("ldr\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+        break;
+
         // Interior node: generate children, then add them
 
         case EXPR_ADD:
@@ -990,7 +1005,57 @@ void expr_codegen(struct expr* e) {
             printf("sdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
-        break;           
+        break;
+
+        case EXPR_MOD:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            
+            // register will hold the result of each intermediate / final
+            e->reg = scratch_alloc();
+
+            // will need more than one machine instruction for mod
+            printf("udiv\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("mul\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->right->reg), scratch_name(e->reg));
+            printf("sub\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->reg));
+            
+            // free the two operand scratch registers
+            scratch_free(e->left->reg);
+            scratch_free(e->right->reg);
+        break;
+
+        case EXPR_AND:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("and\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+        break;
+
+        case EXPR_OR:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("orr\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+        break;
+
+        case EXPR_INC:
+            expr_codegen(e->left);
+            printf("add\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+        break;
+
+        case EXPR_DEC:
+            expr_codegen(e->left);
+            printf("sub\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+        break;
+
+        case EXPR_GROUP:
+            expr_codegen(e->left);
+            e->reg = e->left->reg;
+        break;
 
         // for assigning expressions
         case EXPR_ASSIGN:
