@@ -7,3 +7,32 @@ main : function integer () = {
     y = 9;
     x = (x + 10) * y - x*4;
 }
+
+/*
+.arch armv8-a
+.file   "output.s"
+
+.data
+        .global x
+x:      .word 
+.text
+        .global main
+        main:
+                stp     x29, x30, [sp, #-200]!
+                mov     x9, #9
+                str     x9, [sp, 4]
+                ldr     x9, x
+                mov     x10, #10
+                add     x10, x9, x10
+                ldr     x9, [sp, 4]
+                mul     x9, x10, x9
+                ldr     x10, x
+                mov     x11, #4
+                mul     x11, x10, x11
+                sub     x11, x9, x11
+                adrp    x9, x
+                add     x9, x9, :lo12:x
+                str     x11, [x9]
+                ldp     x29, x30, [sp], #200
+                ret
+*/
