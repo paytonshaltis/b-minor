@@ -955,9 +955,27 @@ void expr_codegen(struct expr* e) {
         // for variables
         case EXPR_NAME:
             e->reg = scratch_alloc();
-            printf("mov %s %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
-            break;
+            printf("ldr %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+        break;
 
         // Interior node: generate children, then add them
+
+        // for addition of two registers
+        case EXPR_ADD:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("add %s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+        break;
+
+        // for assigning one register to another
+        case EXPR_ASSIGN:
+            expr_codegen(e->right);
+            printf("str, %s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+            e->reg = e->right->reg;
+        break;
+        
+
     }
 }
