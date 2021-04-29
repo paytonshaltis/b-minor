@@ -407,6 +407,25 @@ void stmt_codegen(struct stmt* s) {
             stmt_codegen(s->body);
             
         break;
+
+        // for return statements
+        case STMT_RETURN:
+
+            // if there is an expression to be returned
+            if(s->expr != NULL) {
+                
+                // generate code to get the return value into a register
+                expr_codegen(s->expr);
+                
+                // print the code to move register contents above into x0
+                printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+            }
+
+            // whether returning a value or not, we need to shrink stack and return
+            printf("\t\tldp\tx29, x30, [sp], #200\n\t\tret\n");
+
+        break;
+
         default:
         break;
 

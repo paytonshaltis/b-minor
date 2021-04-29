@@ -1,4 +1,4 @@
-// testing a simple program with integer arithmetic, global vars, local vars, expressions, and print statements
+// testing a simple program with integer arithmetic, global vars, local vars, expressions, multiple scopes, and print statements
 
 g_num1 : integer = 65;
 g_num2 : integer;
@@ -19,6 +19,14 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     // compute the mod of 90 and 20, print it
     print x % y;
+
+    // enter a new scope here
+    {
+        x : integer = 8;
+        y : integer = 16;
+        print x;
+        print y;
+    }
 
     // should be 10, add this to g_num1
     g_num1 = g_num1 + (x % y);
