@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "stmt.h"
 #include "scope.h"
+#include "scratch.h"
 
 extern int totalResErrors;
 extern int totalTypeErrors;
@@ -353,4 +354,35 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             decl_typecheck(s->decl);
     }
     stmt_typecheck(s->next, ft);
+}
+
+void stmt_codegen(struct stmt* s) {
+    
+    //final statement should return
+    if(s == NULL) {
+        return;
+    }
+
+    // switches for all kinds of statements
+    switch(s->kind) {
+
+        // for expressions statemtents
+        case STMT_EXPR:
+            expr_codegen(s->expr);
+            scratch_free(s->expr->reg);
+        break;
+
+        // for declaration statements
+        case STMT_DECL:
+            decl_codegen(s->decl);
+        break;
+
+        default:
+        break;
+
+    }
+
+    // generate code for the next statement
+    stmt_codegen(s->next);
+
 }

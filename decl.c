@@ -315,3 +315,26 @@ int count_list_elements(struct expr* e, struct type* t) {
     // returns the total number of elements in the initializer list
     return total;
 }
+
+void decl_codegen(struct decl* d) {
+
+    // if there are no more declarations
+    if(d == NULL) {
+        return;
+    }
+
+    // switches for all kinds of expressions
+    switch(d->type->kind) {
+
+        case TYPE_FUNCTION:
+            stmt_codegen(d->code);
+        break;
+        
+        default:
+        break;
+
+    }
+
+    // generate code for the next expression
+    decl_codegen(d->next);
+}

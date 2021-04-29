@@ -307,7 +307,7 @@ int main(int argc, char* argv[]) {
         FILE* fp = fopen(argv[3], "w+");
 
         // call decl_codegen(), which recursively generates code for the entire program
-        //decl_codegen(parser_result);
+        decl_codegen(parser_result);
 
         // close the file after writing has concluded
         fclose(fp);

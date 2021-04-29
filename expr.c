@@ -955,25 +955,51 @@ void expr_codegen(struct expr* e) {
         // for variables
         case EXPR_NAME:
             e->reg = scratch_alloc();
-            printf("ldr %s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+            printf("ldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
         break;
 
         // Interior node: generate children, then add them
 
-        // for addition of two registers
         case EXPR_ADD:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("add %s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("add\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
 
+        case EXPR_SUB:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("sub\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+        break;
+
+        case EXPR_MULT:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("mul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+        break;
+
+        case EXPR_DIV:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            printf("sdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+        break;           
+
         // for assigning expressions
         case EXPR_ASSIGN:
             expr_codegen(e->right);
-            printf("str, %s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+            printf("str\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
             e->reg = e->right->reg;
+        break;
+
+        default:
         break;
         
 
