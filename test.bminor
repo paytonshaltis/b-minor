@@ -1,11 +1,16 @@
 // test sourcecode for debugging codegen
 
-x : integer;
+x : integer = 0;
 
-main : function integer () = {
+main : function integer (i : integer, j : integer, k : integer) = {
     y : integer;
     y = 9;
     x = (x + 10) * y - x*4;
+    print x + 3;
+}
+
+test : function string () = {
+    return "string";
 }
 
 /*
@@ -14,17 +19,17 @@ main : function integer () = {
 
 .data
         .global x
-x:      .word 
+x:      .word 0
 .text
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
                 mov     x9, #9
-                str     x9, [sp, 4]
+                str     x9, [sp, 40]
                 ldr     x9, x
                 mov     x10, #10
                 add     x10, x9, x10
-                ldr     x9, [sp, 4]
+                ldr     x9, [sp, 40]
                 mul     x9, x10, x9
                 ldr     x10, x
                 mov     x11, #4
@@ -33,6 +38,17 @@ x:      .word
                 adrp    x9, x
                 add     x9, x9, :lo12:x
                 str     x11, [x9]
+                ldr     x9, x
+                mov     x10, #3
+                add     x10, x9, x10
+                ldr     x0, x10
+                bl      print_integer
+                ldp     x29, x30, [sp], #200
+                ret
+.text
+        .global test
+        test:
+                stp     x29, x30, [sp, #-200]!
                 ldp     x29, x30, [sp], #200
                 ret
 */

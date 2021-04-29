@@ -358,6 +358,9 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
 
 void stmt_codegen(struct stmt* s) {
     
+    // type used in printing expressions
+    struct type* t;
+
     //final statement should return
     if(s == NULL) {
         return;
@@ -377,6 +380,25 @@ void stmt_codegen(struct stmt* s) {
             decl_codegen(s->decl);
         break;
 
+        // for print statements
+        case STMT_PRINT:
+            
+            // see if print has an expression attatched
+            if(s->expr == NULL) {
+                break;
+            }
+            
+            t = expr_typecheck(s->expr);
+
+            // otherwise, make the appropriate function calls
+            if(t->kind == TYPE_INTEGER) {
+                expr_codegen(s->expr);
+                printf("\t\tldr\tx0, %s\n", scratch_name(s->expr->reg));
+                printf("\t\tbl\tprint_integer\n");
+                scratch_free(s->expr->reg);
+            }
+
+        break;
         default:
         break;
 
