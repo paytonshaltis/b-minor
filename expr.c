@@ -969,7 +969,7 @@ void expr_codegen(struct expr* e) {
             scratch_free(e->left->reg);
         break;
 
-        // for assigning one register to another
+        // for assigning expressions
         case EXPR_ASSIGN:
             expr_codegen(e->right);
             printf("str, %s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
