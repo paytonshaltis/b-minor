@@ -306,6 +306,9 @@ int main(int argc, char* argv[]) {
         // otherwise, we need to create a file that uses the same name as the fourth command-line argument
         FILE* fp = fopen(argv[3], "w+");
 
+        // assembly header
+        printf(".arch armv8-a\n.file\t\"%s\"\n\n.data\n", argv[3]);
+
         // call decl_codegen(), which recursively generates code for the entire program
         decl_codegen(parser_result);
 

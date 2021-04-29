@@ -955,22 +955,22 @@ void expr_codegen(struct expr* e) {
         // for variables
         case EXPR_NAME:
             e->reg = scratch_alloc();
-            printf("ldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+            printf("\t\tldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
         break;
 
         case EXPR_INTLIT:
             e->reg = scratch_alloc();
-            printf("ldr\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            printf("\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
         break;
 
         case EXPR_BOOLLIT:
             e->reg = scratch_alloc();
-            printf("ldr\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            printf("\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
         break;
 
         case EXPR_CHARLIT:
             e->reg = scratch_alloc();
-            printf("ldr\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            printf("\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
         break;
 
         // Interior node: generate children, then add them
@@ -978,7 +978,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_ADD:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("add\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tadd\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -986,7 +986,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_SUB:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("sub\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tsub\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -994,7 +994,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_MULT:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("mul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -1002,7 +1002,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_DIV:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("sdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tsdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -1015,9 +1015,9 @@ void expr_codegen(struct expr* e) {
             e->reg = scratch_alloc();
 
             // will need more than one machine instruction for mod
-            printf("udiv\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
-            printf("mul\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->right->reg), scratch_name(e->reg));
-            printf("sub\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->reg));
+            printf("\t\tudiv\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->right->reg), scratch_name(e->reg));
+            printf("\t\tsub\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->reg));
             
             // free the two operand scratch registers
             scratch_free(e->left->reg);
@@ -1027,7 +1027,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_AND:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("and\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tand\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -1035,32 +1035,32 @@ void expr_codegen(struct expr* e) {
         case EXPR_OR:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("orr\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\torr\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
 
         case EXPR_INC:
             expr_codegen(e->left);
-            printf("add\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tadd\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
         case EXPR_DEC:
             expr_codegen(e->left);
-            printf("sub\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tsub\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
         case EXPR_NEG:
             expr_codegen(e->left);
-            printf("neg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tneg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
         case EXPR_NOT:
             expr_codegen(e->left);
-            printf("mvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tmvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
@@ -1071,9 +1071,41 @@ void expr_codegen(struct expr* e) {
 
         // for assigning expressions
         case EXPR_ASSIGN:
-            expr_codegen(e->right);
-            printf("str\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
-            e->reg = e->right->reg;
+
+            // assigning local values can be done this way:
+            if(e->left->symbol->kind == SYMBOL_LOCAL) {
+                
+                // generate code to compute the right expression
+                expr_codegen(e->right);
+
+                // store the result into the memory location
+                printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+                
+                // this assign expression now has the register with the value in it
+                e->reg = e->right->reg;
+            }
+
+            // modifying global variables requires having their address
+            else if(e->left->symbol->kind == SYMBOL_GLOBAL) {
+                
+                // generate code to compute the right expression
+                expr_codegen(e->right);
+
+                // store the address of the global variable in a free register
+                e->reg = scratch_alloc();
+                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
+                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+                
+                // store the result of the right expression into the global variable
+                printf("\t\tstr\t%s, [%s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
+
+                // free the register that held the address of the global
+                scratch_free(e->reg);
+
+                // this assign expression now has the register with the value in it
+                e->reg = e->right->reg;
+
+            }
         break;
 
         case EXPR_CURLS:

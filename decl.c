@@ -2,6 +2,7 @@
 #include "expr.h"
 #include "type.h"
 #include "scope.h"
+#include "label.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -326,8 +327,19 @@ void decl_codegen(struct decl* d) {
     // switches for all kinds of expressions
     switch(d->type->kind) {
 
+        case TYPE_INTEGER:
+            if(d->symbol->kind == SYMBOL_GLOBAL) {
+                printf("\t.global %s\n%s:\t.word ", d->name, d->name);
+                if(d->value) expr_print(d->value);
+                printf("\n");
+            }
+        break;
+
         case TYPE_FUNCTION:
+            printf(".text\n\t.global %s\n\t%s:\n", d->name, d->name);
+            printf("\t\tstp\tx29, x30, [sp, #-200]!\n");
             stmt_codegen(d->code);
+            printf("\t\tldp\tx29, x30, [sp], #200\n\t\tret\n");
         break;
         
         default:
