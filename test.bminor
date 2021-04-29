@@ -1,16 +1,31 @@
 // test sourcecode for debugging codegen
 
-x : integer = 0;
+g_num1 : integer = 65;
+g_num2 : integer;
 
-main : function integer (i : integer, j : integer, k : integer) = {
-    y : integer;
-    y = 9;
-    x = (x + 10) * y - x*4;
-    print x + 3;
-}
+main : function integer (argc : integer, argv : array[] string) = {
 
-test : function string () = {
-    return "string";
+    // should print 65 then nothing
+    print g_num1;
+    print g_num2;
+
+    // declaring some local variables
+    x : integer = 90;
+    y : integer = -15;
+    z : integer;
+
+    // negate the negative number, add 5
+    y = -y + 5;
+
+    // compute the mod of 90 and 20, print it
+    print x % y;
+
+    // should be 10, add this to g_num1
+    g_num1 = g_num1 + (x % y);
+
+    // print the result of the addition
+    print g_num1;
+
 }
 
 /*
@@ -18,37 +33,51 @@ test : function string () = {
 .file   "output.s"
 
 .data
-        .global x
-x:      .word 0
+        .global g_num1
+g_num1: .word 65
+.data
+        .global g_num2
+g_num2: .word 
 .text
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
-                mov     x9, #9
+                ldr     x9, g_num1
+                mov     x0, x9
+                bl      print_integer
+                ldr     x9, g_num2
+                mov     x0, x9
+                bl      print_integer
+                mov     x9, #90
+                str     x9, [sp, 32]
+                mov     x9, #15
+                neg     x9, x9
                 str     x9, [sp, 40]
-                ldr     x9, x
-                mov     x10, #10
-                add     x10, x9, x10
                 ldr     x9, [sp, 40]
-                mul     x9, x10, x9
-                ldr     x10, x
-                mov     x11, #4
+                neg     x9, x9
+                mov     x10, #5
+                add     x10, x9, x10
+                str     x10, [sp, 40]
+                ldr     x9, [sp, 32]
+                ldr     x10, [sp, 40]
+                udiv    x11, x9, x10
                 mul     x11, x10, x11
                 sub     x11, x9, x11
-                adrp    x9, x
-                add     x9, x9, :lo12:x
-                str     x11, [x9]
-                ldr     x9, x
-                mov     x10, #3
-                add     x10, x9, x10
-                ldr     x0, x10
+                mov     x0, x11
                 bl      print_integer
-                ldp     x29, x30, [sp], #200
-                ret
-.text
-        .global test
-        test:
-                stp     x29, x30, [sp, #-200]!
+                ldr     x9, g_num1
+                ldr     x10, [sp, 32]
+                ldr     x11, [sp, 40]
+                udiv    x12, x10, x11
+                mul     x12, x11, x12
+                sub     x12, x10, x12
+                add     x12, x9, x12
+                adrp    x9, g_num1
+                add     x9, x9, :lo12:g_num1
+                str     x12, [x9]
+                ldr     x9, g_num1
+                mov     x0, x9
+                bl      print_integer
                 ldp     x29, x30, [sp], #200
                 ret
 */

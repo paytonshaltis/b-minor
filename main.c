@@ -307,7 +307,7 @@ int main(int argc, char* argv[]) {
         FILE* fp = fopen(argv[3], "w+");
 
         // assembly header
-        printf(".arch armv8-a\n.file\t\"%s\"\n\n.data\n", argv[3]);
+        printf(".arch armv8-a\n.file\t\"%s\"\n\n", argv[3]);
 
         // call decl_codegen(), which recursively generates code for the entire program
         decl_codegen(parser_result);

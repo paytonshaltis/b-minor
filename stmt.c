@@ -393,7 +393,7 @@ void stmt_codegen(struct stmt* s) {
             // otherwise, make the appropriate function calls
             if(t->kind == TYPE_INTEGER) {
                 expr_codegen(s->expr);
-                printf("\t\tldr\tx0, %s\n", scratch_name(s->expr->reg));
+                printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
                 printf("\t\tbl\tprint_integer\n");
                 scratch_free(s->expr->reg);
             }

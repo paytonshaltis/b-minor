@@ -49,8 +49,7 @@ struct expr {
 	struct symbol *symbol;
 
 	/* used int the codegen (register) */
-	int reg;
-	
+	int reg;	
 };
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );

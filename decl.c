@@ -3,6 +3,7 @@
 #include "type.h"
 #include "scope.h"
 #include "label.h"
+#include "scratch.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -327,12 +328,79 @@ void decl_codegen(struct decl* d) {
     // switches for all kinds of expressions
     switch(d->type->kind) {
 
+        // declaring global and local integers
         case TYPE_INTEGER:
+            
+            // in case of a global integer
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                printf("\t.global %s\n%s:\t.word ", d->name, d->name);
+                printf(".data\n\t.global %s\n%s:\t.word ", d->name, d->name);
                 if(d->value) expr_print(d->value);
                 printf("\n");
             }
+
+            // in case of a local integer with initial expression
+            if(d->symbol->kind == SYMBOL_LOCAL && d->value != NULL) {
+                expr_codegen(d->value);
+                printf("\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                scratch_free(d->value->reg);
+            }
+
+        break;
+
+        // declaring global and local chars
+        case TYPE_CHAR:
+
+            // in case of a global char
+            if(d->symbol->kind == SYMBOL_GLOBAL) {
+                printf(".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
+                if(d->value) printf("%i", d->value->literal_value);
+                printf("\n");
+            }
+
+            // in case of a local char with initial expression
+            if(d->symbol->kind == SYMBOL_LOCAL && d->value != NULL) {
+                expr_codegen(d->value);
+                printf("\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                scratch_free(d->value->reg);
+            }
+
+        break;
+
+        // declaring global and local booleans
+        case TYPE_BOOLEAN:
+
+            // in case of a global boolean
+            if(d->symbol->kind == SYMBOL_GLOBAL) {
+                printf(".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
+                if(d->value) printf("%i", d->value->literal_value);
+                printf("\n");
+            }
+
+            // in case of a local boolean with initial expression
+            if(d->symbol->kind == SYMBOL_LOCAL && d->value != NULL) {
+                expr_codegen(d->value);
+                printf("\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                scratch_free(d->value->reg);
+            }
+            
+        break;
+
+        // declaring global and local strings
+        case TYPE_STRING:
+            
+            // in case of a global string
+            if(d->symbol->kind == SYMBOL_GLOBAL) {
+                printf(".data\n\t.global %s\n%s:\t.word ", d->name, d->name);
+                if(d->value) expr_print(d->value);
+                printf("\n");
+            }
+
+            // in case of a local string, we should create a new label for the string, then
+            // print it with all other labels at the end of the code
+            if(d->symbol->kind == SYMBOL_LOCAL) {
+
+            }
+
         break;
 
         case TYPE_FUNCTION:
