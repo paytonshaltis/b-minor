@@ -10,7 +10,6 @@
 struct stack_node {
     struct hash_table* table;       // the hash table pointed to by this node in the stack
     struct stack_node* next;        // the next stack node pointed to by this node in the stack
-    int counter;                    // counter that keeps track of the stack addresses of locals
 };
 
 void scope_enter();

@@ -11,6 +11,7 @@
 
 int totalResErrors = 0;
 int totalTypeErrors = 0;
+int counter;                    // counter that keeps track of the stack addresses of locals
 
 // basic factory function for creating a 'decl' struct
 struct decl * decl_create( char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ) {
@@ -177,9 +178,16 @@ void decl_resolve(struct decl* d) {
     // a prototype, we should still resolve everything within so that typechecking may work appropriately**
     if((d->type->kind == TYPE_FUNCTION) || (d->type->kind == TYPE_PROTOTYPE)) {
         scope_enter();
+        
+        //reset counter after entering a funtion's scope
+        counter = 0;
+
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);
         scope_exit();
+        
+        // reset counter after leaving a function's scope
+        counter = 0;
     }
 
     // resolve the next declaration in the code
@@ -382,7 +390,7 @@ void decl_codegen(struct decl* d) {
                 printf("\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
                 scratch_free(d->value->reg);
             }
-            
+
         break;
 
         // declaring global and local strings

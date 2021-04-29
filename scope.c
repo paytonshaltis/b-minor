@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+extern int counter;
+
 // set DEBUG to true to see debugging messages, false to turn them off
 bool DEBUG = false;
 
@@ -22,9 +24,6 @@ void scope_enter() {
 
     // the next node should point to the current top of the stack
     newStackNode->next = theStackTop;
-
-    // the counter for this scope should begin at 0
-    newStackNode->counter = 0;
     
     // the top of the stack should now point to the new node
     theStackTop = newStackNode;
@@ -115,8 +114,8 @@ void scope_bind(const char* name, struct symbol* sym) {
 
     // otherwise, we insert the (name, symbol) mapping into the hash table of the top-most node of the stack
     // we also must assign the 'which' field based on the current scope's count
-    sym->which = theStackTop->counter;
-    theStackTop->counter++;
+    sym->which = counter;
+    counter++;
     
     hash_table_insert(theStackTop->table, name, sym);
 

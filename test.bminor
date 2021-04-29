@@ -1,4 +1,4 @@
-// test sourcecode for debugging codegen
+// testing a simple program with integer arithmetic, global vars, local vars, expressions, and print statements
 
 g_num1 : integer = 65;
 g_num2 : integer;
@@ -19,6 +19,14 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     // compute the mod of 90 and 20, print it
     print x % y;
+
+    // enter a new scope here
+    {
+        x : integer = 8;
+        y : integer = 16;
+        print x;
+        print y;
+    }
 
     // should be 10, add this to g_num1
     g_num1 = g_num1 + (x % y);
@@ -64,6 +72,16 @@ g_num2: .word
                 mul     x11, x10, x11
                 sub     x11, x9, x11
                 mov     x0, x11
+                bl      print_integer
+                mov     x9, #8
+                str     x9, [sp, 56]
+                mov     x9, #16
+                str     x9, [sp, 64]
+                ldr     x9, [sp, 56]
+                mov     x0, x9
+                bl      print_integer
+                ldr     x9, [sp, 64]
+                mov     x0, x9
                 bl      print_integer
                 ldr     x9, g_num1
                 ldr     x10, [sp, 32]

@@ -399,6 +399,14 @@ void stmt_codegen(struct stmt* s) {
             }
 
         break;
+
+        // for block statements
+        case STMT_BLOCK:
+            
+            // just generate code for what is in the body
+            stmt_codegen(s->body);
+            
+        break;
         default:
         break;
 

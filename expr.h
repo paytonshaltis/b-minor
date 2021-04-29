@@ -8,32 +8,32 @@ typedef enum {
 	EXPR_INTLIT,	//
 	EXPR_BOOLLIT,	//
 	EXPR_CHARLIT,	//
-	EXPR_STRINGLIT,	//
-	EXPR_FCALL,		//
+	EXPR_STRINGLIT,	//	x
+	EXPR_FCALL,		//	x
 	EXPR_GROUP,		//
-	EXPR_ARRIND,	//	
+	EXPR_ARRIND,	//	x	
 	EXPR_BRACKET,	//
 	EXPR_CURLS,		//
 	EXPR_INC,		//
 	EXPR_DEC,		//
 	EXPR_NOT,		//
 	EXPR_NEG,		//
-	EXPR_EXPON,		//
+	EXPR_EXPON,		//	x
 	EXPR_MOD,		//
 	EXPR_DIV,		//
 	EXPR_MULT,		//
 	EXPR_SUB,		//
 	EXPR_ADD,		//
-	EXPR_NEQUAL,	//
-	EXPR_EQUAL,		// 
-	EXPR_GE,		// 
-	EXPR_GREATER,	//
-	EXPR_LE,		//
-	EXPR_LESS,		//
+	EXPR_NEQUAL,	//	x
+	EXPR_EQUAL,		//	x 
+	EXPR_GE,		//	x 
+	EXPR_GREATER,	//	x
+	EXPR_LE,		//	x
+	EXPR_LESS,		//	x
 	EXPR_AND,		//
 	EXPR_OR,		//
 	EXPR_ASSIGN,	//
-	EXPR_ARGS		//
+	EXPR_ARGS		//	x
 } expr_t;
 
 struct expr {
