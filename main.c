@@ -22,6 +22,8 @@ extern struct decl* parser_result;
 extern int yylineno;
 extern int totalResErrors;
 extern int totalTypeErrors;
+extern char localsTP[256][300];
+int localsTPCounter;
 
 /* function used to modify 'yytext' for char and string literals */
 void modifyText(enum yytokentype t) {

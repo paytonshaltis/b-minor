@@ -9,7 +9,16 @@ main : function integer (argc : integer, argv : array[] string) = {
     y : integer;
     y = 4;
     print x ^ (y + 3);
+    str1 : string = "hello there!";
+    str2 : string = "hello there!";
+    str3 : string = "hello there!";
     return 0;
+}
+
+test : function void () = {
+    str4 : string = "hello there!";
+    str5 : string = "hello there!";
+
 }
 
 /*
@@ -41,4 +50,20 @@ x:      .word 19
                 ret
                 ldp     x29, x30, [sp], #200
                 ret
+.L3:
+        .string "hello there!"
+.L4:
+        .string "hello there!"
+.L5:
+        .string "hello there!"
+.text
+        .global test
+        test:
+                stp     x29, x30, [sp, #-200]!
+                ldp     x29, x30, [sp], #200
+                ret
+.L0:
+        .string "hello there!"
+.L1:
+        .string "hello there!"
 */

@@ -11,6 +11,8 @@
 
 int totalResErrors = 0;
 int totalTypeErrors = 0;
+char localsTP[256][300];
+int localsTPCounter = 0;
 int counter;                    // counter that keeps track of the stack addresses of locals
 
 // basic factory function for creating a 'decl' struct
@@ -328,6 +330,9 @@ int count_list_elements(struct expr* e, struct type* t) {
 
 void decl_codegen(struct decl* d) {
 
+    // temporary string buffer
+    char strBuffer[300];
+
     // if there are no more declarations
     if(d == NULL) {
         return;
@@ -404,19 +409,41 @@ void decl_codegen(struct decl* d) {
                 printf("\n");
             }
 
-            // in case of a local string, we should create a new label for the string, then
-            // print it with all other labels at the end of the code
+            // in case of a local string, we should create a new label for the string, store 
+            // it in the which, then print it with all other labels at the end of the code
             if(d->symbol->kind == SYMBOL_LOCAL) {
+                
+                // unique label number will come from 'which'
+                memset(strBuffer, 0, 300);
+                sprintf(strBuffer, "%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
+
+                // store this into the array of strings that will be printed at the end of the function
+                for(int i = 0; i < 300; i++) {
+                    localsTP[localsTPCounter][i] = strBuffer[i];
+                }
+                localsTPCounter++;
 
             }
 
         break;
 
         case TYPE_FUNCTION:
+            
+            // the basic function stuff
             printf(".text\n\t.global %s\n\t%s:\n", d->name, d->name);
             printf("\t\tstp\tx29, x30, [sp, #-200]!\n");
             stmt_codegen(d->code);
             printf("\t\tldp\tx29, x30, [sp], #200\n\t\tret\n");
+
+            // need to print out local string labels
+            for(int i = 0; i < 256; i++) {
+                printf("%s", localsTP[i]);
+                for(int j = 0; j < 300; j++) {
+                    localsTP[i][j] = 0;
+                }
+            }
+            localsTPCounter = 0;
+            
         break;
         
         default:
