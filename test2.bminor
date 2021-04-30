@@ -3,13 +3,19 @@
 
 str1 : string = "Does";
 str2 : string = "\n";
+division : string = "\n======================\n";
 
 main : function integer (argc : integer, argv : array[] string) = {
 
+    // print each in their own statement
     print str1;
     print false && true;
     print 54 + 45;
     print 'c';
+    print division;
+
+    // print them all together, should be the same
+    print str1, false && true, 54 + 45, 'c';
     return 0;
 
 }
@@ -24,10 +30,34 @@ str1:   .string "Does"
 .data
         .global str2
 str2:   .string "\n"
+.data
+        .global division
+division:       .string "\n======================\n"
 .text
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
+                adrp    x9, str1
+                add     x9, x9, :lo12:str1
+                mov     x0, x9
+                bl      print_string
+                mov     x9, #0
+                mov     x10, #1
+                and     x10, x9, x10
+                mov     x0, x10
+                bl      print_boolean
+                mov     x9, #54
+                mov     x10, #45
+                add     x10, x9, x10
+                mov     x0, x10
+                bl      print_integer
+                mov     x9, #99
+                mov     x0, x9
+                bl      print_character
+                adrp    x9, division
+                add     x9, x9, :lo12:division
+                mov     x0, x9
+                bl      print_string
                 adrp    x9, str1
                 add     x9, x9, :lo12:str1
                 mov     x0, x9

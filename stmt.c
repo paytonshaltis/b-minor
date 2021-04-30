@@ -360,6 +360,7 @@ void stmt_codegen(struct stmt* s) {
     
     // type used in printing expressions
     struct type* t;
+    struct expr* exprtemp;
 
     //final statement should return
     if(s == NULL) {
@@ -419,6 +420,98 @@ void stmt_codegen(struct stmt* s) {
                     scratch_free(s->expr->reg);
                 }
 
+            }
+
+            // for more than one expressions to print
+            else {
+                
+                // navigate through all of the expressions to print
+                exprtemp = s->expr;
+                while(exprtemp->right->kind == EXPR_ARGS) {
+                    
+                    // call the correct function for each argument visited
+                    t = expr_typecheck(exprtemp->left);
+
+                    if(t->kind == TYPE_INTEGER) {
+                        expr_codegen(exprtemp->left);
+                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        printf("\t\tbl\tprint_integer\n");
+                        scratch_free(exprtemp->left->reg);
+                    }
+                    if(t->kind == TYPE_STRING) {                                                        // remember; for sting literals to work, just modify the expr_stringlit! it gets called with expr_codegen(s->expr)! 
+                        expr_codegen(exprtemp->left);
+                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        printf("\t\tbl\tprint_string\n");
+                        scratch_free(exprtemp->left->reg);
+                    }
+                    if(t->kind == TYPE_CHAR) {
+                        expr_codegen(exprtemp->left);
+                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        printf("\t\tbl\tprint_character\n");
+                        scratch_free(exprtemp->left->reg);
+                    }
+                    if(t->kind == TYPE_BOOLEAN) {
+                        expr_codegen(exprtemp->left);
+                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        printf("\t\tbl\tprint_boolean\n");
+                        scratch_free(exprtemp->left->reg);
+                    }
+
+                    exprtemp = exprtemp->right;
+                }
+
+                // we have to do the last two manually here:
+                t = expr_typecheck(exprtemp->left);
+                if(t->kind == TYPE_INTEGER) {
+                    expr_codegen(exprtemp->left);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    printf("\t\tbl\tprint_integer\n");
+                    scratch_free(exprtemp->left->reg);
+                }
+                if(t->kind == TYPE_STRING) {                                                        // remember; for sting literals to work, just modify the expr_stringlit! it gets called with expr_codegen(exprtemp->left)! 
+                    expr_codegen(exprtemp->left);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    printf("\t\tbl\tprint_string\n");
+                    scratch_free(exprtemp->left->reg);
+                }
+                if(t->kind == TYPE_CHAR) {
+                    expr_codegen(exprtemp->left);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    printf("\t\tbl\tprint_character\n");
+                    scratch_free(exprtemp->left->reg);
+                }
+                if(t->kind == TYPE_BOOLEAN) {
+                    expr_codegen(exprtemp->left);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    printf("\t\tbl\tprint_boolean\n");
+                    scratch_free(exprtemp->left->reg);
+                }
+
+                t = expr_typecheck(exprtemp->right);
+                if(t->kind == TYPE_INTEGER) {
+                    expr_codegen(exprtemp->right);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    printf("\t\tbl\tprint_integer\n");
+                    scratch_free(exprtemp->right->reg);
+                }
+                if(t->kind == TYPE_STRING) {                                                        // remember; for sting literals to work, just modify the expr_stringlit! it gets called with expr_codegen(exprtemp->right)! 
+                    expr_codegen(exprtemp->right);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    printf("\t\tbl\tprint_string\n");
+                    scratch_free(exprtemp->right->reg);
+                }
+                if(t->kind == TYPE_CHAR) {
+                    expr_codegen(exprtemp->right);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    printf("\t\tbl\tprint_character\n");
+                    scratch_free(exprtemp->right->reg);
+                }
+                if(t->kind == TYPE_BOOLEAN) {
+                    expr_codegen(exprtemp->right);
+                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    printf("\t\tbl\tprint_boolean\n");
+                    scratch_free(exprtemp->right->reg);
+                }
             }
 
         break;
