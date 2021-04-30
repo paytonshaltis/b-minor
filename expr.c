@@ -5,6 +5,7 @@
 #include "scope.h"
 #include "symbol.h"
 #include "scratch.h"
+#include "label.h"
 
 extern int totalResErrors;
 extern int totalTypeErrors;
@@ -955,11 +956,19 @@ void expr_codegen(struct expr* e) {
         // for variables
         case EXPR_NAME:
             
-            // for string variables (using labels)
-            if(e->symbol->type->kind == TYPE_STRING) {
+            // for global string variables (using labels)
+            if(e->symbol->type->kind == TYPE_STRING && e->symbol->kind == SYMBOL_GLOBAL) {
                 e->reg = scratch_alloc();
                 printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->name);
                 printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->name);
+                break;
+            }
+
+            // for local string variables (using labels)
+            if(e->symbol->type->kind == TYPE_STRING && e->symbol->kind == SYMBOL_LOCAL) {
+                e->reg = scratch_alloc();
+                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->name);
+                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), label_name(e->symbol->which));
                 break;
             }
 
@@ -984,6 +993,7 @@ void expr_codegen(struct expr* e) {
         break;
 
         case EXPR_STRINGLIT:
+
         break;
 
         // Interior node: generate children, then add them

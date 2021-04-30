@@ -12,6 +12,8 @@ main : function integer (argc : integer, argv : array[] string) = {
     str1 : string = "hello there!";
     str2 : string = "hello there!";
     str3 : string = "hello there!";
+
+    print str1, str2, str3;
     return 0;
 }
 
@@ -44,6 +46,18 @@ x:      .word 19
                 mov     x11, x0
                 mov     x0, x11
                 bl      print_integer
+                adrp    x10, str1
+                add     x10, x10, :lo12:.L3
+                mov     x0, x10
+                bl      print_string
+                adrp    x10, str2
+                add     x10, x10, :lo12:.L4
+                mov     x0, x10
+                bl      print_string
+                adrp    x10, str3
+                add     x10, x10, :lo12:.L5
+                mov     x0, x10
+                bl      print_string
                 mov     x10, #0
                 mov     x0, x10
                 ldp     x29, x30, [sp], #200
