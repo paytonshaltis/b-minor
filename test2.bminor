@@ -32,10 +32,11 @@ x:      .word 19
                 mov     x0, x9
                 mov     x1, x11
                 bl      integer_power
-                mov     x0, x9
+                mov     x11, x0
+                mov     x0, x11
                 bl      print_integer
-                mov     x9, #0
-                mov     x0, x9
+                mov     x10, #0
+                mov     x0, x10
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200

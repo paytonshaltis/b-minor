@@ -1088,8 +1088,11 @@ void expr_codegen(struct expr* e) {
             printf("\t\tmov\tx1, %s\n", scratch_name(e->right->reg));
             printf("\t\tbl\tinteger_power\n");
 
-            // free the registers used to fetch the operands
-            scratch_free(e->left->reg);
+            // this expression's register will be the right register, which needs x0's contents
+            e->reg = e->right->reg;
+            printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+            
+            // free the register used to fetch the left operand
             scratch_free(e->right->reg);
 
         break;
