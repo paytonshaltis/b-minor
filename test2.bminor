@@ -1,15 +1,13 @@
 // testing a simple program with integer arithmetic, global vars, local vars, expressions, multiple scopes, and print statements
 
 
-str : string = "LET'S GOOOOOO!!!!";
+str : string = "Hello World!";
 newline : string = "\n";
 
 main : function integer (argc : integer, argv : array[] string) = {
 
     print str;
-    print newline;
     print 65 + 89;
-    print newline;
     print str;
     return 0;
 }
@@ -20,7 +18,7 @@ main : function integer (argc : integer, argv : array[] string) = {
 
 .data
         .global str
-str:    .ascii "LET'S GOOOOOO!!!!"
+str:    .ascii "Hello World!"
 .data
         .global newline
 newline:        .ascii "\n"
@@ -32,19 +30,11 @@ newline:        .ascii "\n"
                 add     x9, x9, :lo12:str
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, newline
-                add     x9, x9, :lo12:newline
-                mov     x0, x9
-                bl      print_string
                 mov     x9, #65
                 mov     x10, #89
                 add     x10, x9, x10
                 mov     x0, x10
                 bl      print_integer
-                adrp    x9, newline
-                add     x9, x9, :lo12:newline
-                mov     x0, x9
-                bl      print_string
                 adrp    x9, str
                 add     x9, x9, :lo12:str
                 mov     x0, x9
