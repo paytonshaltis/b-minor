@@ -395,10 +395,11 @@ void decl_codegen(struct decl* d) {
 
         // declaring global and local strings
         case TYPE_STRING:
-            
+
             // in case of a global string
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                printf(".data\n\t.global %s\n%s:\t.ascii ", d->name, d->name);
+
+                printf(".data\n\t.global %s\n\t.size %s, 1\n%s:\t.ascii ", d->name, d->name, d->name);
                 if(d->value) expr_print(d->value);
                 printf("\n");
             }

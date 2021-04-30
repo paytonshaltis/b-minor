@@ -1,15 +1,29 @@
 // testing a simple program with integer arithmetic, global vars, local vars, expressions, multiple scopes, and print statements
 
 
-str : string = "Hello World!";
+str1 : string = "Does";
+str2 : string = "this";
+str3 : string = "sentence";
+str4 : string = "print";
+str5 : string = "out";
+str6 : string = "correctly";
+str7 : string = "?";
 newline : string = "\n";
 
 main : function integer (argc : integer, argv : array[] string) = {
 
-    print str;
-    print 65 + 89;
-    print str;
-    return 0;
+    print str1;
+    print newline;
+    print str2;
+    print str3;
+    print newline;
+    print str4;
+    print newline;
+    print str5;
+    print str6;
+    print str7;
+    print newline;
+
 }
 
 /*
@@ -17,32 +31,85 @@ main : function integer (argc : integer, argv : array[] string) = {
 .file   "output.s"
 
 .data
-        .global str
-str:    .ascii "Hello World!"
+        .global str1
+        .size str1, 1
+str1:   .ascii "Does"
+.data
+        .global str2
+        .size str2, 1
+str2:   .ascii "this"
+.data
+        .global str3
+        .size str3, 1
+str3:   .ascii "sentence"
+.data
+        .global str4
+        .size str4, 1
+str4:   .ascii "print"
+.data
+        .global str5
+        .size str5, 1
+str5:   .ascii "out"
+.data
+        .global str6
+        .size str6, 1
+str6:   .ascii "correctly"
+.data
+        .global str7
+        .size str7, 1
+str7:   .ascii "?"
 .data
         .global newline
+        .size newline, 1
 newline:        .ascii "\n"
 .text
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
-                adrp    x9, str
-                add     x9, x9, :lo12:str
+                adrp    x9, str1
+                add     x9, x9, :lo12:str1
                 mov     x0, x9
                 bl      print_string
-                mov     x9, #65
-                mov     x10, #89
-                add     x10, x9, x10
-                mov     x0, x10
-                bl      print_integer
-                adrp    x9, str
-                add     x9, x9, :lo12:str
+                adrp    x9, newline
+                add     x9, x9, :lo12:newline
                 mov     x0, x9
                 bl      print_string
-                mov     x9, #0
+                adrp    x9, str2
+                add     x9, x9, :lo12:str2
                 mov     x0, x9
-                ldp     x29, x30, [sp], #200
-                ret
+                bl      print_string
+                adrp    x9, str3
+                add     x9, x9, :lo12:str3
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, newline
+                add     x9, x9, :lo12:newline
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, str4
+                add     x9, x9, :lo12:str4
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, newline
+                add     x9, x9, :lo12:newline
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, str5
+                add     x9, x9, :lo12:str5
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, str6
+                add     x9, x9, :lo12:str6
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, str7
+                add     x9, x9, :lo12:str7
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, newline
+                add     x9, x9, :lo12:newline
+                mov     x0, x9
+                bl      print_string
                 ldp     x29, x30, [sp], #200
                 ret
 */
