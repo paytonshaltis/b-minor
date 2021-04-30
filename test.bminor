@@ -3,6 +3,8 @@
 g_num1 : integer = 65;
 g_num2 : integer;
 
+testOutput : function integer ();
+
 main : function integer (argc : integer, argv : array[] string) = {
 
     // should print 65 then nothing
@@ -28,7 +30,7 @@ main : function integer (argc : integer, argv : array[] string) = {
         print y;
     }
 
-    return g_num1;
+    print testOutput();
 
     // should be 10, add this to g_num1
     g_num1 = g_num1 + (x % y);
@@ -36,6 +38,12 @@ main : function integer (argc : integer, argv : array[] string) = {
     // print the result of the addition
     print g_num1;
 
+}
+
+testOutput : function integer () = {
+    
+    // just returns 44
+    return 44;
 }
 
 /*
@@ -84,24 +92,33 @@ g_num2: .word
                 bl      print_integer
                 ldr     x9, [sp, 64]
                 mov     x0, x9
+                bl      testOutput
+                bl      print_integer
+                mov     x0, x9
                 bl      print_integer
                 ldr     x9, g_num1
+                ldr     x10, [sp, 32]
+                ldr     x11, [sp, 40]
+                udiv    x12, x10, x11
+                mul     x12, x11, x12
+                sub     x12, x10, x12
+                add     x12, x9, x12
+                adrp    x9, g_num1
+                add     x9, x9, :lo12:g_num1
+                str     x12, [x9]
+                ldr     x9, g_num1
+                mov     x0, x9
+                bl      print_integer
+                ldp     x29, x30, [sp], #200
+                ret
+.text
+        .global testOutput
+        testOutput:
+                stp     x29, x30, [sp, #-200]!
+                mov     x9, #44
                 mov     x0, x9
                 ldp     x29, x30, [sp], #200
                 ret
-                ldr     x10, g_num1
-                ldr     x11, [sp, 32]
-                ldr     x12, [sp, 40]
-                udiv    x13, x11, x12
-                mul     x13, x12, x13
-                sub     x13, x11, x13
-                add     x13, x10, x13
-                adrp    x10, g_num1
-                add     x10, x10, :lo12:g_num1
-                str     x13, [x10]
-                ldr     x10, g_num1
-                mov     x0, x10
-                bl      print_integer
                 ldp     x29, x30, [sp], #200
                 ret
 */
