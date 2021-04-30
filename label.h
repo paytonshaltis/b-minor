@@ -9,4 +9,7 @@ will allow for label creation as well as label name retrieval; will be used when
 int label_create();
 const char* label_name(int label); 
 
+int lit_label_create();
+const char* lit_label_name(int label);
+
 #endif

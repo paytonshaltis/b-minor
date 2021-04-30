@@ -14,6 +14,7 @@ main : function integer (argc : integer, argv : array[] string) = {
     str3 : string = "hello there!";
 
     print str1, str2, str3;
+    print "literal string!", "\n", "LET'S FUCKING GOOOOO!!!!!!";
     return 0;
 }
 
@@ -46,16 +47,28 @@ x:      .word 19
                 mov     x11, x0
                 mov     x0, x11
                 bl      print_integer
-                adrp    x10, str1
+                adrp    x10, .L3
                 add     x10, x10, :lo12:.L3
                 mov     x0, x10
                 bl      print_string
-                adrp    x10, str2
+                adrp    x10, .L4
                 add     x10, x10, :lo12:.L4
                 mov     x0, x10
                 bl      print_string
-                adrp    x10, str3
+                adrp    x10, .L5
                 add     x10, x10, :lo12:.L5
+                mov     x0, x10
+                bl      print_string
+                adrp    x10, .LT1
+                add     x10, x10, :lo12:.LT1
+                mov     x0, x10
+                bl      print_string
+                adrp    x10, .LT2
+                add     x10, x10, :lo12:.LT2
+                mov     x0, x10
+                bl      print_string
+                adrp    x10, .LT3
+                add     x10, x10, :lo12:.LT3
                 mov     x0, x10
                 bl      print_string
                 mov     x10, #0
@@ -70,6 +83,12 @@ x:      .word 19
         .string "hello there!"
 .L5:
         .string "hello there!"
+.LT1:
+        .string "literal string!"
+.LT2:
+        .string "\n"
+.LT3:
+        .string "LET'S FUCKING GOOOOO!!!!!!"
 .text
         .global test
         test:

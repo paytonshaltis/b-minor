@@ -9,6 +9,8 @@
 
 extern int totalResErrors;
 extern int totalTypeErrors;
+extern char localsTP[256][300];
+extern int localsTPCounter;
 
 // basic factory function for creating an 'expr' struct (basic expression)
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
@@ -943,6 +945,10 @@ struct type* expr_typecheck(struct expr* e) {
 
 void expr_codegen(struct expr* e) {
 
+    // temp to hold literal string label and info
+    int tempLitLabel;
+    char strBuffer[300];
+
     // if the expression is NULL, we should return
     if(e == NULL) {
         return;
@@ -967,7 +973,7 @@ void expr_codegen(struct expr* e) {
             // for local string variables (using labels)
             if(e->symbol->type->kind == TYPE_STRING && e->symbol->kind == SYMBOL_LOCAL) {
                 e->reg = scratch_alloc();
-                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->name);
+                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), label_name(e->symbol->which));
                 printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), label_name(e->symbol->which));
                 break;
             }
@@ -993,6 +999,24 @@ void expr_codegen(struct expr* e) {
         break;
 
         case EXPR_STRINGLIT:
+            e->reg = scratch_alloc();
+
+            // need to create a new label for the string literal
+            tempLitLabel = lit_label_create();
+            
+            // unique label number will come from tempLitLabel
+            memset(strBuffer, 0, 300);
+            sprintf(strBuffer, "%s:\n\t.string %s\n", lit_label_name(tempLitLabel), e->string_literal);
+
+            // store this into the array of strings that will be printed at the end of the function
+            for(int i = 0; i < 300; i++) {
+                localsTP[localsTPCounter][i] = strBuffer[i];
+            }
+            localsTPCounter++;
+
+            // generate the code to store the address of this string literal into a free register
+            printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), lit_label_name(tempLitLabel));
+            printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), lit_label_name(tempLitLabel));
 
         break;
 
