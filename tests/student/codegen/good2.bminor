@@ -1,0 +1,21 @@
+// testing print statements of multiple types both individually as well as on one line
+
+
+str1 : string = "Does";
+str2 : string = "\n";
+division : string = "\n======================\n";
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    // print each in their own statement
+    print str1;
+    print false && true;
+    print 54 + 45;
+    print 'c';
+    print division;
+
+    // print them all together, should be the same
+    print str1, false && true, 54 + 45, 'c';
+    return 0;
+
+}

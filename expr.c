@@ -1077,6 +1077,23 @@ void expr_codegen(struct expr* e) {
             e->reg = e->left->reg;
         break;
 
+        case EXPR_EXPON:
+            
+            // generate code to get left and right operands into registers
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+
+            // move operands from their registers to x0 and x1 and call function
+            printf("\t\tmov\tx0, %s\n", scratch_name(e->left->reg));
+            printf("\t\tmov\tx1, %s\n", scratch_name(e->right->reg));
+            printf("\t\tbl\tinteger_power\n");
+
+            // free the registers used to fetch the operands
+            scratch_free(e->left->reg);
+            scratch_free(e->right->reg);
+
+        break;
+
         case EXPR_GROUP:
             expr_codegen(e->left);
             e->reg = e->left->reg;

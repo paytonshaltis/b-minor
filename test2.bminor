@@ -1,23 +1,15 @@
-// testing a simple program with integer arithmetic, global vars, local vars, expressions, multiple scopes, and print statements
+// testing print statements of multiple types both individually as well as on one line
 
 
-str1 : string = "Does";
-str2 : string = "\n";
-division : string = "\n======================\n";
+x : integer = 19;
 
 main : function integer (argc : integer, argv : array[] string) = {
 
-    // print each in their own statement
-    print str1;
-    print false && true;
-    print 54 + 45;
-    print 'c';
-    print division;
-
-    // print them all together, should be the same
-    print str1, false && true, 54 + 45, 'c';
+    // computer the exponentiation of two variables
+    y : integer;
+    y = 4;
+    print x ^ (y + 3);
     return 0;
-
 }
 
 /*
@@ -25,56 +17,23 @@ main : function integer (argc : integer, argv : array[] string) = {
 .file   "output.s"
 
 .data
-        .global str1
-str1:   .string "Does"
-.data
-        .global str2
-str2:   .string "\n"
-.data
-        .global division
-division:       .string "\n======================\n"
+        .global x
+x:      .word 19
 .text
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
-                adrp    x9, str1
-                add     x9, x9, :lo12:str1
+                mov     x9, #4
+                str     x9, [sp, 32]
+                ldr     x9, x
+                ldr     x10, [sp, 32]
+                mov     x11, #3
+                add     x11, x10, x11
                 mov     x0, x9
-                bl      print_string
-                mov     x9, #0
-                mov     x10, #1
-                and     x10, x9, x10
-                mov     x0, x10
-                bl      print_boolean
-                mov     x9, #54
-                mov     x10, #45
-                add     x10, x9, x10
-                mov     x0, x10
+                mov     x1, x11
+                bl      integer_power
+                mov     x0, x9
                 bl      print_integer
-                mov     x9, #99
-                mov     x0, x9
-                bl      print_character
-                adrp    x9, division
-                add     x9, x9, :lo12:division
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, str1
-                add     x9, x9, :lo12:str1
-                mov     x0, x9
-                bl      print_string
-                mov     x9, #0
-                mov     x10, #1
-                and     x10, x9, x10
-                mov     x0, x10
-                bl      print_boolean
-                mov     x9, #54
-                mov     x10, #45
-                add     x10, x9, x10
-                mov     x0, x10
-                bl      print_integer
-                mov     x9, #99
-                mov     x0, x9
-                bl      print_character
                 mov     x9, #0
                 mov     x0, x9
                 ldp     x29, x30, [sp], #200
