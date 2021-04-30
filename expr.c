@@ -954,6 +954,16 @@ void expr_codegen(struct expr* e) {
 
         // for variables
         case EXPR_NAME:
+            
+            // for string variables (using labels)
+            if(e->symbol->type->kind == TYPE_STRING) {
+                e->reg = scratch_alloc();
+                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->name);
+                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->name);
+                break;
+            }
+
+            // for all other variables
             e->reg = scratch_alloc();
             printf("\t\tldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
         break;
@@ -971,6 +981,9 @@ void expr_codegen(struct expr* e) {
         case EXPR_CHARLIT:
             e->reg = scratch_alloc();
             printf("\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+        break;
+
+        case EXPR_STRINGLIT:
         break;
 
         // Interior node: generate children, then add them

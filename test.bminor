@@ -2,6 +2,7 @@
 
 g_num1 : integer = 65;
 g_num2 : integer;
+str : string = "LET'S GOOOOOO!!!!";
 
 testOutput : function integer ();
 
@@ -30,7 +31,7 @@ main : function integer (argc : integer, argv : array[] string) = {
         print y;
     }
 
-    print testOutput();
+    print str;
 
     // should be 10, add this to g_num1
     g_num1 = g_num1 + (x % y);
@@ -56,6 +57,9 @@ g_num1: .word 65
 .data
         .global g_num2
 g_num2: .word 
+.data
+        .global str
+str:    .word "LET'S GOOOOOO!!!!"
 .text
         .global main
         main:
@@ -92,10 +96,10 @@ g_num2: .word
                 bl      print_integer
                 ldr     x9, [sp, 64]
                 mov     x0, x9
-                bl      testOutput
                 bl      print_integer
-                mov     x0, x9
-                bl      print_integer
+                adrp    x0, str
+                add     x0, x0, :lo12:str
+                bl      print_string
                 ldr     x9, g_num1
                 ldr     x10, [sp, 32]
                 ldr     x11, [sp, 40]

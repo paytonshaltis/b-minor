@@ -397,6 +397,12 @@ void stmt_codegen(struct stmt* s) {
                 printf("\t\tbl\tprint_integer\n");
                 scratch_free(s->expr->reg);
             }
+            if(t->kind == TYPE_STRING) {
+                expr_codegen(s->expr);
+                printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+                printf("\t\tbl\tprint_string\n");
+                scratch_free(s->expr->reg);
+            }
 
         break;
 

@@ -1,0 +1,10 @@
+// testing a simple program with integer arithmetic, global vars, local vars, expressions, multiple scopes, and print statements
+
+
+str : string = "LET'S GOOOOOO!!!!";
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    print str;
+    return 0;
+}
