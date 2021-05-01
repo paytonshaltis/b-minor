@@ -1204,6 +1204,17 @@ void expr_codegen(struct expr* e) {
                 printf("\t\tmov\tx%i, %s\n", paramRegCount + 1, scratch_name(tempe->right->reg));
                 scratch_free(tempe->right->reg);
 
+                // branch to the function's label
+                printf("\t\tbl\t");
+                expr_print(e->left);
+                printf("\n");
+
+                // the EXPR_FCALL's register can take over the last parameter's register
+                e->reg = tempe->right->reg;
+
+                // need to move the result of the function call to the FCALL's register
+                printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+
                 break;
             }
 

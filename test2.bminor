@@ -38,6 +38,8 @@ str2:   .string "two "
                 adrp    x9, .LT1
                 add     x9, x9, :lo12:.LT1
                 mov     x2, x9
+                bl      test
+                mov     x9, x0
                 mov     x9, #0
                 mov     x0, x9
                 ldp     x29, x30, [sp], #200
