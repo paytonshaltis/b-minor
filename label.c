@@ -23,7 +23,7 @@ const char* label_name(int label) {
 
     // creates modifies labelName with label (number)
     char* labelName = malloc(sizeof(char) * 10);
-    sprintf(labelName, ".L%i", label);
+    sprintf(labelName, ".LS%i", label);
 
     // returns modified label
     return labelName;

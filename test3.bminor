@@ -6,15 +6,9 @@ fxnCall:function integer() =
 }
 main:function integer () =
 {
-	y:integer = 2;
-    z:integer;
-	print (x + 10) * y - fxnCall(), "\n";
-
-    x = y = z = 10;
-    print x, " ", y, " ", z, "\n";
-    
-    z = x = y = 20;
-    print x, " ", y, " ", z, "\n";
+	str1:string;
+	str1 = "hello there!";
+	print str1, "\n";
 }
 
 /*
@@ -39,116 +33,29 @@ x:      .word 5
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-80]!
-                mov     x9, #2
-                str     x9, [sp, 16]
-                ldr     x9, x
-                mov     x10, #10
-                add     x10, x9, x10
-                ldr     x9, [sp, 16]
-                mul     x9, x10, x9
-                str     x9, [sp, 32]
-                str     x10, [sp, 40]
-                str     x11, [sp, 48]
-                str     x12, [sp, 56]
-                str     x13, [sp, 64]
-                str     x14, [sp, 72]
-                str     x15, [sp, 80]
-                bl      fxnCall
-                ldr     x9, [sp, 32]
-                ldr     x10, [sp, 40]
-                ldr     x11, [sp, 48]
-                ldr     x12, [sp, 56]
-                ldr     x13, [sp, 64]
-                ldr     x14, [sp, 72]
-                ldr     x15, [sp, 80]
-                mov     x10, x0
-                sub     x10, x9, x10
-                mov     x0, x10
-                bl      print_integer
+                stp     x29, x30, [sp, #-72]!
                 adrp    x9, .LT1
                 add     x9, x9, :lo12:.LT1
+                adrp	x10, .LS0
+				add		x10, x10, :lo12:.LS0
+				str     x9, [x10]
+                adrp    x9, .LS0
+                add     x9, x9, :lo12:.LS0
                 mov     x0, x9
                 bl      print_string
-                mov     x9, #10
-                str     x9, [sp, 24]
-                ldr     x9, [sp, 24]
-                str     x9, [sp, 16]
-                ldr     x9, [sp, 16]
-                adrp    x10, x
-                add     x10, x10, :lo12:x
-                str     x9, [x10]
-                ldr     x9, x
-                mov     x0, x9
-                bl      print_integer
                 adrp    x9, .LT2
                 add     x9, x9, :lo12:.LT2
                 mov     x0, x9
                 bl      print_string
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LT3
-                add     x9, x9, :lo12:.LT3
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LT4
-                add     x9, x9, :lo12:.LT4
-                mov     x0, x9
-                bl      print_string
-                mov     x9, #20
-                str     x9, [sp, 16]
-                ldr     x9, [sp, 16]
-                adrp    x10, x
-                add     x10, x10, :lo12:x
-                str     x9, [x10]
-                ldr     x9, x
-                str     x9, [sp, 24]
-                ldr     x9, x
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LT5
-                add     x9, x9, :lo12:.LT5
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LT6
-                add     x9, x9, :lo12:.LT6
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LT7
-                add     x9, x9, :lo12:.LT7
-                mov     x0, x9
-                bl      print_string
-                ldp     x29, x30, [sp], #80
+                ldp     x29, x30, [sp], #72
                 ret
         .section        .rodata
+.LS0:
+        .string
+        .section        .rodata
 .LT1:
-        .string "\n"
+        .string "hello there!"
         .section        .rodata
 .LT2:
-        .string " "
-        .section        .rodata
-.LT3:
-        .string " "
-        .section        .rodata
-.LT4:
-        .string "\n"
-        .section        .rodata
-.LT5:
-        .string " "
-        .section        .rodata
-.LT6:
-        .string " "
-        .section        .rodata
-.LT7:
         .string "\n"
 */
