@@ -25,6 +25,7 @@ main : function integer (argc : integer, argv : array[] string) = {
 test : function void () = {
     print "the function", " test\n";
     print "seems to be working!\n";
+    test();
     return;
 }
 
@@ -80,6 +81,7 @@ x:      .word 19
                 add     x10, x10, :lo12:.LT3
                 mov     x0, x10
                 bl      print_string
+                bl      test
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
