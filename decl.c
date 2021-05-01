@@ -330,8 +330,8 @@ int count_list_elements(struct expr* e, struct type* t) {
 }
 
 int decl_local_count(struct stmt* s) {
-    
-    // if the function is empty, return 0
+
+    // if the stmt_list is empty, return 0
     if(s == NULL) {
         return 0;
     }
@@ -340,16 +340,27 @@ int decl_local_count(struct stmt* s) {
     struct stmt* stemp = s;
     int count = 0;
     while(stemp != NULL) {
-        
+
         // increment count if a new local variable is declared
-        if(stemp->decl != NULL && (s->decl->type->kind == TYPE_INTEGER || s->decl->type->kind == TYPE_STRING || s->decl->type->kind == TYPE_CHAR || s->decl->type->kind == TYPE_BOOLEAN)) {
+        if(stemp->decl != NULL && (stemp->decl->type->kind == TYPE_INTEGER || stemp->decl->type->kind == TYPE_STRING || stemp->decl->type->kind == TYPE_CHAR || stemp->decl->type->kind == TYPE_BOOLEAN)) {
             count++;
+        }
+
+        // if the statement introduces a new scope, recursively call this function
+        if(stemp->kind == STMT_IF || stemp->kind == STMT_FOR || stemp->kind == STMT_BLOCK) {
+            count += decl_local_count(stemp->body);
+        }
+
+        // if the statement introduces TWO new scopes, recursively call this function twice
+        if(stemp->kind == STMT_IF_ELSE) {
+            count += decl_local_count(stemp->body) + decl_local_count(stemp->else_body);
         }
 
         // check the next statement
         stemp = stemp->next;
+
     }
-    
+
     return count;
 }
 
