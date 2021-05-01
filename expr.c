@@ -789,7 +789,7 @@ struct type* expr_typecheck(struct expr* e) {
                 else if(e->right != NULL && e->right->left->kind != EXPR_ARGS) {
 
                     // if the first param matches the type of the only argument, and there are no more params, we are good
-                    if(type_compare_no_size(expr_typecheck(e->right->left), e->left->symbol->type->params->type) == false || e->left->symbol->type->params->next != NULL) {
+                    if(e->left->symbol->type->params == NULL || (expr_typecheck(e->right->left), e->left->symbol->type->params->type) == false || e->left->symbol->type->params->next != NULL) {
                         printf("\033[0;31mtypechecking error\033[0;0m: function call argument does not match function (%s) parameter(s)\n", e->left->name);
                         totalTypeErrors++;
                     }

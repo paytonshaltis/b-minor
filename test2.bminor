@@ -18,13 +18,13 @@ main : function integer (argc : integer, argv : array[] string) = {
     print str1, str2, str3;
     print "literal string!", "\n", "LET'S GOOOOO!!!!!!";
     
-    test();
+    test(y);
     return 0;
 
 
 }
 
-test : function void () = {
+test : function void (str : string) = {
     str4 : string = "hello there!";
     str5 : string = "hello there!";
 
