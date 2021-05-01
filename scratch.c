@@ -37,11 +37,6 @@ void scratch_free(int r) {
     if(r >= 0 && r <= 6) {
         inUse[r] = false;
     }
-    
-    // special case: x0 register, we can just ignore it
-    else if(r == -1) {
-        return;
-    }
 
     // otherwise print an error
     else {
@@ -55,11 +50,6 @@ const char* scratch_name(int r) {
     // make sure the bounds are good
     if(r >= 0 && r <= 6) {
         return name[r];
-    }
-
-    // if we have the special case of the return register
-    if(r == -1) {
-        return "x0";
     }
 
     // otherwise print an error and return ERROR

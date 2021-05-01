@@ -402,7 +402,7 @@ void stmt_codegen(struct stmt* s) {
                     printf("\t\tbl\tprint_integer\n");
                     scratch_free(s->expr->reg);
                 }
-                if(t->kind == TYPE_STRING) {                                                        // remember; for sting literals to work, just modify the expr_stringlit! it gets called with expr_codegen(s->expr)! 
+                if(t->kind == TYPE_STRING) {                                                         
                     expr_codegen(s->expr);
                     printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
                     printf("\t\tbl\tprint_string\n");
@@ -439,7 +439,7 @@ void stmt_codegen(struct stmt* s) {
                         printf("\t\tbl\tprint_integer\n");
                         scratch_free(exprtemp->left->reg);
                     }
-                    if(t->kind == TYPE_STRING) {                                                        // remember; for sting literals to work, just modify the expr_stringlit! it gets called with expr_codegen(s->expr)! 
+                    if(t->kind == TYPE_STRING) {                                                         
                         expr_codegen(exprtemp->left);
                         printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
                         printf("\t\tbl\tprint_string\n");
@@ -469,7 +469,7 @@ void stmt_codegen(struct stmt* s) {
                     printf("\t\tbl\tprint_integer\n");
                     scratch_free(exprtemp->left->reg);
                 }
-                if(t->kind == TYPE_STRING) {                                                        // remember; for sting literals to work, just modify the expr_stringlit! it gets called with expr_codegen(exprtemp->left)! 
+                if(t->kind == TYPE_STRING) {                                                        
                     expr_codegen(exprtemp->left);
                     printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
                     printf("\t\tbl\tprint_string\n");
@@ -495,7 +495,7 @@ void stmt_codegen(struct stmt* s) {
                     printf("\t\tbl\tprint_integer\n");
                     scratch_free(exprtemp->right->reg);
                 }
-                if(t->kind == TYPE_STRING) {                                                        // remember; for sting literals to work, just modify the expr_stringlit! it gets called with expr_codegen(exprtemp->right)! 
+                if(t->kind == TYPE_STRING) {                                                        
                     expr_codegen(exprtemp->right);
                     printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
                     printf("\t\tbl\tprint_string\n");

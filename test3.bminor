@@ -1,8 +1,65 @@
-// Uses a complex expression
+// Uses a complex expression, with a function call
 x:integer=5;
-
+fxnCall:function integer() =
+{
+	return x*4;
+}
 main:function integer () =
 {
 	y:integer = 2;
-    return (x + 10) * y - x*4;
+	return (x + 10) * y - fxnCall();
 }
+
+/*
+.arch armv8-a
+.file   "output.s"
+
+.data
+        .global x
+x:      .word 5
+.text
+        .global fxnCall
+        fxnCall:
+                stp     x29, x30, [sp, #-64]!
+                ldr     x9, x
+                mov     x10, #4
+                mul     x10, x9, x10
+                mov     x0, x10
+                ldp     x29, x30, [sp], #64
+                ret
+                ldp     x29, x30, [sp], #64
+                ret
+.text
+        .global main
+        main:
+                stp     x29, x30, [sp, #-72]!
+                mov     x9, #2
+                str     x9, [sp, 16]
+                ldr     x9, x
+                mov     x10, #10
+                add     x10, x9, x10
+                ldr     x9, [sp, 16]
+                mul     x9, x10, x9
+                str     x9, [sp 24]
+                str     x10, [sp 32]
+                str     x11, [sp 40]
+                str     x12, [sp 48]
+                str     x13, [sp 56]
+                str     x14, [sp 64]
+                str     x15, [sp 72]
+                bl      fxnCall
+                ldr     x9, [sp 24]
+                ldr     x10, [sp 32]
+                ldr     x11, [sp 40]
+                ldr     x12, [sp 48]
+                ldr     x13, [sp 56]
+                ldr     x14, [sp 64]
+                ldr     x15, [sp 72]
+                mov     x10, x0
+                sub     x10, x9, x10
+                mov     x0, x10
+                ldp     x29, x30, [sp], #72
+                ret
+                ldp     x29, x30, [sp], #72
+                ret
+*/

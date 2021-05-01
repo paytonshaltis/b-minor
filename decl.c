@@ -459,13 +459,17 @@ void decl_codegen(struct decl* d) {
             // print the name of the function
             printf(".text\n\t.global %s\n\t%s:\n", d->name, d->name);
             
-            /* to grow the stack, we need to know how many local declarations we have, as well as account for */
-            /* 6 extra spots for saving registers during a 'context switch'                                   */
+            /* to grow the stack, we need to know how many local declarations we have, parameters, as well as account 
+            for 6 extra spots for saving registers during a 'context switch' (plus 4 extra bytes for safety) */
             
             // count the number of parameters and locals
             numParams = param_list_count(d->type->params);
             numLocals = decl_local_count(d->code);
-            callStackSize = (numLocals + numParams + 10) * 8;
+
+            // update the externam callStackSize variable
+            callStackSize = (numLocals + numParams + 8) * 8;
+
+            // grow the stack accordingly
             printf("\t\tstp\tx29, x30, [sp, #-%i]!\n", callStackSize);
             
             /* need to store parameters on the stack */

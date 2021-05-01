@@ -11,6 +11,7 @@ extern int totalResErrors;
 extern int totalTypeErrors;
 extern char localsTP[256][300];
 extern int localsTPCounter;
+extern int callStackSize;
 
 // basic factory function for creating an 'expr' struct (basic expression)
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
@@ -1142,6 +1143,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_FCALL:
 
             // before the function call, we should save the contents of each register x9-x15 (obviously not optimized!)
+            /*
             printf("\t\tmov\tx19, x9\n");
             printf("\t\tmov\tx20, x10\n");
             printf("\t\tmov\tx21, x11\n");
@@ -1149,6 +1151,14 @@ void expr_codegen(struct expr* e) {
             printf("\t\tmov\tx23, x13\n");
             printf("\t\tmov\tx24, x14\n");
             printf("\t\tmov\tx25, x15\n");
+            */
+            printf("\t\tstr\tx9, [sp %i]\n",  callStackSize - 8*6);
+            printf("\t\tstr\tx10, [sp %i]\n", callStackSize - 8*5);
+            printf("\t\tstr\tx11, [sp %i]\n", callStackSize - 8*4);
+            printf("\t\tstr\tx12, [sp %i]\n", callStackSize - 8*3);
+            printf("\t\tstr\tx13, [sp %i]\n", callStackSize - 8*2);
+            printf("\t\tstr\tx14, [sp %i]\n", callStackSize - 8*1);
+            printf("\t\tstr\tx15, [sp %i]\n", callStackSize - 8*0);
 
             // if the function call does not pass parameters
             if(e->right == NULL) {
@@ -1223,6 +1233,7 @@ void expr_codegen(struct expr* e) {
             }
 
             // after the function call, we should restore the contents of each register x9-x15 (obviously not optimized!)
+            /*
             printf("\t\tmov\tx9, x19\n");
             printf("\t\tmov\tx10, x20\n");
             printf("\t\tmov\tx11, x21\n");
@@ -1230,8 +1241,16 @@ void expr_codegen(struct expr* e) {
             printf("\t\tmov\tx13, x23\n");
             printf("\t\tmov\tx14, x24\n");
             printf("\t\tmov\tx15, x25\n");
+            */
 
-            // function expressions should be saved to an alternate register upon return
+            printf("\t\tldr\tx9, [sp %i]\n",  callStackSize - 8*6);
+            printf("\t\tldr\tx10, [sp %i]\n", callStackSize - 8*5);
+            printf("\t\tldr\tx11, [sp %i]\n", callStackSize - 8*4);
+            printf("\t\tldr\tx12, [sp %i]\n", callStackSize - 8*3);
+            printf("\t\tldr\tx13, [sp %i]\n", callStackSize - 8*2);
+            printf("\t\tldr\tx14, [sp %i]\n", callStackSize - 8*1);
+            printf("\t\tldr\tx15, [sp %i]\n", callStackSize - 8*0);
+            // function call result should be saved to an alternate register (NOT x0) upon return
             e->reg = scratch_alloc();
             printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
         break;
