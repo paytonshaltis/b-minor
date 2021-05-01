@@ -1285,6 +1285,7 @@ void expr_codegen(struct expr* e) {
                 // for all but the last assignment
                 tempe = e->left;
                 tempe2 = e->right;
+                
                 while(tempe->kind == EXPR_ASSIGN) {
 
                     // assigning local values can be done this way:
