@@ -442,7 +442,7 @@ void decl_codegen(struct decl* d) {
             // in case of a global string
             if(d->symbol->kind == SYMBOL_GLOBAL) {
 
-                printf(".data\n\t.global %s\n%s:\t.string ", d->name, d->name);
+                printf(".data\n\t.global %s\n\t.align 3\n%s:\t.string ", d->name, d->name);
                 if(d->value) 
                     expr_print(d->value);
                 else
