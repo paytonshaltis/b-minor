@@ -5,30 +5,13 @@ x : integer = 19;
 
 test : function integer (str : string);
 
-main : function integer (argc : integer, argv : array[] string) = {
-    /*
-    // computer the exponentiation of two variables
-    y : integer;
-    y = 4;
-    print x ^ (y + 3);
-    str1 : string = "hello there!";
-    str2 : string = "hello there!";
-    str3 : string = "hello there!";
-
-    print str1, str2, str3;
-    print "literal string!", "\n", "LET'S GOOOOO!!!!!!";
-    
-    test();
-    */
-    test("string literal");
+main : function integer (argc : integer, argv : array [] string) = {
+    print test("this is a string literal");
     return 0;
 }
 
 test : function integer (str : string) = {
-    /*
-    print "the function", " test\n";
-    print "seems to be working!\n";
-    */
+    print str, "\n";
     return 3;
 }
 
@@ -43,11 +26,15 @@ x:      .word 19
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
+                str     x0, [sp, 16]
+                str     x1, [sp, 24]
                 adrp    x9, .LT1
                 add     x9, x9, :lo12:.LT1
                 mov     x0, x9
                 bl      test
                 mov     x9, x0
+                mov     x0, x9
+                bl      print_integer
                 mov     x9, #0
                 mov     x0, x9
                 ldp     x29, x30, [sp], #200
@@ -56,15 +43,26 @@ x:      .word 19
                 ret
         .section        .rodata
 .LT1:
-        .string "string literal"
+        .string "this is a string literal"
 .text
         .global test
         test:
                 stp     x29, x30, [sp, #-200]!
+                str     x0, [sp, 16]
+                ldr     x10, [sp, 16]
+                mov     x0, x10
+                bl      print_string
+                adrp    x10, .LT2
+                add     x10, x10, :lo12:.LT2
+                mov     x0, x10
+                bl      print_string
                 mov     x10, #3
                 mov     x0, x10
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
                 ret
+        .section        .rodata
+.LT2:
+        .string "\n"
 */

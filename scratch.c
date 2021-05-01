@@ -25,7 +25,7 @@ int scratch_alloc() {
     }
 
     // in case of no free registers, print error and exit with status 1
-    printf("\033[0;31mcodegen usage error\033[0;0m: all scratch registers currently in use\n");
+    printf("\033[0;31mcodegen error\033[0;0m: all scratch registers currently in use\n");
     exit(1);
     return -1;
 }

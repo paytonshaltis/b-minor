@@ -332,6 +332,7 @@ void decl_codegen(struct decl* d) {
 
     // temporary string buffer
     char strBuffer[300];
+    int numParams;
 
     // if there are no more declarations
     if(d == NULL) {
@@ -429,10 +430,28 @@ void decl_codegen(struct decl* d) {
 
         case TYPE_FUNCTION:
             
-            // the basic function stuff
+            // print the name of the function and grow the stack
             printf(".text\n\t.global %s\n\t%s:\n", d->name, d->name);
             printf("\t\tstp\tx29, x30, [sp, #-200]!\n");
+            
+            // need to store parameters on the stack
+            
+            // if there are more than 6 parameters, codegen error
+            numParams = param_list_count(d->type->params);
+            if(numParams > 6) {
+                printf("\033[0;31mcodegen error\033[0;0m: all scratch registers currently in use\n");
+                exit(1);
+            }
+
+            // otherwise, store registers x0 - x5 into first 6 stack locations (local variables)
+            for(int i = 0; i < numParams; i++) {
+                printf("\t\tstr\tx%i, [sp, %i]\n", i, 16 + (i*8));
+            }
+            
+            // generate code for the contents of the function
             stmt_codegen(d->code);
+
+            // shrink the stack
             printf("\t\tldp\tx29, x30, [sp], #200\n\t\tret\n");
 
             // need to print out local string labels

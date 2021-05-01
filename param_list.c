@@ -181,3 +181,22 @@ bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
     }
     return false;
 }
+
+// returns the number of parameters in a function
+int param_list_count(struct param_list* p) {
+
+    // in the case where there are no parameters
+    if(p == NULL) {
+        return 0;
+    }
+
+    // in the case where there is 1 parameter
+    struct param_list* ptemp = p;
+    int count = 0;
+    while(ptemp != NULL) {
+        count++;
+        ptemp = ptemp->next;
+    }
+
+    return count;
+}
