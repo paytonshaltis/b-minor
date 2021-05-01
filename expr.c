@@ -1183,7 +1183,7 @@ void expr_codegen(struct expr* e) {
 
                 // do this loop until there are only 2 expressions left
                 while(tempe->right->kind == EXPR_ARGS) {
-                    
+
                     // load the argument into the next parameter register
                     expr_codegen(tempe->left);
                     printf("\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
@@ -1192,8 +1192,14 @@ void expr_codegen(struct expr* e) {
                     // increment register count and update tempe
                     paramRegCount++;
                     tempe = tempe->right;
-                }
 
+                    // if more than 6 parameters are called
+                    if(paramRegCount == 5) {
+                        printf("\033[0;31mcodegen error\033[0;0m: cannot exceed 6 function parameters, registers filled\n");
+                        exit(1);
+                    }
+                }
+                
                 // load the second to last parameter
                 expr_codegen(tempe->left);
                 printf("\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
@@ -1215,6 +1221,7 @@ void expr_codegen(struct expr* e) {
                 // need to move the result of the function call to the FCALL's register
                 printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
 
+                
                 break;
             }
 
