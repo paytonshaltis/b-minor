@@ -9,7 +9,7 @@ main:function integer () =
 
 	str1 = str2 = str3 = str4 = strG;
 
-	print str1, str2, str3, str4, "\n";
+	print str1, "\n", str2, "\n", str3, "\n", str4, "\n";
 
 }
 
@@ -95,20 +95,32 @@ str4:   .string ""
                 add     x9, x9, :lo12:.LS0
                 mov     x0, x9
                 bl      print_string
+                adrp    x9, .LT1
+                add     x9, x9, :lo12:.LT1
+                mov     x0, x9
+                bl      print_string
                 adrp    x9, .LS1
                 add     x9, x9, :lo12:.LS1
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, .LT2
+                add     x9, x9, :lo12:.LT2
                 mov     x0, x9
                 bl      print_string
                 adrp    x9, .LS2
                 add     x9, x9, :lo12:.LS2
                 mov     x0, x9
                 bl      print_string
+                adrp    x9, .LT3
+                add     x9, x9, :lo12:.LT3
+                mov     x0, x9
+                bl      print_string
                 adrp    x9, str4
                 add     x9, x9, :lo12:str4
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, .LT1
-                add     x9, x9, :lo12:.LT1
+                adrp    x9, .LT4
+                add     x9, x9, :lo12:.LT4
                 mov     x0, x9
                 bl      print_string
                 ldp     x29, x30, [sp], #88
@@ -124,5 +136,14 @@ str4:   .string ""
         .string ""
         .section        .rodata
 .LT1:
+        .string "\n"
+        .section        .rodata
+.LT2:
+        .string "\n"
+        .section        .rodata
+.LT3:
+        .string "\n"
+        .section        .rodata
+.LT4:
         .string "\n"
 */
