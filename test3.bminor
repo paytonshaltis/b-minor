@@ -9,7 +9,7 @@ main:function integer () =
 
 	str1 = str2 = str3 = str4 = strG;
 
-	print str1, "\n", str2, "\n", str3, "\n", str4, "\n";
+	print str1, "\n", str2, "\n", str3, "\n", str4, "\n", strG;
 
 }
 
@@ -123,27 +123,38 @@ str4:   .string ""
                 add     x9, x9, :lo12:.LT4
                 mov     x0, x9
                 bl      print_string
+                adrp    x9, strG
+                add     x9, x9, :lo12:strG
+                mov     x0, x9
+                bl      print_string
                 ldp     x29, x30, [sp], #88
                 ret
         .section        .data
+        .align 3
 .LS0:
         .string ""
         .section        .data
+        .align 3
 .LS1:
         .string ""
         .section        .data
+        .align 3
 .LS2:
         .string ""
         .section        .rodata
+        .align 3
 .LT1:
         .string "\n"
         .section        .rodata
+        .align 3
 .LT2:
         .string "\n"
         .section        .rodata
+        .align 3
 .LT3:
         .string "\n"
         .section        .rodata
+        .align 3
 .LT4:
         .string "\n"
 */
