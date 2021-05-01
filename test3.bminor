@@ -1,5 +1,6 @@
 // Uses a complex expression, with a function call
 x:integer=5;
+str2:string = "hi there bastard";
 fxnCall:function integer() =
 {
 	return x*4;
@@ -7,7 +8,7 @@ fxnCall:function integer() =
 main:function integer () =
 {
 	str1:string;
-	str2:string = "hi there bastard";
+	//str2:string = "hi there bastard";
 	str1 = str2;
 	print str1;
 	str1 = "what's up?!";
@@ -21,6 +22,9 @@ main:function integer () =
 .data
         .global x
 x:      .word 5
+.data
+        .global str2
+str2:   .string "hi there bastard"
 .text
         .global fxnCall
         fxnCall:
@@ -36,9 +40,9 @@ x:      .word 5
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-80]!
-                adrp    x9, .LS1
-                add     x9, x9, :lo12:.LS1
+                stp     x29, x30, [sp, #-72]!
+                adrp    x9, str2
+                add     x9, x9, :lo12:str2
                 adrp    x10, .LS0
                 add     x10, x10, :lo12:.LS0
                 ldrb    w0, [x9, 0]
@@ -193,14 +197,11 @@ x:      .word 5
                 add     x9, x9, :lo12:.LS0
                 mov     x0, x9
                 bl      print_string
-                ldp     x29, x30, [sp], #80
+                ldp     x29, x30, [sp], #72
                 ret
         .section        .data
 .LS0:
         .string ""
-        .section        .data
-.LS1:
-        .string "hi there bastard"
         .section        .rodata
 .LT1:
         .string "what's up?!"
