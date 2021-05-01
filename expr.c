@@ -1111,6 +1111,11 @@ void expr_codegen(struct expr* e) {
             e->reg = e->left->reg;
         break;
 
+        case EXPR_GROUP:
+            expr_codegen(e->left);
+            e->reg = e->left->reg;
+        break;
+
         case EXPR_EXPON:
             
             // generate code to get left and right operands into registers
@@ -1131,9 +1136,19 @@ void expr_codegen(struct expr* e) {
 
         break;
 
-        case EXPR_GROUP:
-            expr_codegen(e->left);
-            e->reg = e->left->reg;
+        case EXPR_FCALL:
+        
+            // if the function call does not pass parameters
+            if(e->right == NULL) {
+                printf("\t\tbl\t");
+                expr_print(e->left);
+                printf("\n");
+            }
+
+            // if the function call requires a single parameter
+
+            // if the function call requires two or more parameters
+
         break;
 
         // for assigning expressions

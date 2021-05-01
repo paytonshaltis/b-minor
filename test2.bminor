@@ -3,6 +3,8 @@
 
 x : integer = 19;
 
+test : function void ();
+
 main : function integer (argc : integer, argv : array[] string) = {
 
     // computer the exponentiation of two variables
@@ -14,8 +16,12 @@ main : function integer (argc : integer, argv : array[] string) = {
     str3 : string = "hello there!";
 
     print str1, str2, str3;
-    print "literal string!", "\n", "LET'S FUCKING GOOOOO!!!!!!";
+    print "literal string!", "\n", "LET'S GOOOOO!!!!!!";
+    
+    test();
     return 0;
+
+
 }
 
 test : function void () = {
