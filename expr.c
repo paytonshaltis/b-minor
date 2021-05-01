@@ -1262,7 +1262,6 @@ void expr_codegen(struct expr* e) {
             printf("\t\tmov\tx13, x23\n");
             printf("\t\tmov\tx14, x24\n");
             printf("\t\tmov\tx15, x25\n");
-
         break;
 
         // for assigning expressions

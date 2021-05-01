@@ -38,6 +38,11 @@ void scratch_free(int r) {
         inUse[r] = false;
     }
     
+    // special case: x0 register, we can just ignore it
+    else if(r == -1) {
+        return;
+    }
+
     // otherwise print an error
     else {
         printf("\033[0;31mcodegen usage error\033[0;0m: not a valid index to the register table\n");
