@@ -68,5 +68,6 @@ void expr_resolve(struct expr* e);
 struct type* expr_typecheck(struct expr* e);
 
 void expr_codegen(struct expr* e);
+void expr_transfer_return(struct expr* e);
 
 #endif

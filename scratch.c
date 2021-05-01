@@ -52,6 +52,11 @@ const char* scratch_name(int r) {
         return name[r];
     }
 
+    // if we have the special case of the return register
+    if(r == -1) {
+        return "x0";
+    }
+
     // otherwise print an error and return ERROR
     printf("\033[0;31mcodegen usage error\033[0;0m: not a valid index to the register table\n");
     return "ERROR";

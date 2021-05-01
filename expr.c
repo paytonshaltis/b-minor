@@ -943,6 +943,16 @@ struct type* expr_typecheck(struct expr* e) {
     return result;
 }
 
+// if the return register is the result of an arithmetic operation, allocate a different register
+void expr_transfer_return(struct expr* e) {
+
+    // see if the expression ended up getting the x0 register
+    if(e->reg == -1) {
+        e->reg = scratch_alloc();
+        printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+    }
+}
+
 void expr_codegen(struct expr* e) {
 
     // temp to hold literal string label and info
@@ -1029,7 +1039,9 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tadd\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
+            expr_transfer_return(e);
             scratch_free(e->left->reg);
+            
         break;
 
         case EXPR_SUB:
@@ -1037,6 +1049,7 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tsub\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
+            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1045,6 +1058,7 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
+            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1053,6 +1067,7 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tsdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
+            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1139,16 +1154,27 @@ void expr_codegen(struct expr* e) {
         break;
 
         case EXPR_FCALL:
-        
+
+            // before the function call, we should save the contents of each register x9-x15 (obviously not optimized!)
+            printf("\t\tmov\tx19, x9\n");
+            printf("\t\tmov\tx20, x10\n");
+            printf("\t\tmov\tx21, x11\n");
+            printf("\t\tmov\tx22, x12\n");
+            printf("\t\tmov\tx23, x13\n");
+            printf("\t\tmov\tx24, x14\n");
+            printf("\t\tmov\tx25, x15\n");
+
             // if the function call does not pass parameters
             if(e->right == NULL) {
                 
-                // simply branch to the function; no need to send / store params or return
+                // simply branch to the function, no params needed
                 printf("\t\tbl\t");
                 expr_print(e->left);
                 printf("\n");
 
-                break;
+                // the EXPR_FCALL must be assigned the x0 register (special case)
+                e->reg = -1;
+
             }
 
             // if the function call requires a single parameter
@@ -1165,13 +1191,12 @@ void expr_codegen(struct expr* e) {
                 expr_print(e->left);
                 printf("\n");
 
-                // the EXPR_FCALL's register can take over the parameter's register
-                e->reg = e->right->left->reg;
+                // the EXPR_FCALL must be assigned the x0 register (special case)
+                e->reg = -1;
 
-                // need to move the result of the function call to the FCALL's register
-                printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+                // free the register used
+                scratch_free(e->right->left->reg);
 
-                break;
             }
 
             // if the function call requires two or more parameters
@@ -1215,14 +1240,19 @@ void expr_codegen(struct expr* e) {
                 expr_print(e->left);
                 printf("\n");
 
-                // the EXPR_FCALL's register can take over the last parameter's register
-                e->reg = tempe->right->reg;
-
-                // need to move the result of the function call to the FCALL's register
-                printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
-
-                break;
+                // the EXPR_FCALL must be assigned the x0 register (special case)
+                e->reg = -1;
+                
             }
+
+            // after the function call, we should restore the contents of each register x9-x15 (obviously not optimized!)
+            printf("\t\tmov\tx9, x19\n");
+            printf("\t\tmov\tx10, x20\n");
+            printf("\t\tmov\tx11, x21\n");
+            printf("\t\tmov\tx12, x22\n");
+            printf("\t\tmov\tx13, x23\n");
+            printf("\t\tmov\tx14, x24\n");
+            printf("\t\tmov\tx15, x25\n");
 
         break;
 
