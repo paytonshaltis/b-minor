@@ -456,7 +456,7 @@ void decl_codegen(struct decl* d) {
                 if(d->value != NULL)
                     sprintf(strBuffer, "\t.section\t.data\n%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
                 else
-                    sprintf(strBuffer, "\t.section\t.data\n%s:\n\t.string ""\n", label_name(d->symbol->which));
+                    sprintf(strBuffer, "\t.section\t.data\n%s:\n\t.string \"\"\n", label_name(d->symbol->which));
 
                 // store this into the array of strings that will be printed at the end of the function
                 for(int i = 0; i < 300; i++) {

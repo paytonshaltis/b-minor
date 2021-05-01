@@ -1278,7 +1278,7 @@ void expr_codegen(struct expr* e) {
                         expr_codegen(e->left);
 
                         // need to move every character from right to left string
-                        for(int i = 0; i < 10; i++) {
+                        for(int i = 0; i < 35; i++) {
                             printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(e->right->reg), i);
                             printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), i);
                         }
