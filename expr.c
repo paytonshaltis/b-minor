@@ -1140,15 +1140,41 @@ void expr_codegen(struct expr* e) {
         
             // if the function call does not pass parameters
             if(e->right == NULL) {
+                
+                // simply branch to the function; no need to send / store params or return
                 printf("\t\tbl\t");
                 expr_print(e->left);
                 printf("\n");
+
+                break;
             }
 
             // if the function call requires a single parameter
+            if(e->right != NULL && e->right->left->kind != EXPR_ARGS) {
+                
+                // generate code for the one parameter
+                expr_codegen(e->right->left);
+
+                // move the register with param into x0
+                printf("\t\tmov\tx0, %s\n", scratch_name(e->right->left->reg));
+                
+                // branch to the function's label
+                printf("\t\tbl\t");
+                expr_print(e->left);
+                printf("\n");
+
+                // the EXPR_FCALL's register can take over the parameter's register
+                e->reg = e->right->left->reg;
+
+                // need to move the result of the function call to the FCALL's register
+                printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+
+                break;
+            }
 
             // if the function call requires two or more parameters
 
+            
         break;
 
         // for assigning expressions

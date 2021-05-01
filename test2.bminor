@@ -3,10 +3,10 @@
 
 x : integer = 19;
 
-test : function void ();
+test : function integer (str : string);
 
 main : function integer (argc : integer, argv : array[] string) = {
-
+    /*
     // computer the exponentiation of two variables
     y : integer;
     y = 4;
@@ -15,18 +15,21 @@ main : function integer (argc : integer, argv : array[] string) = {
     str2 : string = "hello there!";
     str3 : string = "hello there!";
 
-    //print str1, str2, str3;
-    //print "literal string!", "\n", "LET'S GOOOOO!!!!!!";
+    print str1, str2, str3;
+    print "literal string!", "\n", "LET'S GOOOOO!!!!!!";
     
     test();
+    */
+    test("string literal");
     return 0;
 }
 
-test : function void () = {
+test : function integer (str : string) = {
+    /*
     print "the function", " test\n";
     print "seems to be working!\n";
-    test();
-    return;
+    */
+    return 3;
 }
 
 /*
@@ -40,19 +43,11 @@ x:      .word 19
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
-                mov     x9, #4
-                str     x9, [sp, 32]
-                ldr     x9, x
-                ldr     x10, [sp, 32]
-                mov     x11, #3
-                add     x11, x10, x11
+                adrp    x9, .LT1
+                add     x9, x9, :lo12:.LT1
                 mov     x0, x9
-                mov     x1, x11
-                bl      integer_power
-                mov     x11, x0
-                mov     x0, x11
-                bl      print_integer
                 bl      test
+                mov     x9, x0
                 mov     x9, #0
                 mov     x0, x9
                 ldp     x29, x30, [sp], #200
@@ -60,42 +55,16 @@ x:      .word 19
                 ldp     x29, x30, [sp], #200
                 ret
         .section        .rodata
-.L3:
-        .string "hello there!"
-        .section        .rodata
-.L4:
-        .string "hello there!"
-        .section        .rodata
-.L5:
-        .string "hello there!"
+.LT1:
+        .string "string literal"
 .text
         .global test
         test:
                 stp     x29, x30, [sp, #-200]!
-                adrp    x10, .LT1
-                add     x10, x10, :lo12:.LT1
+                mov     x10, #3
                 mov     x0, x10
-                bl      print_string
-                adrp    x10, .LT2
-                add     x10, x10, :lo12:.LT2
-                mov     x0, x10
-                bl      print_string
-                adrp    x10, .LT3
-                add     x10, x10, :lo12:.LT3
-                mov     x0, x10
-                bl      print_string
-                bl      test
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.LT1:
-        .string "the function"
-        .section        .rodata
-.LT2:
-        .string " test\n"
-        .section        .rodata
-.LT3:
-        .string "seems to be working!\n"
 */
