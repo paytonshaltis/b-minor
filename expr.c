@@ -952,6 +952,7 @@ void expr_codegen(struct expr* e) {
     struct expr* tempe;
     struct expr* tempe2;
     int paramRegCount;
+    int final;
 
     // if the expression is NULL, we should return
     if(e == NULL) {
@@ -1255,10 +1256,13 @@ void expr_codegen(struct expr* e) {
                     expr_codegen(e->left);
 
                     // need to move every character from right to left string
-                    for(int i = 0; i < 7; i++) {
+                    for(int i = 0; i < 5; i++) {
                         printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(e->right->reg), i);
                         printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), i);
+                        final = i + 1;
                     }
+                    printf("\t\tmov\tw0, 0\n");
+                    printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), final);
 
                     // free up the two registers used
                     scratch_free(e->right->reg);
@@ -1325,10 +1329,13 @@ void expr_codegen(struct expr* e) {
                         expr_codegen(tempe->right);
 
                         // need to move every character from right to left string
-                        for(int i = 0; i < 7; i++) {
+                        for(int i = 0; i < 5; i++) {
                             printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(tempe2->reg), i);
                             printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->right->reg), i);
+                            final = i + 1;
                         }
+                        printf("\t\tmov\tw0, 0\n");
+                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), final);
 
                         // free up the two registers used
                         scratch_free(tempe->right->reg);
@@ -1389,10 +1396,13 @@ void expr_codegen(struct expr* e) {
                     expr_codegen(tempe);
 
                     // need to move every character from right to left string
-                    for(int i = 0; i < 30; i++) {
+                    for(int i = 0; i < 5; i++) {
                         printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(tempe2->reg), i);
                         printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), i);
+                        final = i + 1;
                     }
+                    printf("\t\tmov\tw0, 0\n");
+                    printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), final);
 
                     // free up the two registers used
                     scratch_free(tempe2->reg);
