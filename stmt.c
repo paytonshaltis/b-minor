@@ -6,6 +6,7 @@
 
 extern int totalResErrors;
 extern int totalTypeErrors;
+extern int callStackSize;
 
 // basic factory function for creating a 'stmt' struct
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
@@ -541,7 +542,7 @@ void stmt_codegen(struct stmt* s) {
             }
 
             // whether returning a value or not, we need to shrink stack and return
-            printf("\t\tldp\tx29, x30, [sp], #200\n\t\tret\n");
+            printf("\t\tldp\tx29, x30, [sp], #%i\n\t\tret\n", callStackSize);
 
         break;
 

@@ -24,5 +24,6 @@ void decl_check_initList(struct type* t, struct expr* initList);
 int count_list_elements(struct expr* e, struct type* t);
 
 void decl_codegen(struct decl* d);
+int decl_local_count(struct stmt* s);
 
 #endif

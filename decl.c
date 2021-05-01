@@ -14,6 +14,7 @@ int totalTypeErrors = 0;
 char localsTP[256][300];
 int localsTPCounter = 0;
 int counter;                    // counter that keeps track of the stack addresses of locals
+int callStackSize;
 
 // basic factory function for creating a 'decl' struct
 struct decl * decl_create( char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ) {
@@ -328,11 +329,36 @@ int count_list_elements(struct expr* e, struct type* t) {
     return total;
 }
 
+int decl_local_count(struct stmt* s) {
+    
+    // if the function is empty, return 0
+    if(s == NULL) {
+        return 0;
+    }
+
+    // otherwise, count the number of declaraion statements
+    struct stmt* stemp = s;
+    int count = 0;
+    while(stemp != NULL) {
+        
+        // increment count if a new local variable is declared
+        if(stemp->decl != NULL && (s->decl->type->kind == TYPE_INTEGER || s->decl->type->kind == TYPE_STRING || s->decl->type->kind == TYPE_CHAR || s->decl->type->kind == TYPE_BOOLEAN)) {
+            count++;
+        }
+
+        // check the next statement
+        stemp = stemp->next;
+    }
+    
+    return count;
+}
+
 void decl_codegen(struct decl* d) {
 
     // temporary string buffer
     char strBuffer[300];
     int numParams;
+    int numLocals;
 
     // if there are no more declarations
     if(d == NULL) {
@@ -430,14 +456,20 @@ void decl_codegen(struct decl* d) {
 
         case TYPE_FUNCTION:
             
-            // print the name of the function and grow the stack
+            // print the name of the function
             printf(".text\n\t.global %s\n\t%s:\n", d->name, d->name);
-            printf("\t\tstp\tx29, x30, [sp, #-200]!\n");
             
-            // need to store parameters on the stack
+            /* to grow the stack, we need to know how many local declarations we have, as well as account for */
+            /* 6 extra spots for saving registers during a 'context switch'                                   */
             
-            // if there are more than 6 parameters, codegen error
+            // count the number of parameters and locals
             numParams = param_list_count(d->type->params);
+            numLocals = decl_local_count(d->code);
+            callStackSize = (numLocals + numParams + 10) * 8;
+            printf("\t\tstp\tx29, x30, [sp, #-%i]!\n", callStackSize);
+            
+            /* need to store parameters on the stack */
+            // if there are more than 6 parameters, codegen error
             if(numParams > 6) {
                 printf("\033[0;31mcodegen error\033[0;0m: cannot exceed 6 function parameters, registers filled\n");
                 exit(1);
@@ -452,7 +484,7 @@ void decl_codegen(struct decl* d) {
             stmt_codegen(d->code);
 
             // shrink the stack and return (in case of void function!)
-            printf("\t\tldp\tx29, x30, [sp], #200\n\t\tret\n");
+            printf("\t\tldp\tx29, x30, [sp], #%i\n\t\tret\n", callStackSize);
 
             // need to print out local string labels
             for(int i = 0; i < 256; i++) {
