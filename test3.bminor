@@ -42,7 +42,7 @@ str4:   .string ""
                 ldrb    w0, [x9, 4]
                 strb    w0, [x10, 4]
                 mov     w0, 0
-                strb    w0, [x9, 5]
+                strb    w0, [x10, 5]
                 adrp    x9, str4
                 add     x9, x9, :lo12:str4
                 adrp    x10, .LS2
@@ -58,7 +58,7 @@ str4:   .string ""
                 ldrb    w0, [x9, 4]
                 strb    w0, [x10, 4]
                 mov     w0, 0
-                strb    w0, [x9, 5]
+                strb    w0, [x10, 5]
                 adrp    x9, .LS2
                 add     x9, x9, :lo12:.LS2
                 adrp    x10, .LS1
@@ -74,7 +74,7 @@ str4:   .string ""
                 ldrb    w0, [x9, 4]
                 strb    w0, [x10, 4]
                 mov     w0, 0
-                strb    w0, [x9, 5]
+                strb    w0, [x10, 5]
                 adrp    x9, .LS1
                 add     x9, x9, :lo12:.LS1
                 adrp    x10, .LS0

@@ -1262,7 +1262,7 @@ void expr_codegen(struct expr* e) {
                         final = i + 1;
                     }
                     printf("\t\tmov\tw0, 0\n");
-                    printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), final);
+                    printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), final);
 
                     // free up the two registers used
                     scratch_free(e->right->reg);
@@ -1335,7 +1335,7 @@ void expr_codegen(struct expr* e) {
                             final = i + 1;
                         }
                         printf("\t\tmov\tw0, 0\n");
-                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), final);
+                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->right->reg), final);
 
                         // free up the two registers used
                         scratch_free(tempe->right->reg);
