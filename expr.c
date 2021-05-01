@@ -948,6 +948,8 @@ void expr_codegen(struct expr* e) {
     // temp to hold literal string label and info
     int tempLitLabel;
     char strBuffer[300];
+    struct expr* tempe;
+    int paramRegCount;
 
     // if the expression is NULL, we should return
     if(e == NULL) {
@@ -1173,6 +1175,38 @@ void expr_codegen(struct expr* e) {
             }
 
             // if the function call requires two or more parameters
+            if(e->right != NULL && e->right->left->kind == EXPR_ARGS) {
+
+                // use a temporary expression to store the next arg or args list
+                tempe = e->right->left;
+                paramRegCount = 0;
+
+                // do this loop until there are only 2 expressions left
+                while(tempe->right->kind == EXPR_ARGS) {
+                    
+                    // load the argument into the next parameter register
+                    expr_codegen(tempe->left);
+                    printf("\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
+                    scratch_free(tempe->left->reg);
+
+                    // increment register count and update tempe
+                    paramRegCount++;
+                    tempe = tempe->right;
+                }
+
+                // load the second to last parameter
+                expr_codegen(tempe->left);
+                printf("\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
+                scratch_free(tempe->left->reg);
+
+                // load the last parameter
+                expr_codegen(tempe->right);
+                printf("\t\tmov\tx%i, %s\n", paramRegCount + 1, scratch_name(tempe->right->reg));
+                scratch_free(tempe->right->reg);
+
+                break;
+            }
+
 
             
         break;

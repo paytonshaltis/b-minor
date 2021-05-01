@@ -535,6 +535,9 @@ void stmt_codegen(struct stmt* s) {
                 
                 // print the code to move register contents above into x0
                 printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+
+                // free the register used to move the return value
+                scratch_free(s->expr->reg);
             }
 
             // whether returning a value or not, we need to shrink stack and return
