@@ -1,18 +1,16 @@
-// Uses a complex expression, with a function call
-x:integer=5;
-str2:string = "hi there bastard";
-fxnCall:function integer() =
-{
-	return x*4;
-}
+strG:string = "word ";
+str4:string;
+
 main:function integer () =
 {
 	str1:string;
-	//str2:string = "hi there bastard";
-	str1 = str2;
-	print str1;
-	str1 = "what's up?!";
-	print str1;
+	str2:string;
+	str3:string;
+
+	str1 = str2 = str3 = str4 = strG;
+
+	print str1, str2, str3, str4, "\n";
+
 }
 
 /*
@@ -20,29 +18,71 @@ main:function integer () =
 .file   "output.s"
 
 .data
-        .global x
-x:      .word 5
+        .global strG
+strG:   .string "word "
 .data
-        .global str2
-str2:   .string "hi there bastard"
-.text
-        .global fxnCall
-        fxnCall:
-                stp     x29, x30, [sp, #-64]!
-                ldr     x9, x
-                mov     x10, #4
-                mul     x10, x9, x10
-                mov     x0, x10
-                ldp     x29, x30, [sp], #64
-                ret
-                ldp     x29, x30, [sp], #64
-                ret
+        .global str4
+str4:   .string ""
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-72]!
-                adrp    x9, str2
-                add     x9, x9, :lo12:str2
+                stp     x29, x30, [sp, #-88]!
+                adrp    x9, strG
+                add     x9, x9, :lo12:strG
+                adrp    x10, str4
+                add     x10, x10, :lo12:str4
+                ldrb    w0, [x9, 0]
+                strb    w0, [x10, 0]
+                ldrb    w0, [x9, 1]
+                strb    w0, [x10, 1]
+                ldrb    w0, [x9, 2]
+                strb    w0, [x10, 2]
+                ldrb    w0, [x9, 3]
+                strb    w0, [x10, 3]
+                ldrb    w0, [x9, 4]
+                strb    w0, [x10, 4]
+                ldrb    w0, [x9, 5]
+                strb    w0, [x10, 5]
+                ldrb    w0, [x9, 6]
+                strb    w0, [x10, 6]
+                adrp    x9, str4
+                add     x9, x9, :lo12:str4
+                adrp    x10, .LS2
+                add     x10, x10, :lo12:.LS2
+                ldrb    w0, [x9, 0]
+                strb    w0, [x10, 0]
+                ldrb    w0, [x9, 1]
+                strb    w0, [x10, 1]
+                ldrb    w0, [x9, 2]
+                strb    w0, [x10, 2]
+                ldrb    w0, [x9, 3]
+                strb    w0, [x10, 3]
+                ldrb    w0, [x9, 4]
+                strb    w0, [x10, 4]
+                ldrb    w0, [x9, 5]
+                strb    w0, [x10, 5]
+                ldrb    w0, [x9, 6]
+                strb    w0, [x10, 6]
+                adrp    x9, .LS2
+                add     x9, x9, :lo12:.LS2
+                adrp    x10, .LS1
+                add     x10, x10, :lo12:.LS1
+                ldrb    w0, [x9, 0]
+                strb    w0, [x10, 0]
+                ldrb    w0, [x9, 1]
+                strb    w0, [x10, 1]
+                ldrb    w0, [x9, 2]
+                strb    w0, [x10, 2]
+                ldrb    w0, [x9, 3]
+                strb    w0, [x10, 3]
+                ldrb    w0, [x9, 4]
+                strb    w0, [x10, 4]
+                ldrb    w0, [x9, 5]
+                strb    w0, [x10, 5]
+                ldrb    w0, [x9, 6]
+                strb    w0, [x10, 6]
+                adrp    x9, .LS1
+                add     x9, x9, :lo12:.LS1
                 adrp    x10, .LS0
                 add     x10, x10, :lo12:.LS0
                 ldrb    w0, [x9, 0]
@@ -105,104 +145,38 @@ str2:   .string "hi there bastard"
                 strb    w0, [x10, 28]
                 ldrb    w0, [x9, 29]
                 strb    w0, [x10, 29]
-                ldrb    w0, [x9, 30]
-                strb    w0, [x10, 30]
-                ldrb    w0, [x9, 31]
-                strb    w0, [x10, 31]
-                ldrb    w0, [x9, 32]
-                strb    w0, [x10, 32]
-                ldrb    w0, [x9, 33]
-                strb    w0, [x10, 33]
-                ldrb    w0, [x9, 34]
-                strb    w0, [x10, 34]
                 adrp    x9, .LS0
                 add     x9, x9, :lo12:.LS0
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, .LS1
+                add     x9, x9, :lo12:.LS1
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, .LS2
+                add     x9, x9, :lo12:.LS2
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, str4
+                add     x9, x9, :lo12:str4
                 mov     x0, x9
                 bl      print_string
                 adrp    x9, .LT1
                 add     x9, x9, :lo12:.LT1
-                adrp    x11, .LS0
-                add     x11, x11, :lo12:.LS0
-                ldrb    w0, [x9, 0]
-                strb    w0, [x11, 0]
-                ldrb    w0, [x9, 1]
-                strb    w0, [x11, 1]
-                ldrb    w0, [x9, 2]
-                strb    w0, [x11, 2]
-                ldrb    w0, [x9, 3]
-                strb    w0, [x11, 3]
-                ldrb    w0, [x9, 4]
-                strb    w0, [x11, 4]
-                ldrb    w0, [x9, 5]
-                strb    w0, [x11, 5]
-                ldrb    w0, [x9, 6]
-                strb    w0, [x11, 6]
-                ldrb    w0, [x9, 7]
-                strb    w0, [x11, 7]
-                ldrb    w0, [x9, 8]
-                strb    w0, [x11, 8]
-                ldrb    w0, [x9, 9]
-                strb    w0, [x11, 9]
-                ldrb    w0, [x9, 10]
-                strb    w0, [x11, 10]
-                ldrb    w0, [x9, 11]
-                strb    w0, [x11, 11]
-                ldrb    w0, [x9, 12]
-                strb    w0, [x11, 12]
-                ldrb    w0, [x9, 13]
-                strb    w0, [x11, 13]
-                ldrb    w0, [x9, 14]
-                strb    w0, [x11, 14]
-                ldrb    w0, [x9, 15]
-                strb    w0, [x11, 15]
-                ldrb    w0, [x9, 16]
-                strb    w0, [x11, 16]
-                ldrb    w0, [x9, 17]
-                strb    w0, [x11, 17]
-                ldrb    w0, [x9, 18]
-                strb    w0, [x11, 18]
-                ldrb    w0, [x9, 19]
-                strb    w0, [x11, 19]
-                ldrb    w0, [x9, 20]
-                strb    w0, [x11, 20]
-                ldrb    w0, [x9, 21]
-                strb    w0, [x11, 21]
-                ldrb    w0, [x9, 22]
-                strb    w0, [x11, 22]
-                ldrb    w0, [x9, 23]
-                strb    w0, [x11, 23]
-                ldrb    w0, [x9, 24]
-                strb    w0, [x11, 24]
-                ldrb    w0, [x9, 25]
-                strb    w0, [x11, 25]
-                ldrb    w0, [x9, 26]
-                strb    w0, [x11, 26]
-                ldrb    w0, [x9, 27]
-                strb    w0, [x11, 27]
-                ldrb    w0, [x9, 28]
-                strb    w0, [x11, 28]
-                ldrb    w0, [x9, 29]
-                strb    w0, [x11, 29]
-                ldrb    w0, [x9, 30]
-                strb    w0, [x11, 30]
-                ldrb    w0, [x9, 31]
-                strb    w0, [x11, 31]
-                ldrb    w0, [x9, 32]
-                strb    w0, [x11, 32]
-                ldrb    w0, [x9, 33]
-                strb    w0, [x11, 33]
-                ldrb    w0, [x9, 34]
-                strb    w0, [x11, 34]
-                adrp    x9, .LS0
-                add     x9, x9, :lo12:.LS0
                 mov     x0, x9
                 bl      print_string
-                ldp     x29, x30, [sp], #72
+                ldp     x29, x30, [sp], #88
                 ret
         .section        .data
 .LS0:
         .string ""
+        .section        .data
+.LS1:
+        .string ""
+        .section        .data
+.LS2:
+        .string ""
         .section        .rodata
 .LT1:
-        .string "what's up?!"
+        .string "\n"
 */

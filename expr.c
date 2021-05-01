@@ -1242,52 +1242,47 @@ void expr_codegen(struct expr* e) {
         case EXPR_ASSIGN:
 
             // for assigning one (1) variable a value
+            // identifiers may either be string, non-string local, or non-string global
             if(e->left->kind != EXPR_ASSIGN) {
-                
-                /*
-                // throw an error if strings are reassigned
-                if(e->left->symbol->type->kind == TYPE_STRING) {
-                    printf("\033[0;31mcodegen error\033[0;0m: cannot assign string outside of declaration\n");
-                    exit(1);
-                }
-                */
 
-                // assigning local values can be done this way:
+                // if it is a string
+                if(e->left->symbol->type != NULL && e->left->symbol->type->kind == TYPE_STRING) {
+                    
+                    // generate code to get the righmost string into a register
+                    expr_codegen(e->right);
+
+                    // generate code to get the string in a register
+                    expr_codegen(e->left);
+
+                    // need to move every character from right to left string
+                    for(int i = 0; i < 7; i++) {
+                        printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(e->right->reg), i);
+                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), i);
+                    }
+
+                    // free up the two registers used
+                    scratch_free(e->right->reg);
+                    scratch_free(e->left->reg);
+
+                    break;
+                }
+
+                // if it is a local, non-string
                 if(e->left->symbol->kind == SYMBOL_LOCAL) {
                     
-                    // if it is not a string
-                    if(e->left->symbol->type->kind != TYPE_STRING) {
-                        
-                        // generate code to compute the right expression
-                        expr_codegen(e->right);
+                    // generate code to compute the right expression
+                    expr_codegen(e->right);
 
-                        // store the result into the memory location
-                        printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+                    // store the result into the memory location
+                    printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
 
-                        // free the register since no more assigns are needed
-                        scratch_free(e->right->reg);
-                    }
+                    // free the register since no more assigns are needed
+                    scratch_free(e->right->reg);
 
-                    // if it is a string
-                    if(e->left->symbol->type->kind == TYPE_STRING) {
-                        
-                        // generate code to get the righmost string into a register
-                        expr_codegen(e->right);
-
-                        // generate code to get the string in a register
-                        expr_codegen(e->left);
-
-                        // need to move every character from right to left string
-                        for(int i = 0; i < 35; i++) {
-                            printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(e->right->reg), i);
-                            printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), i);
-                        }
-
-                        break;
-                    }
+                    break;
                 }
 
-                // modifying global variables requires having their address
+                // if it is a global, non-string
                 else if(e->left->symbol->kind == SYMBOL_GLOBAL) {
                     
                     // generate code to compute the right expression
@@ -1304,8 +1299,10 @@ void expr_codegen(struct expr* e) {
                     // free the register that held the address of the global
                     scratch_free(e->reg);
 
-                    // this assign expression now has the register with the value in it
-                    e->reg = e->right->reg;
+                    // free the right register too since no more assigns needed
+                    scratch_free(e->right->reg);
+
+                    break;
                 }
             }
 
@@ -1318,14 +1315,29 @@ void expr_codegen(struct expr* e) {
                 
                 while(tempe->kind == EXPR_ASSIGN) {
 
-                        // throw an error if strings are reassigned
-                        if(e->left->symbol->type->kind == TYPE_STRING) {
-                        printf("\033[0;31mcodegen error\033[0;0m: cannot assign string outside of declaration\n");
-                        exit(1);
+                    // if it is a string
+                    if(tempe->right->symbol->type != NULL && tempe->right->symbol->type->kind == TYPE_STRING) {
+                        
+                        // generate code to get the righmost string into a register
+                        expr_codegen(tempe2);
+
+                        // generate code to get the string in a register
+                        expr_codegen(tempe->right);
+
+                        // need to move every character from right to left string
+                        for(int i = 0; i < 7; i++) {
+                            printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(tempe2->reg), i);
+                            printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->right->reg), i);
+                        }
+
+                        // free up the two registers used
+                        scratch_free(tempe->right->reg);
+                        scratch_free(tempe2->reg);
+
                     }
 
-                    // assigning local values can be done this way:
-                    if(tempe->right->symbol->kind == SYMBOL_LOCAL) {
+                    // if it is a local, non-string
+                    else if(tempe->right->symbol->kind == SYMBOL_LOCAL) {
                     
                         // generate code to compute the right expression
                         expr_codegen(tempe2);
@@ -1338,7 +1350,7 @@ void expr_codegen(struct expr* e) {
                         
                     }
 
-                    // modifying global variables requires having their address
+                    // if it is a global, non-string
                     else if(tempe->right->symbol->kind == SYMBOL_GLOBAL) {
                         
                         // generate code to compute the right expression
@@ -1366,8 +1378,31 @@ void expr_codegen(struct expr* e) {
                 }
 
                 // for the last assignment
-                // assigning local values can be done this way:
-                if(tempe->symbol->kind == SYMBOL_LOCAL) {
+                
+                // if it is a string
+                if(tempe->symbol->type != NULL && tempe->symbol->type->kind == TYPE_STRING) {
+                    
+                    // generate code to get the righmost string into a register
+                    expr_codegen(tempe2);
+
+                    // generate code to get the string in a register
+                    expr_codegen(tempe);
+
+                    // need to move every character from right to left string
+                    for(int i = 0; i < 30; i++) {
+                        printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(tempe2->reg), i);
+                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), i);
+                    }
+
+                    // free up the two registers used
+                    scratch_free(tempe2->reg);
+                    scratch_free(tempe->reg);
+
+                    break;
+                }
+
+                // for local, non-string
+                else if(tempe->symbol->kind == SYMBOL_LOCAL) {
                 
                     // generate code to compute the right expression
                     expr_codegen(tempe2);
@@ -1378,9 +1413,10 @@ void expr_codegen(struct expr* e) {
                     // free the used register, no more assignments needed
                     scratch_free(tempe2->reg);
                     
+                    break;
                 }
 
-                // modifying global variables requires having their address
+                // for global, non-string
                 else if(tempe->symbol->kind == SYMBOL_GLOBAL) {
                     
                     // generate code to compute the right expression
@@ -1399,6 +1435,8 @@ void expr_codegen(struct expr* e) {
 
                     // free the used register, value stored in tempe now
                     scratch_free(tempe2->reg);
+
+                    break;
                 }
 
             }
