@@ -7,8 +7,9 @@ fxnCall:function integer() =
 main:function integer () =
 {
 	str1:string;
-	str1 = "hello there!";
-	print str1, "\n";
+	str2:string = "hi";
+	str1 = str2;
+	print str1;
 }
 
 /*
@@ -33,29 +34,41 @@ x:      .word 5
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-72]!
-                adrp    x9, .LT1
-                add     x9, x9, :lo12:.LT1
-                adrp	x10, .LS0
-				add		x10, x10, :lo12:.LS0
-				str     x9, [x10]
+                stp     x29, x30, [sp, #-80]!
+                adrp    x9, .LS1
+                add     x9, x9, :lo12:.LS1
+                adrp    x10, .LS0
+                add     x10, x10, :lo12:.LS0
+                ldrb    w0, [x9, 0]
+                strb    w0, [x10, 0]
+                ldrb    w0, [x9, 1]
+                strb    w0, [x10, 1]
+                ldrb    w0, [x9, 2]
+                strb    w0, [x10, 2]
+                ldrb    w0, [x9, 3]
+                strb    w0, [x10, 3]
+                ldrb    w0, [x9, 4]
+                strb    w0, [x10, 4]
+                ldrb    w0, [x9, 5]
+                strb    w0, [x10, 5]
+                ldrb    w0, [x9, 6]
+                strb    w0, [x10, 6]
+                ldrb    w0, [x9, 7]
+                strb    w0, [x10, 7]
+                ldrb    w0, [x9, 8]
+                strb    w0, [x10, 8]
+                ldrb    w0, [x9, 9]
+                strb    w0, [x10, 9]
                 adrp    x9, .LS0
                 add     x9, x9, :lo12:.LS0
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, .LT2
-                add     x9, x9, :lo12:.LT2
-                mov     x0, x9
-                bl      print_string
-                ldp     x29, x30, [sp], #72
+                ldp     x29, x30, [sp], #80
                 ret
-        .section        .rodata
+        .section        .data
 .LS0:
-        .string
-        .section        .rodata
-.LT1:
-        .string "hello there!"
-        .section        .rodata
-.LT2:
-        .string "\n"
+        .string 
+        .section        .data
+.LS1:
+        .string "hi"
 */

@@ -1244,17 +1244,47 @@ void expr_codegen(struct expr* e) {
             // for assigning one (1) variable a value
             if(e->left->kind != EXPR_ASSIGN) {
                 
+                /*
+                // throw an error if strings are reassigned
+                if(e->left->symbol->type->kind == TYPE_STRING) {
+                    printf("\033[0;31mcodegen error\033[0;0m: cannot assign string outside of declaration\n");
+                    exit(1);
+                }
+                */
+
                 // assigning local values can be done this way:
                 if(e->left->symbol->kind == SYMBOL_LOCAL) {
                     
-                    // generate code to compute the right expression
-                    expr_codegen(e->right);
+                    // if it is not a string
+                    if(e->left->symbol->type->kind != TYPE_STRING) {
+                        
+                        // generate code to compute the right expression
+                        expr_codegen(e->right);
 
-                    // store the result into the memory location
-                    printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+                        // store the result into the memory location
+                        printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
 
-                    // free the register since no more assigns are needed
-                    scratch_free(e->right->reg);
+                        // free the register since no more assigns are needed
+                        scratch_free(e->right->reg);
+                    }
+
+                    // if it is a string
+                    if(e->left->symbol->type->kind == TYPE_STRING) {
+                        
+                        // generate code to get the righmost string into a register
+                        expr_codegen(e->right);
+
+                        // generate code to get the string in a register
+                        expr_codegen(e->left);
+
+                        // need to move every character from right to left string
+                        for(int i = 0; i < 10; i++) {
+                            printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(e->right->reg), i);
+                            printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), i);
+                        }
+
+                        break;
+                    }
                 }
 
                 // modifying global variables requires having their address
@@ -1281,12 +1311,18 @@ void expr_codegen(struct expr* e) {
 
             // for assigning more than one (2+) variable a value
             if(e->left->kind == EXPR_ASSIGN) {
-                
+
                 // for all but the last assignment
                 tempe = e->left;
                 tempe2 = e->right;
                 
                 while(tempe->kind == EXPR_ASSIGN) {
+
+                        // throw an error if strings are reassigned
+                        if(e->left->symbol->type->kind == TYPE_STRING) {
+                        printf("\033[0;31mcodegen error\033[0;0m: cannot assign string outside of declaration\n");
+                        exit(1);
+                    }
 
                     // assigning local values can be done this way:
                     if(tempe->right->symbol->kind == SYMBOL_LOCAL) {
