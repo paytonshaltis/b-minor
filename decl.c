@@ -415,7 +415,7 @@ void decl_codegen(struct decl* d) {
                 
                 // unique label number will come from 'which'
                 memset(strBuffer, 0, 300);
-                sprintf(strBuffer, "%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
+                sprintf(strBuffer, "\t.section\t.rodata\n%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
 
                 // store this into the array of strings that will be printed at the end of the function
                 for(int i = 0; i < 300; i++) {

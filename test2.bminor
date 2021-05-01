@@ -59,10 +59,13 @@ x:      .word 19
                 ret
                 ldp     x29, x30, [sp], #200
                 ret
+        .section        .rodata
 .L3:
         .string "hello there!"
+        .section        .rodata
 .L4:
         .string "hello there!"
+        .section        .rodata
 .L5:
         .string "hello there!"
 .text
@@ -86,10 +89,13 @@ x:      .word 19
                 ret
                 ldp     x29, x30, [sp], #200
                 ret
+        .section        .rodata
 .LT1:
         .string "the function"
+        .section        .rodata
 .LT2:
         .string " test\n"
+        .section        .rodata
 .LT3:
         .string "seems to be working!\n"
 */

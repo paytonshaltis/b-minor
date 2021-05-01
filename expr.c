@@ -1006,7 +1006,7 @@ void expr_codegen(struct expr* e) {
             
             // unique label number will come from tempLitLabel
             memset(strBuffer, 0, 300);
-            sprintf(strBuffer, "%s:\n\t.string %s\n", lit_label_name(tempLitLabel), e->string_literal);
+            sprintf(strBuffer, "\t.section\t.rodata\n%s:\n\t.string %s\n", lit_label_name(tempLitLabel), e->string_literal);
 
             // store this into the array of strings that will be printed at the end of the function
             for(int i = 0; i < 300; i++) {
