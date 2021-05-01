@@ -94,9 +94,25 @@ x:      .word 5
                 add     x10, x9, x10
                 ldr     x9, [sp, 16]
                 mul     x9, x10, x9
+                mov     x19, x9
+                mov     x20, x10
+                mov     x21, x11
+                mov     x22, x12
+                mov     x23, x13
+                mov     x24, x14
+                mov     x25, x15
                 bl      fxnCall
-                sub     x9, x9, x9
-                mov     x0, x9
+                mov     x9, x19
+                mov     x10, x20
+                mov     x11, x21
+                mov     x12, x22
+                mov     x13, x23
+                mov     x14, x24
+                mov     x15, x25
+                sub     x0, x9, x0
+                mov     x10, x0
+                mov     x0, x10
+                bl      print_integer
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
