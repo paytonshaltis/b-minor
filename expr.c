@@ -950,6 +950,7 @@ void expr_codegen(struct expr* e) {
     int tempLitLabel;
     char strBuffer[300];
     struct expr* tempe;
+    struct expr* tempe2;
     int paramRegCount;
 
     // if the expression is NULL, we should return
@@ -1143,22 +1144,13 @@ void expr_codegen(struct expr* e) {
         case EXPR_FCALL:
 
             // before the function call, we should save the contents of each register x9-x15 (obviously not optimized!)
-            /*
-            printf("\t\tmov\tx19, x9\n");
-            printf("\t\tmov\tx20, x10\n");
-            printf("\t\tmov\tx21, x11\n");
-            printf("\t\tmov\tx22, x12\n");
-            printf("\t\tmov\tx23, x13\n");
-            printf("\t\tmov\tx24, x14\n");
-            printf("\t\tmov\tx25, x15\n");
-            */
-            printf("\t\tstr\tx9, [sp %i]\n",  callStackSize - 8*6);
-            printf("\t\tstr\tx10, [sp %i]\n", callStackSize - 8*5);
-            printf("\t\tstr\tx11, [sp %i]\n", callStackSize - 8*4);
-            printf("\t\tstr\tx12, [sp %i]\n", callStackSize - 8*3);
-            printf("\t\tstr\tx13, [sp %i]\n", callStackSize - 8*2);
-            printf("\t\tstr\tx14, [sp %i]\n", callStackSize - 8*1);
-            printf("\t\tstr\tx15, [sp %i]\n", callStackSize - 8*0);
+            printf("\t\tstr\tx9, [sp, %i]\n",  callStackSize - 8*6);
+            printf("\t\tstr\tx10, [sp, %i]\n", callStackSize - 8*5);
+            printf("\t\tstr\tx11, [sp, %i]\n", callStackSize - 8*4);
+            printf("\t\tstr\tx12, [sp, %i]\n", callStackSize - 8*3);
+            printf("\t\tstr\tx13, [sp, %i]\n", callStackSize - 8*2);
+            printf("\t\tstr\tx14, [sp, %i]\n", callStackSize - 8*1);
+            printf("\t\tstr\tx15, [sp, %i]\n", callStackSize - 8*0);
 
             // if the function call does not pass parameters
             if(e->right == NULL) {
@@ -1233,23 +1225,14 @@ void expr_codegen(struct expr* e) {
             }
 
             // after the function call, we should restore the contents of each register x9-x15 (obviously not optimized!)
-            /*
-            printf("\t\tmov\tx9, x19\n");
-            printf("\t\tmov\tx10, x20\n");
-            printf("\t\tmov\tx11, x21\n");
-            printf("\t\tmov\tx12, x22\n");
-            printf("\t\tmov\tx13, x23\n");
-            printf("\t\tmov\tx14, x24\n");
-            printf("\t\tmov\tx15, x25\n");
-            */
+            printf("\t\tldr\tx9, [sp, %i]\n",  callStackSize - 8*6);
+            printf("\t\tldr\tx10, [sp, %i]\n", callStackSize - 8*5);
+            printf("\t\tldr\tx11, [sp, %i]\n", callStackSize - 8*4);
+            printf("\t\tldr\tx12, [sp, %i]\n", callStackSize - 8*3);
+            printf("\t\tldr\tx13, [sp, %i]\n", callStackSize - 8*2);
+            printf("\t\tldr\tx14, [sp, %i]\n", callStackSize - 8*1);
+            printf("\t\tldr\tx15, [sp, %i]\n", callStackSize - 8*0);
 
-            printf("\t\tldr\tx9, [sp %i]\n",  callStackSize - 8*6);
-            printf("\t\tldr\tx10, [sp %i]\n", callStackSize - 8*5);
-            printf("\t\tldr\tx11, [sp %i]\n", callStackSize - 8*4);
-            printf("\t\tldr\tx12, [sp %i]\n", callStackSize - 8*3);
-            printf("\t\tldr\tx13, [sp %i]\n", callStackSize - 8*2);
-            printf("\t\tldr\tx14, [sp %i]\n", callStackSize - 8*1);
-            printf("\t\tldr\tx15, [sp %i]\n", callStackSize - 8*0);
             // function call result should be saved to an alternate register (NOT x0) upon return
             e->reg = scratch_alloc();
             printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
@@ -1258,38 +1241,129 @@ void expr_codegen(struct expr* e) {
         // for assigning expressions
         case EXPR_ASSIGN:
 
-            // assigning local values can be done this way:
-            if(e->left->symbol->kind == SYMBOL_LOCAL) {
+            // for assigning one (1) variable a value
+            if(e->left->kind != EXPR_ASSIGN) {
                 
-                // generate code to compute the right expression
-                expr_codegen(e->right);
+                // assigning local values can be done this way:
+                if(e->left->symbol->kind == SYMBOL_LOCAL) {
+                    
+                    // generate code to compute the right expression
+                    expr_codegen(e->right);
 
-                // store the result into the memory location
-                printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
-                
-                // this assign expression now has the register with the value in it
-                e->reg = e->right->reg;
+                    // store the result into the memory location
+                    printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+
+                    // free the register since no more assigns are needed
+                    scratch_free(e->right->reg);
+                }
+
+                // modifying global variables requires having their address
+                else if(e->left->symbol->kind == SYMBOL_GLOBAL) {
+                    
+                    // generate code to compute the right expression
+                    expr_codegen(e->right);
+
+                    // store the address of the global variable in a free register
+                    e->reg = scratch_alloc();
+                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
+                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+                    
+                    // store the result of the right expression into the global variable
+                    printf("\t\tstr\t%s, [%s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
+
+                    // free the register that held the address of the global
+                    scratch_free(e->reg);
+
+                    // this assign expression now has the register with the value in it
+                    e->reg = e->right->reg;
+                }
             }
 
-            // modifying global variables requires having their address
-            else if(e->left->symbol->kind == SYMBOL_GLOBAL) {
+            // for assigning more than one (2+) variable a value
+            if(e->left->kind == EXPR_ASSIGN) {
                 
-                // generate code to compute the right expression
-                expr_codegen(e->right);
+                // for all but the last assignment
+                tempe = e->left;
+                tempe2 = e->right;
+                while(tempe->kind == EXPR_ASSIGN) {
 
-                // store the address of the global variable in a free register
-                e->reg = scratch_alloc();
-                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
-                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+                    // assigning local values can be done this way:
+                    if(tempe->right->symbol->kind == SYMBOL_LOCAL) {
+                    
+                        // generate code to compute the right expression
+                        expr_codegen(tempe2);
+
+                        // store the result into the memory location
+                        printf("\t\tstr\t%s, %s\n", scratch_name(tempe2->reg), symbol_codegen(tempe->right->symbol));
+
+                        // free the used register, value stored in tempe now
+                        scratch_free(tempe2->reg);
+                        
+                    }
+
+                    // modifying global variables requires having their address
+                    else if(tempe->right->symbol->kind == SYMBOL_GLOBAL) {
+                        
+                        // generate code to compute the right expression
+                        expr_codegen(tempe2);
+
+                        // store the address of the global variable in a free register
+                        e->reg = scratch_alloc();
+                        printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->right->name);
+                        printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->right->name);
+                        
+                        // store the result of the right expression into the global variable
+                        printf("\t\tstr\t%s, [%s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+
+                        // free the register that held the address of the global
+                        scratch_free(e->reg);
+
+                        // free the used register, value stored in tempe now
+                        scratch_free(tempe2->reg);
+                    }
+
+                    // move to the next assignment
+                    tempe2 = tempe->right;
+                    tempe = tempe->left;
+                    
+                }
+
+                // for the last assignment
+                // assigning local values can be done this way:
+                if(tempe->symbol->kind == SYMBOL_LOCAL) {
                 
-                // store the result of the right expression into the global variable
-                printf("\t\tstr\t%s, [%s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
+                    // generate code to compute the right expression
+                    expr_codegen(tempe2);
 
-                // free the register that held the address of the global
-                scratch_free(e->reg);
+                    // store the result into the memory location
+                    printf("\t\tstr\t%s, %s\n", scratch_name(tempe2->reg), symbol_codegen(tempe->symbol));
 
-                // this assign expression now has the register with the value in it
-                e->reg = e->right->reg;
+                    // free the used register, no more assignments needed
+                    scratch_free(tempe2->reg);
+                    
+                }
+
+                // modifying global variables requires having their address
+                else if(tempe->symbol->kind == SYMBOL_GLOBAL) {
+                    
+                    // generate code to compute the right expression
+                    expr_codegen(tempe2);
+
+                    // store the address of the global variable in a free register
+                    e->reg = scratch_alloc();
+                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->name);
+                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->name);
+                    
+                    // store the result of the right expression into the global variable
+                    printf("\t\tstr\t%s, [%s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+
+                    // free the register that held the address of the global
+                    scratch_free(e->reg);
+
+                    // free the used register, value stored in tempe now
+                    scratch_free(tempe2->reg);
+                }
+
             }
 
         break;
