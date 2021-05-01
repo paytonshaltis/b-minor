@@ -15,19 +15,17 @@ main : function integer (argc : integer, argv : array[] string) = {
     str2 : string = "hello there!";
     str3 : string = "hello there!";
 
-    print str1, str2, str3;
-    print "literal string!", "\n", "LET'S GOOOOO!!!!!!";
+    //print str1, str2, str3;
+    //print "literal string!", "\n", "LET'S GOOOOO!!!!!!";
     
-    test(y);
+    test();
     return 0;
-
-
 }
 
-test : function void (str : string) = {
-    str4 : string = "hello there!";
-    str5 : string = "hello there!";
-
+test : function void () = {
+    print "the function", " test\n";
+    print "seems to be working!\n";
+    return;
 }
 
 /*
@@ -53,18 +51,23 @@ x:      .word 19
                 mov     x11, x0
                 mov     x0, x11
                 bl      print_integer
-                adrp    x10, .L3
-                add     x10, x10, :lo12:.L3
-                mov     x0, x10
-                bl      print_string
-                adrp    x10, .L4
-                add     x10, x10, :lo12:.L4
-                mov     x0, x10
-                bl      print_string
-                adrp    x10, .L5
-                add     x10, x10, :lo12:.L5
-                mov     x0, x10
-                bl      print_string
+                bl      test
+                mov     x9, #0
+                mov     x0, x9
+                ldp     x29, x30, [sp], #200
+                ret
+                ldp     x29, x30, [sp], #200
+                ret
+.L3:
+        .string "hello there!"
+.L4:
+        .string "hello there!"
+.L5:
+        .string "hello there!"
+.text
+        .global test
+        test:
+                stp     x29, x30, [sp, #-200]!
                 adrp    x10, .LT1
                 add     x10, x10, :lo12:.LT1
                 mov     x0, x10
@@ -77,32 +80,14 @@ x:      .word 19
                 add     x10, x10, :lo12:.LT3
                 mov     x0, x10
                 bl      print_string
-                mov     x10, #0
-                mov     x0, x10
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
                 ret
-.L3:
-        .string "hello there!"
-.L4:
-        .string "hello there!"
-.L5:
-        .string "hello there!"
 .LT1:
-        .string "literal string!"
+        .string "the function"
 .LT2:
-        .string "\n"
+        .string " test\n"
 .LT3:
-        .string "LET'S FUCKING GOOOOO!!!!!!"
-.text
-        .global test
-        test:
-                stp     x29, x30, [sp, #-200]!
-                ldp     x29, x30, [sp], #200
-                ret
-.L0:
-        .string "hello there!"
-.L1:
-        .string "hello there!"
+        .string "seems to be working!\n"
 */
