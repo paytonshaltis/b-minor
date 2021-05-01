@@ -1221,12 +1221,9 @@ void expr_codegen(struct expr* e) {
                 // need to move the result of the function call to the FCALL's register
                 printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
 
-                
                 break;
             }
 
-
-            
         break;
 
         // for assigning expressions
@@ -1266,13 +1263,13 @@ void expr_codegen(struct expr* e) {
                 e->reg = e->right->reg;
 
             }
+
         break;
 
+        case EXPR_ARGS:
         case EXPR_CURLS:
         case EXPR_BRACKET:
         default:
         break;
-        
-
     }
 }

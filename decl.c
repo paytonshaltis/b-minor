@@ -465,6 +465,8 @@ void decl_codegen(struct decl* d) {
             
         break;
         
+        case TYPE_PROTOTYPE:
+        case TYPE_VOID:
         default:
         break;
 
