@@ -1,53 +1,30 @@
-// testing context switching
-
-f1 : function integer () = {
-    return 1;
+// Uses a complex expression, with a function call
+x:integer=5;
+fxnCall:function integer() =
+{
+	return x*4;
 }
-
-f2 : function integer () = {
-    return 2;
-}
-
-f3 : function integer () = {
-    return 3;
-}
-
-main : function integer (argc : integer, argv : array [] string) = {
-    
-    print (f1() * f2() * f3()) + (f3() % f2()) + f1();
-    return 0;
+main:function integer () =
+{
+	y:integer = 2;
+	return (x + 10) * y - fxnCall();
 }
 
 /*
 .arch armv8-a
 .file   "output.s"
 
+.data
+        .global x
+x:      .word 5
 .text
-        .global f1
-        f1:
+        .global fxnCall
+        fxnCall:
                 stp     x29, x30, [sp, #-200]!
-                mov     x9, #1
-                mov     x0, x9
-                ldp     x29, x30, [sp], #200
-                ret
-                ldp     x29, x30, [sp], #200
-                ret
-.text
-        .global f2
-        f2:
-                stp     x29, x30, [sp, #-200]!
-                mov     x9, #2
-                mov     x0, x9
-                ldp     x29, x30, [sp], #200
-                ret
-                ldp     x29, x30, [sp], #200
-                ret
-.text
-        .global f3
-        f3:
-                stp     x29, x30, [sp, #-200]!
-                mov     x9, #3
-                mov     x0, x9
+                ldr     x9, x
+                mov     x10, #4
+                mul     x10, x9, x10
+                mov     x0, x10
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
@@ -56,57 +33,12 @@ main : function integer (argc : integer, argv : array [] string) = {
         .global main
         main:
                 stp     x29, x30, [sp, #-200]!
-                str     x0, [sp, 16]
-                str     x1, [sp, 24]
-                mov     x19, x9
-                mov     x20, x10
-                mov     x21, x11
-                mov     x22, x12
-                mov     x23, x13
-                mov     x24, x14
-                mov     x25, x15
-                bl      f1
-                mov     x9, x19
-                mov     x10, x20
-                mov     x11, x21
-                mov     x12, x22
-                mov     x13, x23
-                mov     x14, x24
-                mov     x15, x25
-                mov     x9, x0
-                mov     x19, x9
-                mov     x20, x10
-                mov     x21, x11
-                mov     x22, x12
-                mov     x23, x13
-                mov     x24, x14
-                mov     x25, x15
-                bl      f2
-                mov     x9, x19
-                mov     x10, x20
-                mov     x11, x21
-                mov     x12, x22
-                mov     x13, x23
-                mov     x14, x24
-                mov     x15, x25
-                mov     x10, x0
-                mul     x10, x9, x10
-                mov     x19, x9
-                mov     x20, x10
-                mov     x21, x11
-                mov     x22, x12
-                mov     x23, x13
-                mov     x24, x14
-                mov     x25, x15
-                bl      f3
-                mov     x9, x19
-                mov     x10, x20
-                mov     x11, x21
-                mov     x12, x22
-                mov     x13, x23
-                mov     x14, x24
-                mov     x15, x25
-                mov     x9, x0
+                mov     x9, #2
+                str     x9, [sp, 16]
+                ldr     x9, x
+                mov     x10, #10
+                add     x10, x9, x10
+                ldr     x9, [sp, 16]
                 mul     x9, x10, x9
                 mov     x19, x9
                 mov     x20, x10
@@ -115,7 +47,7 @@ main : function integer (argc : integer, argv : array [] string) = {
                 mov     x23, x13
                 mov     x24, x14
                 mov     x25, x15
-                bl      f3
+                bl      fxnCall
                 mov     x9, x19
                 mov     x10, x20
                 mov     x11, x21
@@ -124,47 +56,8 @@ main : function integer (argc : integer, argv : array [] string) = {
                 mov     x14, x24
                 mov     x15, x25
                 mov     x10, x0
-                mov     x19, x9
-                mov     x20, x10
-                mov     x21, x11
-                mov     x22, x12
-                mov     x23, x13
-                mov     x24, x14
-                mov     x25, x15
-                bl      f2
-                mov     x9, x19
-                mov     x10, x20
-                mov     x11, x21
-                mov     x12, x22
-                mov     x13, x23
-                mov     x14, x24
-                mov     x15, x25
-                mov     x11, x0
-                udiv    x12, x10, x11
-                mul     x12, x11, x12
-                sub     x12, x10, x12
-                add     x12, x9, x12
-                mov     x19, x9
-                mov     x20, x10
-                mov     x21, x11
-                mov     x22, x12
-                mov     x23, x13
-                mov     x24, x14
-                mov     x25, x15
-                bl      f1
-                mov     x9, x19
-                mov     x10, x20
-                mov     x11, x21
-                mov     x12, x22
-                mov     x13, x23
-                mov     x14, x24
-                mov     x15, x25
-                mov     x9, x0
-                add     x9, x12, x9
-                mov     x0, x9
-                bl      print_integer
-                mov     x9, #0
-                mov     x0, x9
+                sub     x10, x9, x10
+                mov     x0, x10
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
