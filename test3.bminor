@@ -14,14 +14,16 @@ main:function integer () =
 }
 
 /*
-.arch armv8-a
+arch armv8-a
 .file   "output.s"
 
 .data
         .global strG
+        .align 3
 strG:   .string "word "
 .data
         .global str4
+        .align 3
 str4:   .string ""
 .text
         .global main
