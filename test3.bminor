@@ -22,190 +22,36 @@ main : function integer (argc : integer, argv : array [] string) = {
 .arch armv8-a
 .file   "output.s"
 
-.data
-        .global str2
-str2:   .string "two "
-.data
-        .global str4
-str4:   .string "four "
-.data
-        .global str6
-str6:   .string "six "
 .text
-        .global print0string
-        print0string:
+        .global f1
+        f1:
                 stp     x29, x30, [sp, #-200]!
-                adrp    x9, .LT1
-                add     x9, x9, :lo12:.LT1
+                mov     x9, #1
                 mov     x0, x9
-                bl      print_string
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.LT1:
-        .string "empty\n"
-.text
-        .global print1string
-        print1string:
-                stp     x29, x30, [sp, #-200]!
-                str     x0, [sp, 16]
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LT2
-                add     x9, x9, :lo12:.LT2
-                mov     x0, x9
-                bl      print_string
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.LT2:
-        .string "\n"
 .text
-        .global print2string
-        print2string:
+        .global f2
+        f2:
                 stp     x29, x30, [sp, #-200]!
-                str     x0, [sp, 16]
-                str     x1, [sp, 24]
-                ldr     x9, [sp, 16]
+                mov     x9, #2
                 mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LT3
-                add     x9, x9, :lo12:.LT3
-                mov     x0, x9
-                bl      print_string
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.LT3:
-        .string "\n"
-.text
-        .global print3string
-        print3string:
-                stp     x29, x30, [sp, #-200]!
-                str     x0, [sp, 16]
-                str     x1, [sp, 24]
-                str     x2, [sp, 32]
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LT4
-                add     x9, x9, :lo12:.LT4
-                mov     x0, x9
-                bl      print_string
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.LT4:
-        .string "\n"
 .text
-        .global print4string
-        print4string:
+        .global f3
+        f3:
                 stp     x29, x30, [sp, #-200]!
-                str     x0, [sp, 16]
-                str     x1, [sp, 24]
-                str     x2, [sp, 32]
-                str     x3, [sp, 40]
-                ldr     x9, [sp, 16]
+                mov     x9, #3
                 mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 40]
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LT5
-                add     x9, x9, :lo12:.LT5
-                mov     x0, x9
-                bl      print_string
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.LT5:
-        .string "\n"
-.text
-        .global print5string
-        print5string:
-                stp     x29, x30, [sp, #-200]!
-                str     x0, [sp, 16]
-                str     x1, [sp, 24]
-                str     x2, [sp, 32]
-                str     x3, [sp, 40]
-                str     x4, [sp, 48]
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 40]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 48]
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LT6
-                add     x9, x9, :lo12:.LT6
-                mov     x0, x9
-                bl      print_string
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.LT6:
-        .string "\n"
-.text
-        .global print6string
-        print6string:
-                stp     x29, x30, [sp, #-200]!
-                str     x0, [sp, 16]
-                str     x1, [sp, 24]
-                str     x2, [sp, 32]
-                str     x3, [sp, 40]
-                str     x4, [sp, 48]
-                str     x5, [sp, 56]
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 40]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 48]
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 56]
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LT7
-                add     x9, x9, :lo12:.LT7
-                mov     x0, x9
-                bl      print_string
-                ldp     x29, x30, [sp], #200
-                ret
-        .section        .rodata
-.LT7:
-        .string "\n"
 .text
         .global main
         main:
@@ -219,7 +65,7 @@ str6:   .string "six "
                 mov     x23, x13
                 mov     x24, x14
                 mov     x25, x15
-                bl      print0string
+                bl      f1
                 mov     x9, x19
                 mov     x10, x20
                 mov     x11, x21
@@ -227,6 +73,7 @@ str6:   .string "six "
                 mov     x13, x23
                 mov     x14, x24
                 mov     x15, x25
+                mov     x9, x0
                 mov     x19, x9
                 mov     x20, x10
                 mov     x21, x11
@@ -234,10 +81,7 @@ str6:   .string "six "
                 mov     x23, x13
                 mov     x24, x14
                 mov     x25, x15
-                adrp    x9, .L2
-                add     x9, x9, :lo12:.L2
-                mov     x0, x9
-                bl      print1string
+                bl      f2
                 mov     x9, x19
                 mov     x10, x20
                 mov     x11, x21
@@ -245,6 +89,8 @@ str6:   .string "six "
                 mov     x13, x23
                 mov     x14, x24
                 mov     x15, x25
+                mov     x10, x0
+                mul     x10, x9, x10
                 mov     x19, x9
                 mov     x20, x10
                 mov     x21, x11
@@ -252,13 +98,7 @@ str6:   .string "six "
                 mov     x23, x13
                 mov     x24, x14
                 mov     x25, x15
-                adrp    x9, .L2
-                add     x9, x9, :lo12:.L2
-                mov     x0, x9
-                adrp    x9, str2
-                add     x9, x9, :lo12:str2
-                mov     x1, x9
-                bl      print2string
+                bl      f3
                 mov     x9, x19
                 mov     x10, x20
                 mov     x11, x21
@@ -266,6 +106,8 @@ str6:   .string "six "
                 mov     x13, x23
                 mov     x14, x24
                 mov     x15, x25
+                mov     x9, x0
+                mul     x9, x10, x9
                 mov     x19, x9
                 mov     x20, x10
                 mov     x21, x11
@@ -273,16 +115,7 @@ str6:   .string "six "
                 mov     x23, x13
                 mov     x24, x14
                 mov     x25, x15
-                adrp    x9, .L2
-                add     x9, x9, :lo12:.L2
-                mov     x0, x9
-                adrp    x9, str2
-                add     x9, x9, :lo12:str2
-                mov     x1, x9
-                adrp    x9, .L3
-                add     x9, x9, :lo12:.L3
-                mov     x2, x9
-                bl      print3string
+                bl      f3
                 mov     x9, x19
                 mov     x10, x20
                 mov     x11, x21
@@ -290,6 +123,7 @@ str6:   .string "six "
                 mov     x13, x23
                 mov     x14, x24
                 mov     x15, x25
+                mov     x10, x0
                 mov     x19, x9
                 mov     x20, x10
                 mov     x21, x11
@@ -297,19 +131,7 @@ str6:   .string "six "
                 mov     x23, x13
                 mov     x24, x14
                 mov     x25, x15
-                adrp    x9, .L2
-                add     x9, x9, :lo12:.L2
-                mov     x0, x9
-                adrp    x9, str2
-                add     x9, x9, :lo12:str2
-                mov     x1, x9
-                adrp    x9, .L3
-                add     x9, x9, :lo12:.L3
-                mov     x2, x9
-                adrp    x9, str4
-                add     x9, x9, :lo12:str4
-                mov     x3, x9
-                bl      print4string
+                bl      f2
                 mov     x9, x19
                 mov     x10, x20
                 mov     x11, x21
@@ -317,6 +139,11 @@ str6:   .string "six "
                 mov     x13, x23
                 mov     x14, x24
                 mov     x15, x25
+                mov     x11, x0
+                udiv    x12, x10, x11
+                mul     x12, x11, x12
+                sub     x12, x10, x12
+                add     x12, x9, x12
                 mov     x19, x9
                 mov     x20, x10
                 mov     x21, x11
@@ -324,22 +151,7 @@ str6:   .string "six "
                 mov     x23, x13
                 mov     x24, x14
                 mov     x25, x15
-                adrp    x9, .L2
-                add     x9, x9, :lo12:.L2
-                mov     x0, x9
-                adrp    x9, str2
-                add     x9, x9, :lo12:str2
-                mov     x1, x9
-                adrp    x9, .L3
-                add     x9, x9, :lo12:.L3
-                mov     x2, x9
-                adrp    x9, str4
-                add     x9, x9, :lo12:str4
-                mov     x3, x9
-                adrp    x9, .L4
-                add     x9, x9, :lo12:.L4
-                mov     x4, x9
-                bl      print5string
+                bl      f1
                 mov     x9, x19
                 mov     x10, x20
                 mov     x11, x21
@@ -347,52 +159,14 @@ str6:   .string "six "
                 mov     x13, x23
                 mov     x14, x24
                 mov     x15, x25
-                mov     x19, x9
-                mov     x20, x10
-                mov     x21, x11
-                mov     x22, x12
-                mov     x23, x13
-                mov     x24, x14
-                mov     x25, x15
-                adrp    x9, .L2
-                add     x9, x9, :lo12:.L2
+                mov     x9, x0
+                add     x9, x12, x9
                 mov     x0, x9
-                adrp    x9, str2
-                add     x9, x9, :lo12:str2
-                mov     x1, x9
-                adrp    x9, .L3
-                add     x9, x9, :lo12:.L3
-                mov     x2, x9
-                adrp    x9, str4
-                add     x9, x9, :lo12:str4
-                mov     x3, x9
-                adrp    x9, .L4
-                add     x9, x9, :lo12:.L4
-                mov     x4, x9
-                adrp    x9, str6
-                add     x9, x9, :lo12:str6
-                mov     x5, x9
-                bl      print6string
-                mov     x9, x19
-                mov     x10, x20
-                mov     x11, x21
-                mov     x12, x22
-                mov     x13, x23
-                mov     x14, x24
-                mov     x15, x25
+                bl      print_integer
                 mov     x9, #0
                 mov     x0, x9
                 ldp     x29, x30, [sp], #200
                 ret
                 ldp     x29, x30, [sp], #200
                 ret
-        .section        .rodata
-.L2:
-        .string "one "
-        .section        .rodata
-.L3:
-        .string "three "
-        .section        .rodata
-.L4:
-        .string "five "
 */

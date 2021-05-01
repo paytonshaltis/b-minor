@@ -943,16 +943,6 @@ struct type* expr_typecheck(struct expr* e) {
     return result;
 }
 
-// if the return register is the result of an arithmetic operation, allocate a different register
-void expr_transfer_return(struct expr* e) {
-
-    // see if the expression ended up getting the x0 register
-    if(e->reg == -1) {
-        e->reg = scratch_alloc();
-        printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
-    }
-}
-
 void expr_codegen(struct expr* e) {
 
     // temp to hold literal string label and info
@@ -1039,7 +1029,6 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tadd\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
-            expr_transfer_return(e);
             scratch_free(e->left->reg);
             
         break;
@@ -1049,7 +1038,6 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tsub\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
-            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1058,7 +1046,6 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
-            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1067,7 +1054,6 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tsdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
-            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1086,7 +1072,6 @@ void expr_codegen(struct expr* e) {
             // free the two operand scratch registers
             scratch_free(e->left->reg);
             scratch_free(e->right->reg);
-            expr_transfer_return(e);
         break;
 
         case EXPR_AND:
@@ -1094,7 +1079,6 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\tand\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
-            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1103,7 +1087,6 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
             printf("\t\torr\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
-            expr_transfer_return(e);
             scratch_free(e->left->reg);
         break;
 
@@ -1111,34 +1094,29 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->left);
             printf("\t\tadd\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
-            expr_transfer_return(e);
         break;
 
         case EXPR_DEC:
             expr_codegen(e->left);
             printf("\t\tsub\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
-            expr_transfer_return(e);
         break;
 
         case EXPR_NEG:
             expr_codegen(e->left);
             printf("\t\tneg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
-            expr_transfer_return(e);
         break;
 
         case EXPR_NOT:
             expr_codegen(e->left);
             printf("\t\tmvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
-            expr_transfer_return(e);
         break;
 
         case EXPR_GROUP:
             expr_codegen(e->left);
             e->reg = e->left->reg;
-            expr_transfer_return(e);
         break;
 
         case EXPR_EXPON:
@@ -1154,7 +1132,6 @@ void expr_codegen(struct expr* e) {
 
             // this expression's register will be the right register, which needs x0's contents
             e->reg = e->right->reg;
-            expr_transfer_return(e);
             printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
             
             // free the register used to fetch the left operand
@@ -1181,9 +1158,6 @@ void expr_codegen(struct expr* e) {
                 expr_print(e->left);
                 printf("\n");
 
-                // the EXPR_FCALL must be assigned the x0 register (special case)
-                e->reg = -1;
-
             }
 
             // if the function call requires a single parameter
@@ -1199,9 +1173,6 @@ void expr_codegen(struct expr* e) {
                 printf("\t\tbl\t");
                 expr_print(e->left);
                 printf("\n");
-
-                // the EXPR_FCALL must be assigned the x0 register (special case)
-                e->reg = -1;
 
                 // free the register used
                 scratch_free(e->right->left->reg);
@@ -1248,9 +1219,6 @@ void expr_codegen(struct expr* e) {
                 printf("\t\tbl\t");
                 expr_print(e->left);
                 printf("\n");
-
-                // the EXPR_FCALL must be assigned the x0 register (special case)
-                e->reg = -1;
                 
             }
 
@@ -1262,6 +1230,10 @@ void expr_codegen(struct expr* e) {
             printf("\t\tmov\tx13, x23\n");
             printf("\t\tmov\tx14, x24\n");
             printf("\t\tmov\tx15, x25\n");
+
+            // function expressions should be saved to an alternate register upon return
+            e->reg = scratch_alloc();
+            printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
         break;
 
         // for assigning expressions
@@ -1278,7 +1250,6 @@ void expr_codegen(struct expr* e) {
                 
                 // this assign expression now has the register with the value in it
                 e->reg = e->right->reg;
-                expr_transfer_return(e);
             }
 
             // modifying global variables requires having their address
@@ -1300,8 +1271,6 @@ void expr_codegen(struct expr* e) {
 
                 // this assign expression now has the register with the value in it
                 e->reg = e->right->reg;
-                expr_transfer_return(e);
-
             }
 
         break;
