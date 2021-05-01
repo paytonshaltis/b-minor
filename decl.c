@@ -439,7 +439,7 @@ void decl_codegen(struct decl* d) {
             // if there are more than 6 parameters, codegen error
             numParams = param_list_count(d->type->params);
             if(numParams > 6) {
-                printf("\033[0;31mcodegen error\033[0;0m: all scratch registers currently in use\n");
+                printf("\033[0;31mcodegen error\033[0;0m: cannot exceed 6 function parameters, registers filled\n");
                 exit(1);
             }
 
@@ -451,7 +451,7 @@ void decl_codegen(struct decl* d) {
             // generate code for the contents of the function
             stmt_codegen(d->code);
 
-            // shrink the stack
+            // shrink the stack and return (in case of void function!)
             printf("\t\tldp\tx29, x30, [sp], #200\n\t\tret\n");
 
             // need to print out local string labels
