@@ -4,14 +4,12 @@ main:function void () =
 	y : integer = 7;
 	c : char = 'f';
 
-	if(x <= y) {
+	if(y <= x) {
         c = 't';
 		print 'c', 'a', c, "\n";
     }
-
-	if(y <= x) {
+	else 
 		print "you shouldn't see this...";
-	}
 
 	return;
 
@@ -31,8 +29,8 @@ main:function void () =
                 str     x9, [sp, 24]
                 mov     x9, #102
                 str     x9, [sp, 32]
-                ldr     x9, [sp, 16]
-                ldr     x10, [sp, 24]
+                ldr     x9, [sp, 24]
+                ldr     x10, [sp, 16]
                 cmp     x9, x10
                 b.le    .LCOND1
                 mov     x10, 0
@@ -57,18 +55,8 @@ main:function void () =
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
+                b       .LSTMT2
         .LSTMT1:
-                ldr     x9, [sp, 24]
-                ldr     x11, [sp, 16]
-                cmp     x9, x11
-                b.le    .LCOND3
-                mov     x11, 0
-                b       .LCOND4
-        .LCOND3:
-                mov     x11, 1
-        .LCOND4:
-                cmp     x11, 0
-                b.eq    .LSTMT2
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9

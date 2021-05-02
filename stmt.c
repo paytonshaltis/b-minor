@@ -363,7 +363,7 @@ void stmt_codegen(struct stmt* s) {
     // type used in printing expressions
     struct type* t;
     struct expr* exprtemp;
-    int falseLabel;
+    int elseLabel;
     int doneLabel;
 
     //final statement should return
@@ -568,6 +568,39 @@ void stmt_codegen(struct stmt* s) {
             stmt_codegen(s->body);
 
             // print the done label after the body of the statement
+            printf("\t%s:\n", stmt_label_name(doneLabel));
+
+        break;
+
+        // for 'if' statements
+        case STMT_IF_ELSE:
+
+            // generate the code to get the expression result into a register
+            expr_codegen(s->expr);
+
+            // create an else and done label
+            elseLabel = stmt_label_create();
+            doneLabel = stmt_label_create();
+
+            // compare the result of the expression
+            printf("\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
+            
+            // if the expression is false, jump to else
+            printf("\t\tb.eq\t%s\n", stmt_label_name(elseLabel));
+
+            // if the expression is true, generate code for the expression
+            stmt_codegen(s->body);
+
+            // jump to the done label once done with 'if' body
+            printf("\t\tb\t%s\n", stmt_label_name(doneLabel));
+
+            // print the else label after the body of the statement
+            printf("\t%s:\n", stmt_label_name(elseLabel));
+
+            // print the else body for if the expression is false
+            stmt_codegen(s->else_body);
+
+            // print the done label so that 'if' body can skip 'else' body
             printf("\t%s:\n", stmt_label_name(doneLabel));
 
         break;
