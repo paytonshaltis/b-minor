@@ -457,7 +457,7 @@ void decl_codegen(struct decl* d) {
                 // unique label number will come from 'which'
                 memset(strBuffer, 0, 300);
                 if(d->value != NULL)
-                    sprintf(strBuffer, "\t.section\t.data\n\t.align 3%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
+                    sprintf(strBuffer, "\t.section\t.data\n\t.align 3\n%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
                 else
                     sprintf(strBuffer, "\t.section\t.data\n\t.align 3\n%s:\n\t.string \"\"\n", label_name(d->symbol->which));
 

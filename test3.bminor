@@ -4,8 +4,8 @@ str4:string;
 main:function integer () =
 {
 	str1:string = "\0";
-	str2:string;
-	str3:string;
+	str2:string = "e";
+	str3:string = "f";
 
 	str1 = strG = str4 = "this is my string literal!";
 
@@ -260,16 +260,17 @@ str4:   .string ""
                 ldp     x29, x30, [sp], #88
                 ret
         .section        .data
-        .align 3.LS0:
+        .align 3
+.LS0:
         .string "\0"
         .section        .data
         .align 3
 .LS1:
-        .string ""
+        .string "e"
         .section        .data
         .align 3
 .LS2:
-        .string ""
+        .string "f"
         .section        .rodata
         .align 3
 .LT1:
