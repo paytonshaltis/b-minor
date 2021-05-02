@@ -365,6 +365,7 @@ void stmt_codegen(struct stmt* s) {
     struct expr* exprtemp;
     int elseLabel;
     int doneLabel;
+    int loopLabel;
 
     //final statement should return
     if(s == NULL) {
@@ -570,6 +571,9 @@ void stmt_codegen(struct stmt* s) {
             // print the done label after the body of the statement
             printf("\t%s:\n", stmt_label_name(doneLabel));
 
+            // free the scratch register used
+            scratch_free(s->expr->reg);
+
         break;
 
         // for 'if' statements
@@ -603,9 +607,57 @@ void stmt_codegen(struct stmt* s) {
             // print the done label so that 'if' body can skip 'else' body
             printf("\t%s:\n", stmt_label_name(doneLabel));
 
+            // free the scratch register used
+            scratch_free(s->expr->reg);
+
         break;
 
-        default:
+        case STMT_FOR:
+
+            // create a label for the top of the loop and for escaping when done
+            loopLabel = stmt_label_create();
+            doneLabel = stmt_label_create();
+
+            // generate code for the initial expression if it exists
+            if(s->init_expr) {
+                expr_codegen(s->init_expr);
+                scratch_free(s->init_expr->reg);
+            }
+
+            // print the label for the top of the loop
+            printf("\t%s:\n", stmt_label_name(loopLabel));
+
+            // should only be done if the loop has a middle expression
+            if(s->expr != NULL) {
+            
+                // generate code for the expression to be checked
+                expr_codegen(s->expr);
+
+                // check to see if the expression is false
+                printf("\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
+
+                // if so, jump to the done label outside of the loop
+                printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+
+                // free the scratch register used
+                scratch_free(s->expr->reg);
+            }
+
+            // print the body of the loop
+            stmt_codegen(s->body);
+
+            // generate code for the 'next' expression if it exists
+            if(s->next_expr != NULL) {
+                expr_codegen(s->next_expr);
+                scratch_free(s->next_expr->reg);
+            }
+
+            // jump back to the top of the loop
+            printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+
+            // print the done label for escaping the loop
+            printf("\t%s\n", stmt_label_name(doneLabel));
+
         break;
 
     }

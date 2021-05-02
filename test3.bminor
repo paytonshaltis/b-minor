@@ -1,15 +1,19 @@
 main:function void () =
 {
-	x : integer = 5;
-	y : integer = 7;
-	c : char = 'f';
+	i : integer;
 
-	if(y <= x) {
-        c = 't';
-		print 'c', 'a', c, "\n";
-    }
-	else 
-		print "you shouldn't see this...";
+	for(i = 0; i < 10; i++) {
+		
+		if(i > 5) {
+			print i, " is greater than 5\n";
+		}
+		else if(i < 5) {
+			print i, " is less than 5\n";
+		}
+		else {
+			print i, " is equal to 5\n";
+		}
+	}
 
 	return;
 
@@ -22,56 +26,88 @@ main:function void () =
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-88]!
-                mov     x9, #5
+                stp     x29, x30, [sp, #-72]!
+                mov     x9, #0
                 str     x9, [sp, 16]
-                mov     x9, #7
-                str     x9, [sp, 24]
-                mov     x9, #102
-                str     x9, [sp, 32]
-                ldr     x9, [sp, 24]
-                ldr     x10, [sp, 16]
+        .LSTMT1:
+                ldr     x9, [sp, 16]
+                mov     x10, #10
                 cmp     x9, x10
-                b.le    .LCOND1
+                b.lt    .LCOND1
                 mov     x10, 0
                 b       .LCOND2
         .LCOND1:
                 mov     x10, 1
         .LCOND2:
                 cmp     x10, 0
-                b.eq    .LSTMT1
-                mov     x9, #116
-                str     x9, [sp, 32]
-                mov     x9, #99
+                b.eq    .LSTMT2
+                ldr     x9, [sp, 16]
+                mov     x10, #5
+                cmp     x9, x10
+                b.gt    .LCOND3
+                mov     x10, 0
+                b       .LCOND4
+        .LCOND3:
+                mov     x10, 1
+        .LCOND4:
+                cmp     x10, 0
+                b.eq    .LSTMT3
+                ldr     x9, [sp, 16]
                 mov     x0, x9
-                bl      print_character
-                mov     x9, #97
-                mov     x0, x9
-                bl      print_character
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      print_character
+                bl      print_integer
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
-                b       .LSTMT2
-        .LSTMT1:
+                b       .LSTMT4
+        .LSTMT3:
+                ldr     x9, [sp, 16]
+                mov     x11, #5
+                cmp     x9, x11
+                b.lt    .LCOND5
+                mov     x11, 0
+                b       .LCOND6
+        .LCOND5:
+                mov     x11, 1
+        .LCOND6:
+                cmp     x11, 0
+                b.eq    .LSTMT5
+                ldr     x9, [sp, 16]
+                mov     x0, x9
+                bl      print_integer
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-        .LSTMT2:
-                ldp     x29, x30, [sp], #88
+                b       .LSTMT6
+        .LSTMT5:
+                ldr     x9, [sp, 16]
+                mov     x0, x9
+                bl      print_integer
+                adrp    x9, .LSLIT3
+                add     x9, x9, :lo12:.LSLIT3
+                mov     x0, x9
+                bl      print_string
+        .LSTMT6:
+        .LSTMT4:
+                ldr     x9, [sp, 16]
+                add     x9, x9, #1
+                b       .LSTMT1
+        .LSTMT2
+                ldp     x29, x30, [sp], #72
                 ret
-                ldp     x29, x30, [sp], #88
+                ldp     x29, x30, [sp], #72
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "\n"
+        .string " is greater than 5\n"
         .section        .rodata
         .align 8
 .LSLIT2:
-        .string "you shouldn't see this..."
+        .string " is less than 5\n"
+        .section        .rodata
+        .align 8
+.LSLIT3:
+        .string " is equal to 5\n"
 */
