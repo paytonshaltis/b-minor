@@ -11,6 +11,7 @@ labels that will be used when printing to the output file
 int varLabelCount = 0;
 int litLabelCount = 0;
 int condLabelCount = 0;
+int stmtLabelCount = 0;
 
 // increments the label counter, returns its current value
 int var_label_create() {
@@ -61,6 +62,24 @@ const char* cond_label_name(int label) {
     // creates modifies labelName with label (number)
     char* labelName = malloc(sizeof(char) * 10);
     sprintf(labelName, ".LCOND%i", label);
+
+    // returns modified label
+    return labelName;
+}
+
+// increments the statement label counter, returns its current value
+int stmt_label_create() {
+
+    stmtLabelCount++;
+    return stmtLabelCount;
+}
+
+// returns a statement label in string form
+const char* stmt_label_name(int label) {
+
+    // creates modifies labelName with label (number)
+    char* labelName = malloc(sizeof(char) * 10);
+    sprintf(labelName, ".LSTMT%i", label);
 
     // returns modified label
     return labelName;

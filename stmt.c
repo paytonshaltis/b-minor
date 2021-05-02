@@ -3,6 +3,7 @@
 #include "stmt.h"
 #include "scope.h"
 #include "scratch.h"
+#include "label.h"
 
 extern int totalResErrors;
 extern int totalTypeErrors;
@@ -362,6 +363,8 @@ void stmt_codegen(struct stmt* s) {
     // type used in printing expressions
     struct type* t;
     struct expr* exprtemp;
+    int falseLabel;
+    int doneLabel;
 
     //final statement should return
     if(s == NULL) {
@@ -543,6 +546,29 @@ void stmt_codegen(struct stmt* s) {
 
             // whether returning a value or not, we need to shrink stack and return
             printf("\t\tldp\tx29, x30, [sp], #%i\n\t\tret\n", callStackSize);
+
+        break;
+
+        // for 'if' statements
+        case STMT_IF:
+
+            // generate the code to get the expression result into a register
+            expr_codegen(s->expr);
+
+            // create a done label
+            doneLabel = stmt_label_create();
+
+            // compare the result of the expression
+            printf("\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
+            
+            // if the expression is false, jump to done
+            printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+
+            // if the expression is true, generate code for the expression
+            stmt_codegen(s->body);
+
+            // print the done label after the body of the statement
+            printf("\t%s:\n", stmt_label_name(doneLabel));
 
         break;
 

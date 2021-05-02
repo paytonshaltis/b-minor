@@ -2,12 +2,18 @@ main:function void () =
 {
 	x : integer = 5;
 	y : integer = 7;
-	z : integer = 5;
+	c : char = 'f';
 
-	print x > y, " ", y > x, "\n";
-	print x >= y, " ", x >= z, "\n";
-	print y < x, " ", x < y, "\n";
-	print y <= x, " ", x <= z, "\n";
+	if(x <= y) {
+        c = 't';
+		print 'c', 'a', c, "\n";
+    }
+
+	if(y <= x) {
+		print "you shouldn't see this...";
+	}
+
+	return;
 
 }
 
@@ -23,160 +29,61 @@ main:function void () =
                 str     x9, [sp, 16]
                 mov     x9, #7
                 str     x9, [sp, 24]
-                mov     x9, #5
+                mov     x9, #102
                 str     x9, [sp, 32]
                 ldr     x9, [sp, 16]
                 ldr     x10, [sp, 24]
                 cmp     x9, x10
-                b.gt    .LCOND1
+                b.le    .LCOND1
                 mov     x10, 0
                 b       .LCOND2
         .LCOND1:
                 mov     x10, 1
         .LCOND2:
-                mov     x0, x10
-                bl      print_boolean
+                cmp     x10, 0
+                b.eq    .LSTMT1
+                mov     x9, #116
+                str     x9, [sp, 32]
+                mov     x9, #99
+                mov     x0, x9
+                bl      print_character
+                mov     x9, #97
+                mov     x0, x9
+                bl      print_character
+                ldr     x9, [sp, 32]
+                mov     x0, x9
+                bl      print_character
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
+        .LSTMT1:
                 ldr     x9, [sp, 24]
-                ldr     x10, [sp, 16]
-                cmp     x9, x10
-                b.gt    .LCOND3
-                mov     x10, 0
+                ldr     x11, [sp, 16]
+                cmp     x9, x11
+                b.le    .LCOND3
+                mov     x11, 0
                 b       .LCOND4
         .LCOND3:
-                mov     x10, 1
+                mov     x11, 1
         .LCOND4:
-                mov     x0, x10
-                bl      print_boolean
+                cmp     x11, 0
+                b.eq    .LSTMT2
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-                ldr     x9, [sp, 16]
-                ldr     x10, [sp, 24]
-                cmp     x9, x10
-                b.ge    .LCOND5
-                mov     x10, 0
-                b       .LCOND6
-        .LCOND5:
-                mov     x10, 1
-        .LCOND6:
-                mov     x0, x10
-                bl      print_boolean
-                adrp    x9, .LSLIT3
-                add     x9, x9, :lo12:.LSLIT3
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 16]
-                ldr     x10, [sp, 32]
-                cmp     x9, x10
-                b.ge    .LCOND7
-                mov     x10, 0
-                b       .LCOND8
-        .LCOND7:
-                mov     x10, 1
-        .LCOND8:
-                mov     x0, x10
-                bl      print_boolean
-                adrp    x9, .LSLIT4
-                add     x9, x9, :lo12:.LSLIT4
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                ldr     x10, [sp, 16]
-                cmp     x9, x10
-                b.lt    .LCOND9
-                mov     x10, 0
-                b       .LCOND10
-        .LCOND9:
-                mov     x10, 1
-        .LCOND10:
-                mov     x0, x10
-                bl      print_boolean
-                adrp    x9, .LSLIT5
-                add     x9, x9, :lo12:.LSLIT5
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 16]
-                ldr     x10, [sp, 24]
-                cmp     x9, x10
-                b.lt    .LCOND11
-                mov     x10, 0
-                b       .LCOND12
-        .LCOND11:
-                mov     x10, 1
-        .LCOND12:
-                mov     x0, x10
-                bl      print_boolean
-                adrp    x9, .LSLIT6
-                add     x9, x9, :lo12:.LSLIT6
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 24]
-                ldr     x10, [sp, 16]
-                cmp     x9, x10
-                b.le    .LCOND13
-                mov     x10, 0
-                b       .LCOND14
-        .LCOND13:
-                mov     x10, 1
-        .LCOND14:
-                mov     x0, x10
-                bl      print_boolean
-                adrp    x9, .LSLIT7
-                add     x9, x9, :lo12:.LSLIT7
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 16]
-                ldr     x10, [sp, 32]
-                cmp     x9, x10
-                b.le    .LCOND15
-                mov     x10, 0
-                b       .LCOND16
-        .LCOND15:
-                mov     x10, 1
-        .LCOND16:
-                mov     x0, x10
-                bl      print_boolean
-                adrp    x9, .LSLIT8
-                add     x9, x9, :lo12:.LSLIT8
-                mov     x0, x9
-                bl      print_string
+        .LSTMT2:
+                ldp     x29, x30, [sp], #88
+                ret
                 ldp     x29, x30, [sp], #88
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string " "
+        .string "\n"
         .section        .rodata
         .align 8
 .LSLIT2:
-        .string "\n"
-        .section        .rodata
-        .align 8
-.LSLIT3:
-        .string " "
-        .section        .rodata
-        .align 8
-.LSLIT4:
-        .string "\n"
-        .section        .rodata
-        .align 8
-.LSLIT5:
-        .string " "
-        .section        .rodata
-        .align 8
-.LSLIT6:
-        .string "\n"
-        .section        .rodata
-        .align 8
-.LSLIT7:
-        .string " "
-        .section        .rodata
-        .align 8
-.LSLIT8:
-        .string "\n" 
+        .string "you shouldn't see this..."
 */

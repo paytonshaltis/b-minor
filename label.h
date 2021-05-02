@@ -15,4 +15,7 @@ const char* lit_label_name(int label);
 int cond_label_create();
 const char* cond_label_name(int label);
 
+int stmt_label_create();
+const char* stmt_label_name(int label);
+
 #endif
