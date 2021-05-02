@@ -1605,7 +1605,7 @@ void expr_codegen(struct expr* e) {
                 doneLabel = stmt_label_create();
 
                 // print the label for the start of the loop
-                printf("\t%s\n", stmt_label_name(loopLabel));
+                printf("\t%s:\n", stmt_label_name(loopLabel));
 
                 // move each of the characters at the stored position into a register
                 printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));   // r4
@@ -1613,6 +1613,45 @@ void expr_codegen(struct expr* e) {
 
                 // compare the characters
                 printf("\t\tcmp\tw0, w1\n");
+                
+
+                // if unequal, jump to the false label
+                printf("\t\tb.ne\t%s\n", stmt_label_name(falseLabel));
+
+                // if equal, characters match, we continue
+
+                // compare one of the characters (we know they are equal now) to 0
+                printf("\t\tcmp\tw0, 0\n");
+
+                // if equal, we are done, jump to the true label
+                printf("\t\tb.eq\t%s\n", stmt_label_name(trueLabel));
+
+                // if unqeual, not at the end of string, we continue
+
+                // increment the position register
+                printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+
+                // jump back to the top of the loop label
+                printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+
+                // print out the false label
+                printf("\t%s:\n", stmt_label_name(falseLabel));
+
+                // since false, we store a 0 in the position register (belongs to this EXPR_EQUAL anyway)
+                printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+
+                // jump to done label to avoid true part
+                printf("\t\tb\t%s\n", stmt_label_name(doneLabel));
+
+                // print out the true label
+                printf("\t%s:\n", stmt_label_name(trueLabel));
+
+                // since true, we store a 1 in the position register (belongs to this EXPR_EQUAL anyway)
+                printf("\t\tmov\t%s, 1\n", scratch_name(e->reg));
+
+                // print out the done label (false jumps here, true falls here)
+                printf("\t%s:\n", stmt_label_name(doneLabel));
+
                 
 
 

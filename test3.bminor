@@ -19,10 +19,21 @@ main: function boolean () = {
                 adrp    x10, .LSLIT1
                 add     x10, x10, :lo12:.LSLIT1
                 mov     x11, 0
-        .LSTMT1
+        .LSTMT1:
                 ldrb    w0, [x9, x11]
                 ldrb    w1, [x10, x11]
                 cmp     w0, w1
+                b.ne    .LSTMT3
+                cmp     w0, 0
+                b.eq    .LSTMT2
+                add     x11, x11, 1
+                b       .LSTMT1
+        .LSTMT3:
+                mov     x11, 0
+                b       .LSTMT4
+        .LSTMT2:
+                mov     x11, 1
+        .LSTMT4:
                 mov     x0, x11
                 ldp     x29, x30, [sp], #72
                 ret
