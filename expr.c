@@ -1652,8 +1652,9 @@ void expr_codegen(struct expr* e) {
                 // print out the done label (false jumps here, true falls here)
                 printf("\t%s:\n", stmt_label_name(doneLabel));
 
-                
-
+                // free registers used to store addresses
+                scratch_free(e->left->reg);     // r1
+                scratch_free(e->right->reg);    // r2
 
             }
 
@@ -1693,7 +1694,73 @@ void expr_codegen(struct expr* e) {
 
             // if we are comparing two strings
             if((e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_STRING) || e->left->kind == EXPR_STRINGLIT) {
-                printf("STRING NEQUALITY\n");
+                
+                /* need to generate code for a loop that checks strings character by character (see notes for algorithm) */
+
+                // start by getting the addresses for the two strings
+                expr_codegen(e->left);      // r1
+                expr_codegen(e->right);     // r2
+
+                // store 0 into a position register (EXPR_NEQUAL takes this one over later anyway)
+                e->reg = scratch_alloc();   // r3
+                printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+
+                // create labels for loop, true, false, and done
+                loopLabel = stmt_label_create();
+                trueLabel = stmt_label_create();
+                falseLabel = stmt_label_create();
+                doneLabel = stmt_label_create();
+
+                // print the label for the start of the loop
+                printf("\t%s:\n", stmt_label_name(loopLabel));
+
+                // move each of the characters at the stored position into a register
+                printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));   // r4
+                printf("\t\tldrb\tw1, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));   // r5
+
+                // compare the characters
+                printf("\t\tcmp\tw0, w1\n");
+                
+                // if unequal, jump to the true label
+                printf("\t\tb.ne\t%s\n", stmt_label_name(trueLabel));
+
+                // if equal, characters match, we continue
+
+                // compare one of the characters (we know they are equal now) to 0
+                printf("\t\tcmp\tw0, 0\n");
+
+                // if equal, we are done, jump to the false label
+                printf("\t\tb.eq\t%s\n", stmt_label_name(falseLabel));
+
+                // if unqeual, not at the end of string, we continue
+
+                // increment the position register
+                printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+
+                // jump back to the top of the loop label
+                printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+
+                // print out the false label
+                printf("\t%s:\n", stmt_label_name(falseLabel));
+
+                // since false, we store a 0 in the position register (belongs to this EXPR_NEQUAL anyway)
+                printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+
+                // jump to done label to avoid true part
+                printf("\t\tb\t%s\n", stmt_label_name(doneLabel));
+
+                // print out the true label
+                printf("\t%s:\n", stmt_label_name(trueLabel));
+
+                // since true, we store a 1 in the position register (belongs to this EXPR_EQUAL anyway)
+                printf("\t\tmov\t%s, 1\n", scratch_name(e->reg));
+
+                // print out the done label (false jumps here, true falls here)
+                printf("\t%s:\n", stmt_label_name(doneLabel));
+
+                // free registers used to store addresses
+                scratch_free(e->left->reg);     // r1
+                scratch_free(e->right->reg);    // r2
             }
 
             // if we are comparing two non-strings

@@ -1,23 +1,50 @@
-// tests comparisions/if statements
+// tests strings and string comparisions
+// and use of strings as local variables
 
-main: function boolean () = {
+str:string = "hello";
+str2:string = " world";
 
-	str1 : string = "hello world";
-	return str1 == "hello world";
-
+main:function integer () =
+{
+	str3:string = "hello";
+	if(str == str3)
+	{
+		print str;
+	}
+	else
+	{
+		print "shouldn't be printed";
+	}
+	if(str != str2)
+	{
+		print str2;
+	}
+	else
+	{
+		print "shouldn't be printed";
+	}
 }
+
 /*
 .arch armv8-a
 .file   "output.s"
 
+.data
+        .global str
+        .align 8
+str:    .string "hello"
+.data
+        .global str2
+        .align 8
+str2:   .string " world"
 .text
         .global main
         main:
                 stp     x29, x30, [sp, #-72]!
-                adrp    x9, .LSVAR1
-                add     x9, x9, :lo12:.LSVAR1
-                adrp    x10, .LSLIT1
-                add     x10, x10, :lo12:.LSLIT1
+                adrp    x9, str
+                add     x9, x9, :lo12:str
+                adrp    x10, .LSVAR1
+                add     x10, x10, :lo12:.LSVAR1
                 mov     x11, 0
         .LSTMT1:
                 ldrb    w0, [x9, x11]
@@ -34,17 +61,64 @@ main: function boolean () = {
         .LSTMT2:
                 mov     x11, 1
         .LSTMT4:
-                mov     x0, x11
-                ldp     x29, x30, [sp], #72
-                ret
+                cmp     x11, 0
+                b.eq    .LSTMT5
+                adrp    x9, str
+                add     x9, x9, :lo12:str
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT6
+        .LSTMT5:
+                adrp    x9, .LSLIT1
+                add     x9, x9, :lo12:.LSLIT1
+                mov     x0, x9
+                bl      print_string
+        .LSTMT6:
+                adrp    x9, str
+                add     x9, x9, :lo12:str
+                adrp    x10, str2
+                add     x10, x10, :lo12:str2
+                mov     x11, 0
+        .LSTMT7:
+                ldrb    w0, [x9, x11]
+                ldrb    w1, [x10, x11]
+                cmp     w0, w1
+                b.ne    .LSTMT8
+                cmp     w0, 0
+                b.eq    .LSTMT9
+                add     x11, x11, 1
+                b       .LSTMT7
+        .LSTMT9:
+                mov     x11, 0
+                b       .LSTMT10
+        .LSTMT8:
+                mov     x11, 1
+        .LSTMT10:
+                cmp     x11, 0
+                b.eq    .LSTMT11
+                adrp    x9, str2
+                add     x9, x9, :lo12:str2
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT12
+        .LSTMT11:
+                adrp    x9, .LSLIT2
+                add     x9, x9, :lo12:.LSLIT2
+                mov     x0, x9
+                bl      print_string
+        .LSTMT12:
                 ldp     x29, x30, [sp], #72
                 ret
         .section        .data
         .align 8
 .LSVAR1:
-        .string "hello world"
+        .string "hello"
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "hello world"
+        .string "shouldn't be printed"
+        .section        .rodata
+        .align 8
+.LSLIT2:
+        .string "shouldn't be printed"
 */
