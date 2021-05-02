@@ -1,53 +1,113 @@
-main:function void () =
+// tests comparisions/if statements
+x:integer = 5;
+main: function integer () =
 {
-
-	b1 : boolean = true;
-	b2 : boolean = false;
-
-	c1 : char = 'f';
-	c2 : char = 'F';
-
-	if( ((b2 && true) || b1) == true ) {
-		print "boolean working\n";
-	}
-	if( ((b2 && true) || b1) != false ) {
-		print "boolean working\n";
-	}
-	if( (c1 == 'f') && ('f' == 'f') ) {
-		print "char working\n";
-	}
-	if( c2 != 'F' || b1 ) {
-		print "char working\n";
+	y:integer = 10;
+	z:integer = 5;
+	if(x >= z)
+		print "should be printed\n";
+	else
+	{
+		print "shouldn't be printed\n";
 	}
 
-	return;
+	if(y > x )
+	{
+		print "should be printed\n";
+	}
+	else
+	{
+		print "shouldn't be printed\n";
+	}
+	if(z == x )
+	{
+		print "should be printed\n";
+	}
+	else
+		print "shouldn't be printed\n";
+	
+	if(x <= y )
+	{
+		print "should be printed\n";
+	}
+	else
+	{
+		print "shouldn't be printed\n";
+	}
+	if(x != y )
+	{
+		print "should be printed\n";
+	}
+	else
+	{
+		print "shouldn't be printed\n";
+	}
 
+
+	//switched now (statement should be false)
+	if(z < x )
+	{
+		print "shouldn't be printed\n";
+	}
+	else
+	{
+		print "should be printed\n";
+	}
+
+	if(y < x )
+	{
+		print "shouldn't be printed\n";
+	}
+	else
+	{
+		print "should be printed\n";
+	}
+	if(z != x )
+	{
+		print "shouldn't be printed\n";
+	}
+	else
+	{
+		print "should be printed\n";
+	}
+	
+	if(y <= x )
+	{
+		print "shouldn't be printed\n";
+	}
+	else
+	{
+		print "should be printed\n";
+	}
+	if(y == x )
+	{
+		print "shouldn't be printed\n";
+	}
+	else
+	{
+		print "should be printed\n";
+	}
 }
 
 /*
 .arch armv8-a
 .file   "output.s"
 
+.data
+        .global x
+x:      .word 5
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-96]!
-                mov     x9, #1
+                stp     x29, x30, [sp, #-80]!
+                mov     x9, #10
                 str     x9, [sp, 16]
-                mov     x9, #0
+                mov     x9, #5
                 str     x9, [sp, 24]
-                mov     x9, #102
-                str     x9, [sp, 32]
-                mov     x9, #70
-                str     x9, [sp, 40]
-                ldr     x9, [sp, 24]
-                mov     x10, #1
-                and     x10, x9, x10
-                ldr     x9, [sp, 16]
-                orr     x9, x10, x9
-                mov     x10, #1
+                ldr     x9, x
+                ldr     x10, [sp, 24]
                 cmp     x9, x10
-                b.eq    .LCOND1
+                b.ge    .LCOND1
                 mov     x10, 0
                 b       .LCOND2
         .LCOND1:
@@ -59,29 +119,37 @@ main:function void () =
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
+                b       .LSTMT2
         .LSTMT1:
-                ldr     x9, [sp, 24]
-                mov     x10, #1
-                and     x10, x9, x10
+                adrp    x9, .LSLIT2
+                add     x9, x9, :lo12:.LSLIT2
+                mov     x0, x9
+                bl      print_string
+        .LSTMT2:
                 ldr     x9, [sp, 16]
-                orr     x9, x10, x9
-                mov     x10, #0
+                ldr     x10, x
                 cmp     x9, x10
-                b.ne    .LCOND3
+                b.gt    .LCOND3
                 mov     x10, 0
                 b       .LCOND4
         .LCOND3:
                 mov     x10, 1
         .LCOND4:
                 cmp     x10, 0
-                b.eq    .LSTMT2
-                adrp    x9, .LSLIT2
-                add     x9, x9, :lo12:.LSLIT2
+                b.eq    .LSTMT3
+                adrp    x9, .LSLIT3
+                add     x9, x9, :lo12:.LSLIT3
                 mov     x0, x9
                 bl      print_string
-        .LSTMT2:
-                ldr     x9, [sp, 32]
-                mov     x10, #102
+                b       .LSTMT4
+        .LSTMT3:
+                adrp    x9, .LSLIT4
+                add     x9, x9, :lo12:.LSLIT4
+                mov     x0, x9
+                bl      print_string
+        .LSTMT4:
+                ldr     x9, [sp, 24]
+                ldr     x10, x
                 cmp     x9, x10
                 b.eq    .LCOND5
                 mov     x10, 0
@@ -89,25 +157,43 @@ main:function void () =
         .LCOND5:
                 mov     x10, 1
         .LCOND6:
-                mov     x9, #102
-                mov     x11, #102
-                cmp     x9, x11
-                b.eq    .LCOND7
-                mov     x11, 0
-                b       .LCOND8
-        .LCOND7:
-                mov     x11, 1
-        .LCOND8:
-                and     x11, x10, x11
-                cmp     x11, 0
-                b.eq    .LSTMT3
-                adrp    x9, .LSLIT3
-                add     x9, x9, :lo12:.LSLIT3
+                cmp     x10, 0
+                b.eq    .LSTMT5
+                adrp    x9, .LSLIT5
+                add     x9, x9, :lo12:.LSLIT5
                 mov     x0, x9
                 bl      print_string
-        .LSTMT3:
-                ldr     x9, [sp, 40]
-                mov     x10, #70
+                b       .LSTMT6
+        .LSTMT5:
+                adrp    x9, .LSLIT6
+                add     x9, x9, :lo12:.LSLIT6
+                mov     x0, x9
+                bl      print_string
+        .LSTMT6:
+                ldr     x9, x
+                ldr     x10, [sp, 16]
+                cmp     x9, x10
+                b.le    .LCOND7
+                mov     x10, 0
+                b       .LCOND8
+        .LCOND7:
+                mov     x10, 1
+        .LCOND8:
+                cmp     x10, 0
+                b.eq    .LSTMT7
+                adrp    x9, .LSLIT7
+                add     x9, x9, :lo12:.LSLIT7
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT8
+        .LSTMT7:
+                adrp    x9, .LSLIT8
+                add     x9, x9, :lo12:.LSLIT8
+                mov     x0, x9
+                bl      print_string
+        .LSTMT8:
+                ldr     x9, x
+                ldr     x10, [sp, 16]
                 cmp     x9, x10
                 b.ne    .LCOND9
                 mov     x10, 0
@@ -115,33 +201,209 @@ main:function void () =
         .LCOND9:
                 mov     x10, 1
         .LCOND10:
-                ldr     x9, [sp, 16]
-                orr     x9, x10, x9
-                cmp     x9, 0
-                b.eq    .LSTMT4
-                adrp    x10, .LSLIT4
-                add     x10, x10, :lo12:.LSLIT4
-                mov     x0, x10
+                cmp     x10, 0
+                b.eq    .LSTMT9
+                adrp    x9, .LSLIT9
+                add     x9, x9, :lo12:.LSLIT9
+                mov     x0, x9
                 bl      print_string
-        .LSTMT4:
-                ldp     x29, x30, [sp], #96
-                ret
-                ldp     x29, x30, [sp], #96
+                b       .LSTMT10
+        .LSTMT9:
+                adrp    x9, .LSLIT10
+                add     x9, x9, :lo12:.LSLIT10
+                mov     x0, x9
+                bl      print_string
+        .LSTMT10:
+                ldr     x9, [sp, 24]
+                ldr     x10, x
+                cmp     x9, x10
+                b.lt    .LCOND11
+                mov     x10, 0
+                b       .LCOND12
+        .LCOND11:
+                mov     x10, 1
+        .LCOND12:
+                cmp     x10, 0
+                b.eq    .LSTMT11
+                adrp    x9, .LSLIT11
+                add     x9, x9, :lo12:.LSLIT11
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT12
+        .LSTMT11:
+                adrp    x9, .LSLIT12
+                add     x9, x9, :lo12:.LSLIT12
+                mov     x0, x9
+                bl      print_string
+        .LSTMT12:
+                ldr     x9, [sp, 16]
+                ldr     x10, x
+                cmp     x9, x10
+                b.lt    .LCOND13
+                mov     x10, 0
+                b       .LCOND14
+        .LCOND13:
+                mov     x10, 1
+        .LCOND14:
+                cmp     x10, 0
+                b.eq    .LSTMT13
+                adrp    x9, .LSLIT13
+                add     x9, x9, :lo12:.LSLIT13
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT14
+        .LSTMT13:
+                adrp    x9, .LSLIT14
+                add     x9, x9, :lo12:.LSLIT14
+                mov     x0, x9
+                bl      print_string
+        .LSTMT14:
+                ldr     x9, [sp, 24]
+                ldr     x10, x
+                cmp     x9, x10
+                b.ne    .LCOND15
+                mov     x10, 0
+                b       .LCOND16
+        .LCOND15:
+                mov     x10, 1
+        .LCOND16:
+                cmp     x10, 0
+                b.eq    .LSTMT15
+                adrp    x9, .LSLIT15
+                add     x9, x9, :lo12:.LSLIT15
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT16
+        .LSTMT15:
+                adrp    x9, .LSLIT16
+                add     x9, x9, :lo12:.LSLIT16
+                mov     x0, x9
+                bl      print_string
+        .LSTMT16:
+                ldr     x9, [sp, 16]
+                ldr     x10, x
+                cmp     x9, x10
+                b.le    .LCOND17
+                mov     x10, 0
+                b       .LCOND18
+        .LCOND17:
+                mov     x10, 1
+        .LCOND18:
+                cmp     x10, 0
+                b.eq    .LSTMT17
+                adrp    x9, .LSLIT17
+                add     x9, x9, :lo12:.LSLIT17
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT18
+        .LSTMT17:
+                adrp    x9, .LSLIT18
+                add     x9, x9, :lo12:.LSLIT18
+                mov     x0, x9
+                bl      print_string
+        .LSTMT18:
+                ldr     x9, [sp, 16]
+                ldr     x10, x
+                cmp     x9, x10
+                b.eq    .LCOND19
+                mov     x10, 0
+                b       .LCOND20
+        .LCOND19:
+                mov     x10, 1
+        .LCOND20:
+                cmp     x10, 0
+                b.eq    .LSTMT19
+                adrp    x9, .LSLIT19
+                add     x9, x9, :lo12:.LSLIT19
+                mov     x0, x9
+                bl      print_string
+                b       .LSTMT20
+        .LSTMT19:
+                adrp    x9, .LSLIT20
+                add     x9, x9, :lo12:.LSLIT20
+                mov     x0, x9
+                bl      print_string
+        .LSTMT20:
+                ldp     x29, x30, [sp], #80
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "boolean working\n"
+        .string "should be printed\n"
         .section        .rodata
         .align 8
 .LSLIT2:
-        .string "boolean working\n"
+        .string "shouldn't be printed\n"
         .section        .rodata
         .align 8
 .LSLIT3:
-        .string "char working\n"
+        .string "should be printed\n"
         .section        .rodata
         .align 8
 .LSLIT4:
-        .string "char working\n"
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT5:
+        .string "should be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT6:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT7:
+        .string "should be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT8:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT9:
+        .string "should be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT10:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT11:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT12:
+        .string "should be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT13:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT14:
+        .string "should be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT15:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT16:
+        .string "should be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT17:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT18:
+        .string "should be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT19:
+        .string "shouldn't be printed\n"
+        .section        .rodata
+        .align 8
+.LSLIT20:
+        .string "should be printed\n"
 */
