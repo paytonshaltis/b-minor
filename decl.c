@@ -370,6 +370,8 @@ void decl_codegen(struct decl* d) {
     char strBuffer[300];
     int numParams;
     int numLocals;
+    int final;
+    int tempReg;
 
     // if there are no more declarations
     if(d == NULL) {
@@ -443,7 +445,7 @@ void decl_codegen(struct decl* d) {
             if(d->symbol->kind == SYMBOL_GLOBAL) {
 
                 printf(".data\n\t.global %s\n\t.align 8\n%s:\t.string ", d->name, d->name);
-                if(d->value) 
+                if(d->value)
                     expr_print(d->value);
                 else
                     printf("\"\\0\"");
@@ -457,8 +459,43 @@ void decl_codegen(struct decl* d) {
                 // unique label number will come from 'which'
                 memset(strBuffer, 0, 300);
                 d->symbol->which = var_label_create();
-                if(d->value != NULL)
-                    sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string %s\n", var_label_name(d->symbol->which), d->value->string_literal);
+                if(d->value != NULL) {
+
+                    // if that value is a string literal, print that
+                    if(d->value->string_literal != NULL) {
+                        sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string %s\n", var_label_name(d->symbol->which), d->value->string_literal);
+                    }
+
+                    // if that value is a string variable name, we have to print its value
+                    if(d->value->kind == EXPR_NAME) {
+                        
+                        // still store its label, this time empty
+                        sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\\0\"\n", var_label_name(d->symbol->which));
+                        
+                        /* now we need to do like a normal assign for this string using the label above */
+
+                        // generate code to get the righmost string into a register
+                        expr_codegen(d->value);
+
+                        // generate code to get the left string into a register (manually using its label)
+                        tempReg = scratch_alloc();
+                        printf("\t\tadrp\t%s, %s\n", scratch_name(tempReg), var_label_name(d->symbol->which));
+                        printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(tempReg), scratch_name(tempReg), var_label_name(d->symbol->which));
+
+                        // need to move every character from right to left string
+                        for(int i = 0; i < 29; i++) {
+                            printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(d->value->reg), i);
+                            printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), i);
+                            final = i + 1;
+                        }
+                        printf("\t\tmov\tw0, 0\n");
+                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), final);
+
+                        // free up the two registers used
+                        scratch_free(d->value->reg);
+                        scratch_free(tempReg);
+                    }
+                }
                 else
                     sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\\0\"\n", var_label_name(d->symbol->which));
 
