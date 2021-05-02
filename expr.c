@@ -953,6 +953,8 @@ void expr_codegen(struct expr* e) {
     struct expr* tempe2;
     int paramRegCount;
     int final;
+    int trueLabel;
+    int doneLabel;
 
     // if the expression is NULL, we should return
     if(e == NULL) {
@@ -1450,6 +1452,37 @@ void expr_codegen(struct expr* e) {
                 }
 
             }
+
+        break;
+
+        case EXPR_GREATER:
+
+            // store the left and right expressions in free registers
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+
+            // create a true and done label
+            trueLabel = cond_label_create();
+            doneLabel = cond_label_create();
+
+            // print out the execution flow for EXPR_GREATER expressions
+            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tb.gt\t%s\n", cond_label_name(trueLabel));
+
+            // this is the false condition
+            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+
+            // this is the true condition
+            printf("\t%s:\n", cond_label_name(trueLabel));
+            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+
+            // this is the end of the conditional
+            printf("\t%s:\n", cond_label_name(doneLabel));
+
+            // this expression takes over the right register, free the left
+            scratch_free(e->left->reg);
+            e->reg = e->right->reg;
 
         break;
 

@@ -12,4 +12,7 @@ const char* var_label_name(int label);
 int lit_label_create();
 const char* lit_label_name(int label);
 
+int cond_label_create();
+const char* cond_label_name(int label);
+
 #endif
