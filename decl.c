@@ -442,11 +442,11 @@ void decl_codegen(struct decl* d) {
             // in case of a global string
             if(d->symbol->kind == SYMBOL_GLOBAL) {
 
-                printf(".data\n\t.global %s\n\t.align 3\n%s:\t.string ", d->name, d->name);
+                printf(".data\n\t.global %s\n\t.align 8\n%s:\t.string ", d->name, d->name);
                 if(d->value) 
                     expr_print(d->value);
                 else
-                    printf("\"\"");
+                    printf("\"\0\"");
                 printf("\n");
             }
 
@@ -459,7 +459,7 @@ void decl_codegen(struct decl* d) {
                 if(d->value != NULL)
                     sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
                 else
-                    sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\"\n", label_name(d->symbol->which));
+                    sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\0\"\n", label_name(d->symbol->which));
 
                 // store this into the array of strings that will be printed at the end of the function
                 for(int i = 0; i < 300; i++) {
