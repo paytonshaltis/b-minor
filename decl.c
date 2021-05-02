@@ -446,7 +446,7 @@ void decl_codegen(struct decl* d) {
                 if(d->value) 
                     expr_print(d->value);
                 else
-                    printf("\"\0\"");
+                    printf("\"\\0\"");
                 printf("\n");
             }
 
@@ -456,10 +456,11 @@ void decl_codegen(struct decl* d) {
                 
                 // unique label number will come from 'which'
                 memset(strBuffer, 0, 300);
+                d->symbol->which = var_label_create();
                 if(d->value != NULL)
-                    sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string %s\n", label_name(d->symbol->which), d->value->string_literal);
+                    sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string %s\n", var_label_name(d->symbol->which), d->value->string_literal);
                 else
-                    sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\0\"\n", label_name(d->symbol->which));
+                    sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\\0\"\n", var_label_name(d->symbol->which));
 
                 // store this into the array of strings that will be printed at the end of the function
                 for(int i = 0; i < 300; i++) {

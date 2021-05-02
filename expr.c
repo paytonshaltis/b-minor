@@ -978,8 +978,8 @@ void expr_codegen(struct expr* e) {
             // for local string variables (using labels)
             if(e->symbol->type->kind == TYPE_STRING && e->symbol->kind == SYMBOL_LOCAL) {
                 e->reg = scratch_alloc();
-                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), label_name(e->symbol->which));
-                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), label_name(e->symbol->which));
+                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), var_label_name(e->symbol->which));
+                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), var_label_name(e->symbol->which));
                 break;
             }
 
