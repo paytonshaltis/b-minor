@@ -1,18 +1,15 @@
 main:function void () =
 {
-	i : integer;
+	x : integer = -54;
 
-	for(i = 0; i < 10; i++) {
-		
-		if(i > 5) {
-			print i, " is greater than 5\n";
-		}
-		else if(i < 5) {
-			print i, " is less than 5\n";
-		}
-		else {
-			print i, " is equal to 5\n";
-		}
+	if(x == -9 * 6) {
+		print "they are equal!\n";
+	}
+	else if(x != -6 * 9) {
+		print "they are NOT equal!\n";
+	}
+	else {
+		print "something doesn't work...\n";
 	}
 
 	return;
@@ -27,73 +24,54 @@ main:function void () =
         .global main
         main:
                 stp     x29, x30, [sp, #-72]!
-                mov     x9, #0
+                mov     x9, #54
+                neg     x9, x9
                 str     x9, [sp, 16]
-        .LSTMT1:
                 ldr     x9, [sp, 16]
-                mov     x10, #10
-                cmp     x9, x10
-                b.lt    .LCOND1
-                mov     x10, 0
+                mov     x10, #9
+                neg     x10, x10
+                mov     x11, #6
+                mul     x11, x10, x11
+                cmp     x9, x11
+                b.eq    .LCOND1
+                mov     x11, 0
                 b       .LCOND2
         .LCOND1:
-                mov     x10, 1
+                mov     x11, 1
         .LCOND2:
-                cmp     x10, 0
-                b.eq    .LSTMT2
-                ldr     x9, [sp, 16]
-                mov     x10, #5
-                cmp     x9, x10
-                b.gt    .LCOND3
-                mov     x10, 0
-                b       .LCOND4
-        .LCOND3:
-                mov     x10, 1
-        .LCOND4:
-                cmp     x10, 0
-                b.eq    .LSTMT3
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_integer
+                cmp     x11, 0
+                b.eq    .LSTMT1
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
-                b       .LSTMT4
-        .LSTMT3:
+                b       .LSTMT2
+        .LSTMT1:
                 ldr     x9, [sp, 16]
-                mov     x11, #5
-                cmp     x9, x11
-                b.lt    .LCOND5
-                mov     x11, 0
-                b       .LCOND6
-        .LCOND5:
-                mov     x11, 1
-        .LCOND6:
-                cmp     x11, 0
-                b.eq    .LSTMT5
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_integer
+                mov     x10, #6
+                neg     x10, x10
+                mov     x12, #9
+                mul     x12, x10, x12
+                cmp     x9, x12
+                b.ne    .LCOND3
+                mov     x12, 0
+                b       .LCOND4
+        .LCOND3:
+                mov     x12, 1
+        .LCOND4:
+                cmp     x12, 0
+                b.eq    .LSTMT3
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-                b       .LSTMT6
-        .LSTMT5:
-                ldr     x9, [sp, 16]
-                mov     x0, x9
-                bl      print_integer
+                b       .LSTMT4
+        .LSTMT3:
                 adrp    x9, .LSLIT3
                 add     x9, x9, :lo12:.LSLIT3
                 mov     x0, x9
                 bl      print_string
-        .LSTMT6:
         .LSTMT4:
-                ldr     x9, [sp, 16]
-                add     x9, x9, 1
-                str     x9, [sp, 16]
-                b       .LSTMT1
         .LSTMT2:
                 ldp     x29, x30, [sp], #72
                 ret
@@ -102,13 +80,13 @@ main:function void () =
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string " is greater than 5\n"
+        .string "they are equal!\n"
         .section        .rodata
         .align 8
 .LSLIT2:
-        .string " is less than 5\n"
+        .string "they are NOT equal!\n"
         .section        .rodata
         .align 8
 .LSLIT3:
-        .string " is equal to 5\n"
+        .string "something doesn't work...\n"
 */

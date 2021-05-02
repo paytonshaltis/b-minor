@@ -1112,7 +1112,6 @@ void expr_codegen(struct expr* e) {
         case EXPR_NEG:
             expr_codegen(e->left);
             printf("\t\tneg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
-            printf("\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
         break;
 
@@ -1579,6 +1578,84 @@ void expr_codegen(struct expr* e) {
             // this expression takes over the right register, free the left
             scratch_free(e->left->reg);
             e->reg = e->right->reg;
+
+        break;
+
+        case EXPR_EQUAL:
+
+            // if we are comparing two strings
+            if((e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_STRING) || e->left->kind == EXPR_STRINGLIT) {
+                printf("STRING EQUALITY\n");
+            }
+
+            // if we are comparing two non-strings
+            else {
+                // store the left and right expressions in free registers
+                expr_codegen(e->left);
+                expr_codegen(e->right);
+
+                // create a true and done label
+                trueLabel = cond_label_create();
+                doneLabel = cond_label_create();
+
+                // print out the execution flow for EXPR_EQUAL expressions
+                printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+                printf("\t\tb.eq\t%s\n", cond_label_name(trueLabel));
+
+                // this is the false condition
+                printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+                printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+
+                // this is the true condition
+                printf("\t%s:\n", cond_label_name(trueLabel));
+                printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+
+                // this is the end of the conditional
+                printf("\t%s:\n", cond_label_name(doneLabel));
+
+                // this expression takes over the right register, free the left
+                scratch_free(e->left->reg);
+                e->reg = e->right->reg;
+            }
+
+        break;
+
+        case EXPR_NEQUAL:
+
+            // if we are comparing two strings
+            if((e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_STRING) || e->left->kind == EXPR_STRINGLIT) {
+                printf("STRING NEQUALITY\n");
+            }
+
+            // if we are comparing two non-strings
+            else {
+                // store the left and right expressions in free registers
+                expr_codegen(e->left);
+                expr_codegen(e->right);
+
+                // create a true and done label
+                trueLabel = cond_label_create();
+                doneLabel = cond_label_create();
+
+                // print out the execution flow for EXPR_NEQUAL expressions
+                printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+                printf("\t\tb.ne\t%s\n", cond_label_name(trueLabel));
+
+                // this is the false condition
+                printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+                printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+
+                // this is the true condition
+                printf("\t%s:\n", cond_label_name(trueLabel));
+                printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+
+                // this is the end of the conditional
+                printf("\t%s:\n", cond_label_name(doneLabel));
+
+                // this expression takes over the right register, free the left
+                scratch_free(e->left->reg);
+                e->reg = e->right->reg;
+            }
 
         break;
 
