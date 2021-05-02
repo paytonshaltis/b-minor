@@ -12,11 +12,12 @@ Here is a list of what is currently implemented:
   - Printing single and multiple expressions in a single line
   - Returning a value from a function
   - Function calls of sizes 0-6 (properly throws error of more than 6)
+  - All conditional expressions other than Equals and Not Equals
 
 Here is a list of what is currently NOT implemented:
   - Global declaration of single-dimensional arrays
   - Accessing global single-dimensional arrays
-  - Conditional expressions (greater, less, equals, etc.)
+  - Equals and Not Equals conditional expressions
   - If-statements and for-loops
 
 Needless to say, much testing is still required to make sure that all of the implemented and soon-to-be implemented components work correctly together, but I believe that I should be able to get the rest of these components of the language implemented by next Friday for final submission.
