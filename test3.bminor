@@ -260,35 +260,35 @@ str4:   .string ""
                 ldp     x29, x30, [sp], #88
                 ret
         .section        .data
-        .align 3
+        .align 8
 .LS0:
         .string "\0"
         .section        .data
-        .align 3
+        .align 8
 .LS1:
         .string "e"
         .section        .data
-        .align 3
+        .align 8
 .LS2:
         .string "f"
         .section        .rodata
-        .align 3
+        .align 8
 .LT1:
         .string "this is my string literal!"
         .section        .rodata
-        .align 3
+        .align 8
 .LT2:
         .string "\n"
         .section        .rodata
-        .align 3
+        .align 8
 .LT3:
         .string "\n"
         .section        .rodata
-        .align 3
+        .align 8
 .LT4:
         .string "\n"
         .section        .rodata
-        .align 3
+        .align 8
 .LT5:
         .string "\n"
 */
