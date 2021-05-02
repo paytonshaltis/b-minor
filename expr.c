@@ -1486,6 +1486,99 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        case EXPR_GE:
+
+            // store the left and right expressions in free registers
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+
+            // create a true and done label
+            trueLabel = cond_label_create();
+            doneLabel = cond_label_create();
+
+            // print out the execution flow for EXPR_GE expressions
+            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tb.ge\t%s\n", cond_label_name(trueLabel));
+
+            // this is the false condition
+            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+
+            // this is the true condition
+            printf("\t%s:\n", cond_label_name(trueLabel));
+            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+
+            // this is the end of the conditional
+            printf("\t%s:\n", cond_label_name(doneLabel));
+
+            // this expression takes over the right register, free the left
+            scratch_free(e->left->reg);
+            e->reg = e->right->reg;
+
+        break;
+
+        case EXPR_LESS:
+
+            // store the left and right expressions in free registers
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+
+            // create a true and done label
+            trueLabel = cond_label_create();
+            doneLabel = cond_label_create();
+
+            // print out the execution flow for EXPR_LESS expressions
+            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tb.lt\t%s\n", cond_label_name(trueLabel));
+
+            // this is the false condition
+            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+
+            // this is the true condition
+            printf("\t%s:\n", cond_label_name(trueLabel));
+            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+
+            // this is the end of the conditional
+            printf("\t%s:\n", cond_label_name(doneLabel));
+
+            // this expression takes over the right register, free the left
+            scratch_free(e->left->reg);
+            e->reg = e->right->reg;
+
+        break;
+
+        case EXPR_LE:
+
+            // store the left and right expressions in free registers
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+
+            // create a true and done label
+            trueLabel = cond_label_create();
+            doneLabel = cond_label_create();
+
+            // print out the execution flow for EXPR_LE expressions
+            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            printf("\t\tb.le\t%s\n", cond_label_name(trueLabel));
+
+            // this is the false condition
+            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+
+            // this is the true condition
+            printf("\t%s:\n", cond_label_name(trueLabel));
+            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+
+            // this is the end of the conditional
+            printf("\t%s:\n", cond_label_name(doneLabel));
+
+            // this expression takes over the right register, free the left
+            scratch_free(e->left->reg);
+            e->reg = e->right->reg;
+
+        break;
+
         case EXPR_ARGS:
         case EXPR_CURLS:
         case EXPR_BRACKET:
