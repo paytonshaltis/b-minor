@@ -1097,19 +1097,22 @@ void expr_codegen(struct expr* e) {
 
         case EXPR_INC:
             expr_codegen(e->left);
-            printf("\t\tadd\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
         break;
 
         case EXPR_DEC:
             expr_codegen(e->left);
-            printf("\t\tsub\t%s, %s, #1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tsub\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
         break;
 
         case EXPR_NEG:
             expr_codegen(e->left);
             printf("\t\tneg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            printf("\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
         break;
 

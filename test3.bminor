@@ -91,9 +91,10 @@ main:function void () =
         .LSTMT6:
         .LSTMT4:
                 ldr     x9, [sp, 16]
-                add     x9, x9, #1
+                add     x9, x9, 1
+                str     x9, [sp, 16]
                 b       .LSTMT1
-        .LSTMT2
+        .LSTMT2:
                 ldp     x29, x30, [sp], #72
                 ret
                 ldp     x29, x30, [sp], #72

@@ -656,7 +656,7 @@ void stmt_codegen(struct stmt* s) {
             printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
 
             // print the done label for escaping the loop
-            printf("\t%s\n", stmt_label_name(doneLabel));
+            printf("\t%s:\n", stmt_label_name(doneLabel));
 
         break;
 
