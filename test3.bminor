@@ -3,18 +3,18 @@ str4:string;
 
 main:function integer () =
 {
-	str1:string;
+	str1:string = "\0";
 	str2:string;
 	str3:string;
 
-	str1 = str2 = str3 = str4 = strG;
+	str1 = strG = str4 = "this is my string literal!";
 
 	print str1, "\n", str2, "\n", str3, "\n", str4, "\n", strG;
 
 }
 
 /*
-arch armv8-a
+.arch armv8-a
 .file   "output.s"
 
 .data
@@ -29,8 +29,8 @@ str4:   .string ""
         .global main
         main:
                 stp     x29, x30, [sp, #-88]!
-                adrp    x9, strG
-                add     x9, x9, :lo12:strG
+                adrp    x9, .LT1
+                add     x9, x9, :lo12:.LT1
                 adrp    x10, str4
                 add     x10, x10, :lo12:str4
                 ldrb    w0, [x9, 0]
@@ -43,12 +43,60 @@ str4:   .string ""
                 strb    w0, [x10, 3]
                 ldrb    w0, [x9, 4]
                 strb    w0, [x10, 4]
-                mov     w0, 0
+                ldrb    w0, [x9, 5]
                 strb    w0, [x10, 5]
+                ldrb    w0, [x9, 6]
+                strb    w0, [x10, 6]
+                ldrb    w0, [x9, 7]
+                strb    w0, [x10, 7]
+                ldrb    w0, [x9, 8]
+                strb    w0, [x10, 8]
+                ldrb    w0, [x9, 9]
+                strb    w0, [x10, 9]
+                ldrb    w0, [x9, 10]
+                strb    w0, [x10, 10]
+                ldrb    w0, [x9, 11]
+                strb    w0, [x10, 11]
+                ldrb    w0, [x9, 12]
+                strb    w0, [x10, 12]
+                ldrb    w0, [x9, 13]
+                strb    w0, [x10, 13]
+                ldrb    w0, [x9, 14]
+                strb    w0, [x10, 14]
+                ldrb    w0, [x9, 15]
+                strb    w0, [x10, 15]
+                ldrb    w0, [x9, 16]
+                strb    w0, [x10, 16]
+                ldrb    w0, [x9, 17]
+                strb    w0, [x10, 17]
+                ldrb    w0, [x9, 18]
+                strb    w0, [x10, 18]
+                ldrb    w0, [x9, 19]
+                strb    w0, [x10, 19]
+                ldrb    w0, [x9, 20]
+                strb    w0, [x10, 20]
+                ldrb    w0, [x9, 21]
+                strb    w0, [x10, 21]
+                ldrb    w0, [x9, 22]
+                strb    w0, [x10, 22]
+                ldrb    w0, [x9, 23]
+                strb    w0, [x10, 23]
+                ldrb    w0, [x9, 24]
+                strb    w0, [x10, 24]
+                ldrb    w0, [x9, 25]
+                strb    w0, [x10, 25]
+                ldrb    w0, [x9, 26]
+                strb    w0, [x10, 26]
+                ldrb    w0, [x9, 27]
+                strb    w0, [x10, 27]
+                ldrb    w0, [x9, 28]
+                strb    w0, [x10, 28]
+                mov     w0, 0
+                strb    w0, [x10, 29]
                 adrp    x9, str4
                 add     x9, x9, :lo12:str4
-                adrp    x10, .LS2
-                add     x10, x10, :lo12:.LS2
+                adrp    x10, strG
+                add     x10, x10, :lo12:strG
                 ldrb    w0, [x9, 0]
                 strb    w0, [x10, 0]
                 ldrb    w0, [x9, 1]
@@ -59,26 +107,58 @@ str4:   .string ""
                 strb    w0, [x10, 3]
                 ldrb    w0, [x9, 4]
                 strb    w0, [x10, 4]
-                mov     w0, 0
+                ldrb    w0, [x9, 5]
                 strb    w0, [x10, 5]
-                adrp    x9, .LS2
-                add     x9, x9, :lo12:.LS2
-                adrp    x10, .LS1
-                add     x10, x10, :lo12:.LS1
-                ldrb    w0, [x9, 0]
-                strb    w0, [x10, 0]
-                ldrb    w0, [x9, 1]
-                strb    w0, [x10, 1]
-                ldrb    w0, [x9, 2]
-                strb    w0, [x10, 2]
-                ldrb    w0, [x9, 3]
-                strb    w0, [x10, 3]
-                ldrb    w0, [x9, 4]
-                strb    w0, [x10, 4]
+                ldrb    w0, [x9, 6]
+                strb    w0, [x10, 6]
+                ldrb    w0, [x9, 7]
+                strb    w0, [x10, 7]
+                ldrb    w0, [x9, 8]
+                strb    w0, [x10, 8]
+                ldrb    w0, [x9, 9]
+                strb    w0, [x10, 9]
+                ldrb    w0, [x9, 10]
+                strb    w0, [x10, 10]
+                ldrb    w0, [x9, 11]
+                strb    w0, [x10, 11]
+                ldrb    w0, [x9, 12]
+                strb    w0, [x10, 12]
+                ldrb    w0, [x9, 13]
+                strb    w0, [x10, 13]
+                ldrb    w0, [x9, 14]
+                strb    w0, [x10, 14]
+                ldrb    w0, [x9, 15]
+                strb    w0, [x10, 15]
+                ldrb    w0, [x9, 16]
+                strb    w0, [x10, 16]
+                ldrb    w0, [x9, 17]
+                strb    w0, [x10, 17]
+                ldrb    w0, [x9, 18]
+                strb    w0, [x10, 18]
+                ldrb    w0, [x9, 19]
+                strb    w0, [x10, 19]
+                ldrb    w0, [x9, 20]
+                strb    w0, [x10, 20]
+                ldrb    w0, [x9, 21]
+                strb    w0, [x10, 21]
+                ldrb    w0, [x9, 22]
+                strb    w0, [x10, 22]
+                ldrb    w0, [x9, 23]
+                strb    w0, [x10, 23]
+                ldrb    w0, [x9, 24]
+                strb    w0, [x10, 24]
+                ldrb    w0, [x9, 25]
+                strb    w0, [x10, 25]
+                ldrb    w0, [x9, 26]
+                strb    w0, [x10, 26]
+                ldrb    w0, [x9, 27]
+                strb    w0, [x10, 27]
+                ldrb    w0, [x9, 28]
+                strb    w0, [x10, 28]
                 mov     w0, 0
-                strb    w0, [x10, 5]
-                adrp    x9, .LS1
-                add     x9, x9, :lo12:.LS1
+                strb    w0, [x10, 29]
+                adrp    x9, strG
+                add     x9, x9, :lo12:strG
                 adrp    x10, .LS0
                 add     x10, x10, :lo12:.LS0
                 ldrb    w0, [x9, 0]
@@ -91,38 +171,86 @@ str4:   .string ""
                 strb    w0, [x10, 3]
                 ldrb    w0, [x9, 4]
                 strb    w0, [x10, 4]
-                mov     w0, 0
+                ldrb    w0, [x9, 5]
                 strb    w0, [x10, 5]
+                ldrb    w0, [x9, 6]
+                strb    w0, [x10, 6]
+                ldrb    w0, [x9, 7]
+                strb    w0, [x10, 7]
+                ldrb    w0, [x9, 8]
+                strb    w0, [x10, 8]
+                ldrb    w0, [x9, 9]
+                strb    w0, [x10, 9]
+                ldrb    w0, [x9, 10]
+                strb    w0, [x10, 10]
+                ldrb    w0, [x9, 11]
+                strb    w0, [x10, 11]
+                ldrb    w0, [x9, 12]
+                strb    w0, [x10, 12]
+                ldrb    w0, [x9, 13]
+                strb    w0, [x10, 13]
+                ldrb    w0, [x9, 14]
+                strb    w0, [x10, 14]
+                ldrb    w0, [x9, 15]
+                strb    w0, [x10, 15]
+                ldrb    w0, [x9, 16]
+                strb    w0, [x10, 16]
+                ldrb    w0, [x9, 17]
+                strb    w0, [x10, 17]
+                ldrb    w0, [x9, 18]
+                strb    w0, [x10, 18]
+                ldrb    w0, [x9, 19]
+                strb    w0, [x10, 19]
+                ldrb    w0, [x9, 20]
+                strb    w0, [x10, 20]
+                ldrb    w0, [x9, 21]
+                strb    w0, [x10, 21]
+                ldrb    w0, [x9, 22]
+                strb    w0, [x10, 22]
+                ldrb    w0, [x9, 23]
+                strb    w0, [x10, 23]
+                ldrb    w0, [x9, 24]
+                strb    w0, [x10, 24]
+                ldrb    w0, [x9, 25]
+                strb    w0, [x10, 25]
+                ldrb    w0, [x9, 26]
+                strb    w0, [x10, 26]
+                ldrb    w0, [x9, 27]
+                strb    w0, [x10, 27]
+                ldrb    w0, [x9, 28]
+                strb    w0, [x10, 28]
+                mov     w0, 0
+                strb    w0, [x10, 29]
                 adrp    x9, .LS0
                 add     x9, x9, :lo12:.LS0
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LT1
-                add     x9, x9, :lo12:.LT1
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LS1
-                add     x9, x9, :lo12:.LS1
                 mov     x0, x9
                 bl      print_string
                 adrp    x9, .LT2
                 add     x9, x9, :lo12:.LT2
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, .LS2
-                add     x9, x9, :lo12:.LS2
+                adrp    x9, .LS1
+                add     x9, x9, :lo12:.LS1
                 mov     x0, x9
                 bl      print_string
                 adrp    x9, .LT3
                 add     x9, x9, :lo12:.LT3
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, str4
-                add     x9, x9, :lo12:str4
+                adrp    x9, .LS2
+                add     x9, x9, :lo12:.LS2
                 mov     x0, x9
                 bl      print_string
                 adrp    x9, .LT4
                 add     x9, x9, :lo12:.LT4
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, str4
+                add     x9, x9, :lo12:str4
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, .LT5
+                add     x9, x9, :lo12:.LT5
                 mov     x0, x9
                 bl      print_string
                 adrp    x9, strG
@@ -132,9 +260,8 @@ str4:   .string ""
                 ldp     x29, x30, [sp], #88
                 ret
         .section        .data
-        .align 3
-.LS0:
-        .string ""
+        .align 3.LS0:
+        .string "\0"
         .section        .data
         .align 3
 .LS1:
@@ -146,7 +273,7 @@ str4:   .string ""
         .section        .rodata
         .align 3
 .LT1:
-        .string "\n"
+        .string "this is my string literal!"
         .section        .rodata
         .align 3
 .LT2:
@@ -158,5 +285,9 @@ str4:   .string ""
         .section        .rodata
         .align 3
 .LT4:
+        .string "\n"
+        .section        .rodata
+        .align 3
+.LT5:
         .string "\n"
 */
