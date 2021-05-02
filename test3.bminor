@@ -1,33 +1,34 @@
 /*
-Display fibonnaci numbers from 0 to 45.
-This test exercises the ability of your
-compiler to call recursive functions.
+This test program prints out a maze generated
+by alternating slash and backslash randomly.
+It relies on the rand, srand, and time functions
+found in the C standard library.
 */
 
-fib: function integer ( x: integer ) =
-{
-	if( x<1 ) {
-		return 0;
-	} else {
-		if(x<2) {
-			return 1;
-		} else {
-			return fib(x-1) + fib(x-2);
-		}
-	}
-}
+rand: function integer ();
+srand: function void ( seed: integer );
+time: function integer ( zero: integer );
 
-main: function integer ( argc: integer, argv: array [] string ) =
+main: function void () =
 {
+	xsize: integer = 20;
+	ysize: integer = 20;
+
+	srand(time(0));
+
 	i: integer;
-
-	print "Table of Fibonnacci Numbers\n";
-
-	for(i=0;i<30;i=i+1) {
-		print i, "\t", fib(i), "\n";
+	j: integer;
+	
+	for(j=0;j<ysize;j++) {
+		for(i=0;i<xsize;i++) {
+			if(rand()%2==1) {
+				print '/';
+			} else {
+				print '\\';
+			}
+		}
+		print "\n";
 	}
-
-	return 0;
 }
 
 /*
@@ -35,12 +36,53 @@ main: function integer ( argc: integer, argv: array [] string ) =
 .file   "output.s"
 
 .text
-        .global fib
-        fib:
-                stp     x29, x30, [sp, #-72]!
-                str     x0, [sp, 16]
-                ldr     x9, [sp, 16]
-                mov     x10, #1
+        .global main
+        main:
+                stp     x29, x30, [sp, #-96]!
+                mov     x9, #20
+                str     x9, [sp, 16]
+                mov     x9, #20
+                str     x9, [sp, 24]
+                str     x9, [sp, 48]
+                str     x10, [sp, 56]
+                str     x11, [sp, 64]
+                str     x12, [sp, 72]
+                str     x13, [sp, 80]
+                str     x14, [sp, 88]
+                str     x15, [sp, 96]
+                str     x9, [sp, 48]
+                str     x10, [sp, 56]
+                str     x11, [sp, 64]
+                str     x12, [sp, 72]
+                str     x13, [sp, 80]
+                str     x14, [sp, 88]
+                str     x15, [sp, 96]
+                mov     x9, #0
+                mov     x0, x9
+                bl      time
+                ldr     x9, [sp, 48]
+                ldr     x10, [sp, 56]
+                ldr     x11, [sp, 64]
+                ldr     x12, [sp, 72]
+                ldr     x13, [sp, 80]
+                ldr     x14, [sp, 88]
+                ldr     x15, [sp, 96]
+                mov     x9, x0
+                mov     x0, x9
+                bl      srand
+                ldr     x9, [sp, 48]
+                ldr     x10, [sp, 56]
+                ldr     x11, [sp, 64]
+                ldr     x12, [sp, 72]
+                ldr     x13, [sp, 80]
+                ldr     x14, [sp, 88]
+                ldr     x15, [sp, 96]
+                mov     x9, x0
+                mov     x9, #0
+                str     x9, [sp, 40]
+        .LSTMT1:
+                ldr     x9, [sp, 40]
+                ldr     x10, [sp, 24]
                 cmp     x9, x10
                 b.lt    .LCOND1
                 mov     x10, 0
@@ -49,156 +91,78 @@ main: function integer ( argc: integer, argv: array [] string ) =
                 mov     x10, 1
         .LCOND2:
                 cmp     x10, 0
-                b.eq    .LSTMT1
+                b.eq    .LSTMT2
                 mov     x9, #0
-                mov     x0, x9
-                ldp     x29, x30, [sp], #72
-                ret
-                b       .LSTMT2
-        .LSTMT1:
-                ldr     x9, [sp, 16]
-                mov     x11, #2
-                cmp     x9, x11
+                str     x9, [sp, 32]
+        .LSTMT3:
+                ldr     x9, [sp, 32]
+                ldr     x10, [sp, 16]
+                cmp     x9, x10
                 b.lt    .LCOND3
-                mov     x11, 0
+                mov     x10, 0
                 b       .LCOND4
         .LCOND3:
-                mov     x11, 1
+                mov     x10, 1
         .LCOND4:
-                cmp     x11, 0
-                b.eq    .LSTMT3
-                mov     x9, #1
-                mov     x0, x9
-                ldp     x29, x30, [sp], #72
-                ret
-                b       .LSTMT4
-        .LSTMT3:
-                str     x9, [sp, 24]
-                str     x10, [sp, 32]
-                str     x11, [sp, 40]
-                str     x12, [sp, 48]
-                str     x13, [sp, 56]
-                str     x14, [sp, 64]
-                str     x15, [sp, 72]
-                ldr     x9, [sp, 16]
-                mov     x12, #1
-                sub     x12, x9, x12
-                mov     x0, x12
-                bl      fib
-                ldr     x9, [sp, 24]
-                ldr     x10, [sp, 32]
-                ldr     x11, [sp, 40]
-                ldr     x12, [sp, 48]
-                ldr     x13, [sp, 56]
-                ldr     x14, [sp, 64]
-                ldr     x15, [sp, 72]
+                cmp     x10, 0
+                b.eq    .LSTMT4
+                str     x9, [sp, 48]
+                str     x10, [sp, 56]
+                str     x11, [sp, 64]
+                str     x12, [sp, 72]
+                str     x13, [sp, 80]
+                str     x14, [sp, 88]
+                str     x15, [sp, 96]
+                bl      rand
+                ldr     x9, [sp, 48]
+                ldr     x10, [sp, 56]
+                ldr     x11, [sp, 64]
+                ldr     x12, [sp, 72]
+                ldr     x13, [sp, 80]
+                ldr     x14, [sp, 88]
+                ldr     x15, [sp, 96]
                 mov     x9, x0
-                str     x9, [sp, 24]
-                str     x10, [sp, 32]
-                str     x11, [sp, 40]
-                str     x12, [sp, 48]
-                str     x13, [sp, 56]
-                str     x14, [sp, 64]
-                str     x15, [sp, 72]
-                ldr     x12, [sp, 16]
-                mov     x13, #2
-                sub     x13, x12, x13
-                mov     x0, x13
-                bl      fib
-                ldr     x9, [sp, 24]
-                ldr     x10, [sp, 32]
-                ldr     x11, [sp, 40]
-                ldr     x12, [sp, 48]
-                ldr     x13, [sp, 56]
-                ldr     x14, [sp, 64]
-                ldr     x15, [sp, 72]
-                mov     x12, x0
-                add     x12, x9, x12
-                mov     x0, x12
-                ldp     x29, x30, [sp], #72
-                ret
+                mov     x10, #2
+                udiv    x11, x9, x10
+                mul     x11, x10, x11
+                sub     x11, x9, x11
+                mov     x9, #1
+                cmp     x11, x9
+                b.eq    .LCOND5
+                mov     x9, 0
+                b       .LCOND6
+        .LCOND5:
+                mov     x9, 1
+        .LCOND6:
+                cmp     x9, 0
+                b.eq    .LSTMT5
+                mov     x10, #47
+                mov     x0, x10
+                bl      print_character
+                b       .LSTMT6
+        .LSTMT5:
+                mov     x10, #92
+                mov     x0, x10
+                bl      print_character
+        .LSTMT6:
+                ldr     x9, [sp, 32]
+                add     x9, x9, 1
+                str     x9, [sp, 32]
+                b       .LSTMT3
         .LSTMT4:
-        .LSTMT2:
-                ldp     x29, x30, [sp], #72
-                ret
-.text
-        .global main
-        main:
-                stp     x29, x30, [sp, #-88]!
-                str     x0, [sp, 16]
-                str     x1, [sp, 24]
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
-                mov     x9, #0
-                str     x9, [sp, 32]
-        .LSTMT5:
-                ldr     x9, [sp, 32]
-                mov     x10, #30
-                cmp     x9, x10
-                b.lt    .LCOND5
-                mov     x10, 0
-                b       .LCOND6
-        .LCOND5:
-                mov     x10, 1
-        .LCOND6:
-                cmp     x10, 0
-                b.eq    .LSTMT6
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LSLIT2
-                add     x9, x9, :lo12:.LSLIT2
-                mov     x0, x9
-                bl      print_string
-                str     x9, [sp, 40]
-                str     x10, [sp, 48]
-                str     x11, [sp, 56]
-                str     x12, [sp, 64]
-                str     x13, [sp, 72]
-                str     x14, [sp, 80]
-                str     x15, [sp, 88]
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      fib
                 ldr     x9, [sp, 40]
-                ldr     x10, [sp, 48]
-                ldr     x11, [sp, 56]
-                ldr     x12, [sp, 64]
-                ldr     x13, [sp, 72]
-                ldr     x14, [sp, 80]
-                ldr     x15, [sp, 88]
-                mov     x9, x0
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LSLIT3
-                add     x9, x9, :lo12:.LSLIT3
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 32]
-                mov     x10, #1
-                add     x10, x9, x10
-                str     x10, [sp, 32]
-                b       .LSTMT5
-        .LSTMT6:
-                mov     x9, #0
-                mov     x0, x9
-                ldp     x29, x30, [sp], #88
-                ret
-                ldp     x29, x30, [sp], #88
+                add     x9, x9, 1
+                str     x9, [sp, 40]
+                b       .LSTMT1
+        .LSTMT2:
+                ldp     x29, x30, [sp], #96
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "Table of Fibonnacci Numbers\n"
-        .section        .rodata
-        .align 8
-.LSLIT2:
-        .string "\t"
-        .section        .rodata
-        .align 8
-.LSLIT3:
         .string "\n"
 */
-
