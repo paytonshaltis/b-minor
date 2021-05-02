@@ -555,6 +555,27 @@ void decl_codegen(struct decl* d) {
             localsTPCounter = 0;
             
         break;
+
+        case TYPE_ARRAY:
+        
+            // print the special header for arrays
+            printf(".data\n");
+            printf("\t.global %s\n", d->name);
+            printf("\t.align 8\n");
+            printf("%s:\n", d->name);
+
+            // if the array was not initialized
+            if(d->value == NULL) {
+                
+                // use the size to print zeros for each element
+                for(int i = 0; i < d->type->size; i++) {
+
+                    printf("\t.word\t0\n");
+                }
+                    
+            }
+
+        break;
         
         case TYPE_PROTOTYPE:
         case TYPE_VOID:
