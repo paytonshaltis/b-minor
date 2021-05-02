@@ -1,15 +1,23 @@
 main:function void () =
 {
-	x : integer = -54;
 
-	if(x == -9 * 6) {
-		print "they are equal!\n";
+	b1 : boolean = true;
+	b2 : boolean = false;
+
+	c1 : char = 'f';
+	c2 : char = 'F';
+
+	if( ((b2 && true) || b1) == true ) {
+		print "boolean working\n";
 	}
-	else if(x != -6 * 9) {
-		print "they are NOT equal!\n";
+	if( ((b2 && true) || b1) != false ) {
+		print "boolean working\n";
 	}
-	else {
-		print "something doesn't work...\n";
+	if( (c1 == 'f') && ('f' == 'f') ) {
+		print "char working\n";
+	}
+	if( c2 != 'F' || b1 ) {
+		print "char working\n";
 	}
 
 	return;
@@ -23,70 +31,117 @@ main:function void () =
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-72]!
-                mov     x9, #54
-                neg     x9, x9
+                stp     x29, x30, [sp, #-96]!
+                mov     x9, #1
                 str     x9, [sp, 16]
+                mov     x9, #0
+                str     x9, [sp, 24]
+                mov     x9, #102
+                str     x9, [sp, 32]
+                mov     x9, #70
+                str     x9, [sp, 40]
+                ldr     x9, [sp, 24]
+                mov     x10, #1
+                and     x10, x9, x10
                 ldr     x9, [sp, 16]
-                mov     x10, #9
-                neg     x10, x10
-                mov     x11, #6
-                mul     x11, x10, x11
-                cmp     x9, x11
+                orr     x9, x10, x9
+                mov     x10, #1
+                cmp     x9, x10
                 b.eq    .LCOND1
-                mov     x11, 0
+                mov     x10, 0
                 b       .LCOND2
         .LCOND1:
-                mov     x11, 1
+                mov     x10, 1
         .LCOND2:
-                cmp     x11, 0
+                cmp     x10, 0
                 b.eq    .LSTMT1
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
-                b       .LSTMT2
         .LSTMT1:
+                ldr     x9, [sp, 24]
+                mov     x10, #1
+                and     x10, x9, x10
                 ldr     x9, [sp, 16]
-                mov     x10, #6
-                neg     x10, x10
-                mov     x12, #9
-                mul     x12, x10, x12
-                cmp     x9, x12
+                orr     x9, x10, x9
+                mov     x10, #0
+                cmp     x9, x10
                 b.ne    .LCOND3
-                mov     x12, 0
+                mov     x10, 0
                 b       .LCOND4
         .LCOND3:
-                mov     x12, 1
+                mov     x10, 1
         .LCOND4:
-                cmp     x12, 0
-                b.eq    .LSTMT3
+                cmp     x10, 0
+                b.eq    .LSTMT2
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-                b       .LSTMT4
-        .LSTMT3:
+        .LSTMT2:
+                ldr     x9, [sp, 32]
+                mov     x10, #102
+                cmp     x9, x10
+                b.eq    .LCOND5
+                mov     x10, 0
+                b       .LCOND6
+        .LCOND5:
+                mov     x10, 1
+        .LCOND6:
+                mov     x9, #102
+                mov     x11, #102
+                cmp     x9, x11
+                b.eq    .LCOND7
+                mov     x11, 0
+                b       .LCOND8
+        .LCOND7:
+                mov     x11, 1
+        .LCOND8:
+                and     x11, x10, x11
+                cmp     x11, 0
+                b.eq    .LSTMT3
                 adrp    x9, .LSLIT3
                 add     x9, x9, :lo12:.LSLIT3
                 mov     x0, x9
                 bl      print_string
+        .LSTMT3:
+                ldr     x9, [sp, 40]
+                mov     x10, #70
+                cmp     x9, x10
+                b.ne    .LCOND9
+                mov     x10, 0
+                b       .LCOND10
+        .LCOND9:
+                mov     x10, 1
+        .LCOND10:
+                ldr     x9, [sp, 16]
+                orr     x9, x10, x9
+                cmp     x9, 0
+                b.eq    .LSTMT4
+                adrp    x10, .LSLIT4
+                add     x10, x10, :lo12:.LSLIT4
+                mov     x0, x10
+                bl      print_string
         .LSTMT4:
-        .LSTMT2:
-                ldp     x29, x30, [sp], #72
+                ldp     x29, x30, [sp], #96
                 ret
-                ldp     x29, x30, [sp], #72
+                ldp     x29, x30, [sp], #96
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "they are equal!\n"
+        .string "boolean working\n"
         .section        .rodata
         .align 8
 .LSLIT2:
-        .string "they are NOT equal!\n"
+        .string "boolean working\n"
         .section        .rodata
         .align 8
 .LSLIT3:
-        .string "something doesn't work...\n"
+        .string "char working\n"
+        .section        .rodata
+        .align 8
+.LSLIT4:
+        .string "char working\n"
 */
