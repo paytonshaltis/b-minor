@@ -1384,7 +1384,7 @@ void expr_codegen(struct expr* e) {
                         printf("\t\tmov\tx0, %s\n", scratch_name(tempe2->reg));
 
                         // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
-                        printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->reg));
+                        printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->right->reg));
 
                         // free the registers used
                         scratch_free(tempe2->reg);

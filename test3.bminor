@@ -45,7 +45,7 @@ scores:
                 mov     x12, 4
                 mul     x11, x11, x12
                 mov     x0, x9
-                str     w0, [x10, x9]
+                str     w0, [x10, x11]
                 adrp    x9, scores
                 add     x9, x9, :lo12:scores
                 mov     x10, #5
@@ -59,7 +59,7 @@ scores:
                 mov     x12, 4
                 mul     x11, x11, x12
                 mov     x0, x9
-                str     w0, [x10, x9]
+                str     w0, [x10, x11]
                 adrp    x9, scores
                 add     x9, x9, :lo12:scores
                 mov     x10, #3
@@ -81,7 +81,7 @@ scores:
                 mov     x12, 4
                 mul     x11, x11, x12
                 mov     x0, x9
-                str     w0, [x10, x9]
+                str     w0, [x10, x11]
                 adrp    x9, scores
                 add     x9, x9, :lo12:scores
                 mov     x10, #2
@@ -111,7 +111,7 @@ scores:
                 mov     x12, 4
                 mul     x11, x11, x12
                 mov     x0, x9
-                str     w0, [x10, x9]
+                str     w0, [x10, x11]
                 adrp    x9, scores
                 add     x9, x9, :lo12:scores
                 mov     x10, #8
@@ -133,7 +133,7 @@ scores:
                 mov     x12, 4
                 mul     x11, x11, x12
                 mov     x0, x9
-                str     w0, [x10, x9]
+                str     w0, [x10, x11]
                 adrp    x9, scores
                 add     x9, x9, :lo12:scores
                 mov     x10, #9
