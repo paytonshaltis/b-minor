@@ -48,7 +48,9 @@ arr:
                 b.eq    .LSTMT2
                 adrp    x9, arr
                 add     x9, x9, :lo12:arr
-                ldr     w0, [x9, 0]
+                ldr     x10, [sp, 16]
+                mul     x10, x10, 4
+                ldr     w0, [x9, x10]
                 mov     x9, x0
                 mov     x0, x9
                 bl      print_integer
