@@ -1,36 +1,7 @@
-/*
-This test program prints out a maze generated
-by alternating slash and backslash randomly.
-It relies on the rand, srand, and time functions
-found in the C standard library.
-*/
+arr : array [10] integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; 
 
-rand: function integer ();
-srand: function void ( seed: integer );
-time: function integer ( zero: integer );
-
-arr1 : array [5] integer;
-
-main: function void () =
-{
-	xsize: integer = 20;
-	ysize: integer = 20;
-
-	srand(time(0));
-
-	i: integer;
-	j: integer;
-	
-	for(j=0;j<ysize;j++) {
-		for(i=0;i<xsize;i++) {
-			if(rand()%2==1) {
-				print '/';
-			} else {
-				print '\\';
-			}
-		}
-		print "\n";
-	}
+main: function void () = {
+        print arr[7];
 }
 
 /*
@@ -38,142 +9,28 @@ main: function void () =
 .file   "output.s"
 
 .data
-        .global arr1
-        .align 8
-arr1:
-        .word   0
-        .word   0
-        .word   0
-        .word   0
-        .word   0
+        .global arr
+        .align 3
+arr:
+        .word   1
+        .word   2
+        .word   3
+        .word   4
+        .word   5
+        .word   6
+        .word   7
+        .word   8
+        .word   9
+        .word   10
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-96]!
-                mov     x9, #20
-                str     x9, [sp, 16]
-                mov     x9, #20
-                str     x9, [sp, 24]
-                str     x9, [sp, 48]
-                str     x10, [sp, 56]
-                str     x11, [sp, 64]
-                str     x12, [sp, 72]
-                str     x13, [sp, 80]
-                str     x14, [sp, 88]
-                str     x15, [sp, 96]
-                str     x9, [sp, 48]
-                str     x10, [sp, 56]
-                str     x11, [sp, 64]
-                str     x12, [sp, 72]
-                str     x13, [sp, 80]
-                str     x14, [sp, 88]
-                str     x15, [sp, 96]
-                mov     x9, #0
+                stp     x29, x30, [sp, #-64]!
+                adrp    x9, arr
+                add     x9, x9, :lo12:arr
+                ldr     x9, [x9, 56]
                 mov     x0, x9
-                bl      time
-                ldr     x9, [sp, 48]
-                ldr     x10, [sp, 56]
-                ldr     x11, [sp, 64]
-                ldr     x12, [sp, 72]
-                ldr     x13, [sp, 80]
-                ldr     x14, [sp, 88]
-                ldr     x15, [sp, 96]
-                mov     x9, x0
-                mov     x0, x9
-                bl      srand
-                ldr     x9, [sp, 48]
-                ldr     x10, [sp, 56]
-                ldr     x11, [sp, 64]
-                ldr     x12, [sp, 72]
-                ldr     x13, [sp, 80]
-                ldr     x14, [sp, 88]
-                ldr     x15, [sp, 96]
-                mov     x9, x0
-                mov     x9, #0
-                str     x9, [sp, 40]
-        .LSTMT1:
-                ldr     x9, [sp, 40]
-                ldr     x10, [sp, 24]
-                cmp     x9, x10
-                b.lt    .LCOND1
-                mov     x10, 0
-                b       .LCOND2
-        .LCOND1:
-                mov     x10, 1
-        .LCOND2:
-                cmp     x10, 0
-                b.eq    .LSTMT2
-                mov     x9, #0
-                str     x9, [sp, 32]
-        .LSTMT3:
-                ldr     x9, [sp, 32]
-                ldr     x10, [sp, 16]
-                cmp     x9, x10
-                b.lt    .LCOND3
-                mov     x10, 0
-                b       .LCOND4
-        .LCOND3:
-                mov     x10, 1
-        .LCOND4:
-                cmp     x10, 0
-                b.eq    .LSTMT4
-                str     x9, [sp, 48]
-                str     x10, [sp, 56]
-                str     x11, [sp, 64]
-                str     x12, [sp, 72]
-                str     x13, [sp, 80]
-                str     x14, [sp, 88]
-                str     x15, [sp, 96]
-                bl      rand
-                ldr     x9, [sp, 48]
-                ldr     x10, [sp, 56]
-                ldr     x11, [sp, 64]
-                ldr     x12, [sp, 72]
-                ldr     x13, [sp, 80]
-                ldr     x14, [sp, 88]
-                ldr     x15, [sp, 96]
-                mov     x9, x0
-                mov     x10, #2
-                udiv    x11, x9, x10
-                mul     x11, x10, x11
-                sub     x11, x9, x11
-                mov     x9, #1
-                cmp     x11, x9
-                b.eq    .LCOND5
-                mov     x9, 0
-                b       .LCOND6
-        .LCOND5:
-                mov     x9, 1
-        .LCOND6:
-                cmp     x9, 0
-                b.eq    .LSTMT5
-                mov     x10, #47
-                mov     x0, x10
-                bl      print_character
-                b       .LSTMT6
-        .LSTMT5:
-                mov     x10, #92
-                mov     x0, x10
-                bl      print_character
-        .LSTMT6:
-                ldr     x9, [sp, 32]
-                add     x9, x9, 1
-                str     x9, [sp, 32]
-                b       .LSTMT3
-        .LSTMT4:
-                adrp    x9, .LSLIT1
-                add     x9, x9, :lo12:.LSLIT1
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 40]
-                add     x9, x9, 1
-                str     x9, [sp, 40]
-                b       .LSTMT1
-        .LSTMT2:
-                ldp     x29, x30, [sp], #96
+                bl      print_integer
+                ldp     x29, x30, [sp], #64
                 ret
-        .section        .rodata
-        .align 8
-.LSLIT1:
-        .string "\n"
 */

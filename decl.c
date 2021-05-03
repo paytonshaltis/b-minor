@@ -372,6 +372,7 @@ void decl_codegen(struct decl* d) {
     int numLocals;
     int final;
     int tempReg;
+    struct expr* tempe;
 
     // if there are no more declarations
     if(d == NULL) {
@@ -558,10 +559,16 @@ void decl_codegen(struct decl* d) {
 
         case TYPE_ARRAY:
         
+            // print a code generation error if the array is NOT of type integer, or is local
+            if( d->type->subtype->kind != TYPE_INTEGER || d->symbol->kind != SYMBOL_GLOBAL) {
+                printf("\033[0;31mcodegen error\033[0;0m: arrays of non-integer types and local arrays not implemented\n");
+                exit(1);
+            }
+
             // print the special header for arrays
             printf(".data\n");
             printf("\t.global %s\n", d->name);
-            printf("\t.align 8\n");
+            printf("\t.align 3\n");
             printf("%s:\n", d->name);
 
             // if the array was not initialized
@@ -571,15 +578,52 @@ void decl_codegen(struct decl* d) {
                 for(int i = 0; i < d->type->size; i++) {
 
                     printf("\t.word\t0\n");
-                }
+                }   
+            }
+
+            // if the array was initialized
+            if(d->value != NULL) {
+                
+                // use a temp expression to travers the args list
+                tempe = d->value->left;
+                
+                // print out each of the elements on a seperate line (all but last 2)
+                while(tempe->right != NULL && tempe->right->kind == EXPR_ARGS) {
                     
+                    // prints the next arg in the EXPR_ARGS
+                    printf("\t.word\t");
+                    expr_print(tempe->left);
+                    printf("\n");
+
+                    // moves tempe along
+                    tempe = tempe->right;
+                }
+                
+                // print the last two elements, if applicable
+                if(d->value->left->right != NULL) {
+                    
+                    printf("\t.word\t");
+                    expr_print(tempe->left);
+                    printf("\n");
+
+                    
+                    printf("\t.word\t");
+                    expr_print(tempe->right);
+                    printf("\n");
+                }
+
+                else {
+                    printf("\t.word\t");
+                    expr_print(tempe);
+                    printf("\n");
+                }
+                
             }
 
         break;
         
         case TYPE_PROTOTYPE:
         case TYPE_VOID:
-        default:
         break;
 
     }

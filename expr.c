@@ -1795,10 +1795,23 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        case EXPR_ARRIND:
+            
+            // assgin a register for this indexing expression
+            e->reg = scratch_alloc();
+
+            // load the address of the array into this address
+            printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
+            printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+
+            // use this address to index the specific array element
+            printf("\t\tldr\t%s, [%s, %i]\n", scratch_name(e->reg), scratch_name(e->reg), e->right->literal_value * 8);
+
+        break;
+
         case EXPR_ARGS:
         case EXPR_CURLS:
         case EXPR_BRACKET:
-        default:
         break;
     }
 }
