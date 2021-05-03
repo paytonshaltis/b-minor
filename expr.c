@@ -1302,6 +1302,39 @@ void expr_codegen(struct expr* e) {
                     // generate code to get the string in a register
                     expr_codegen(e->left);
 
+                    // use this expression's register to hold the current position
+                    e->reg = scratch_alloc();
+
+                    // need to make a loop label and a done label
+                    loopLabel = stmt_label_create();
+                    doneLabel = stmt_label_create();
+
+                    // print the loop label
+                    printf("\t%s:\n", stmt_label_name(loopLabel));
+
+                    // move the source character to the destination
+                    printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
+                    printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));
+
+                    // compare the source character to null terminator to see if we are done
+                    printf("\t\tcmp\t%s, 0\n", scratch_name(e->right->reg));
+
+                    // if they are equal jump to done
+                    printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+
+                    // otherwise, increment the position register and jump to the top of the loop
+                    printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                    printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+
+                    // print the done label for exiting the loop
+                    printf("\t%s:\n", stmt_label_name(doneLabel));
+
+                    // free up the three registers used
+                    scratch_free(e->right->reg);
+                    scratch_free(e->left->reg);
+                    scratch_free(e->reg);
+
+                    /*
                     // need to move every character from right to left string
                     for(int i = 0; i < 29; i++) {
                         printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(e->right->reg), i);
@@ -1310,10 +1343,11 @@ void expr_codegen(struct expr* e) {
                     }
                     printf("\t\tmov\tw0, 0\n");
                     printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), final);
-
+                    
                     // free up the two registers used
                     scratch_free(e->right->reg);
                     scratch_free(e->left->reg);
+                    */
 
                     break;
                 }
