@@ -49,7 +49,8 @@ arr:
                 adrp    x9, arr
                 add     x9, x9, :lo12:arr
                 ldr     x10, [sp, 16]
-                mul     x10, x10, 4
+                mov     x11, 4
+                mul     x10, x10, x11
                 ldr     w0, [x9, x10]
                 mov     x9, x0
                 mov     x0, x9

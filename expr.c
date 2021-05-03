@@ -957,6 +957,7 @@ void expr_codegen(struct expr* e) {
     int doneLabel;
     int falseLabel;
     int loopLabel;
+    int fourReg;
 
     // if the expression is NULL, we should return
     if(e == NULL) {
@@ -1804,13 +1805,21 @@ void expr_codegen(struct expr* e) {
             printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
             printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
 
-            // use this address to index the specific array element
+            // get the address from the expression in the brackets and multiply it by 4
             expr_codegen(e->right);
-            printf("\t\tmul\t%s, %s, 4\n", scratch_name(e->right->reg), scratch_name(e->right->reg));
+            fourReg = scratch_alloc();
+            printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+
+            // use this to increment the pointer and get the value into register w0
+            printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->right->reg), scratch_name(fourReg));
             printf("\t\tldr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->right->reg));
 
             // move the x0 register to the register for this expression
             printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+
+            // free the registers used in the process
+            scratch_free(fourReg);
+            scratch_free(e->right->reg);
 
         break;
 
