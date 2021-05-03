@@ -6,6 +6,10 @@ main: function void () = {
 
         arr[3] = -10;
 
+        if(arr[3] == -10) {
+                print "may be working...\n";
+        }
+
         r : integer = 10 + arr[3];
 
 	print r, "\n";
@@ -42,6 +46,29 @@ arr:
                 mov     x12, 4
                 mul     x11, x11, x12
                 str     w0, [x10, x11]
+                adrp    x9, arr
+                add     x9, x9, :lo12:arr
+                mov     x10, #3
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                mov     x10, #10
+                neg     x10, x10
+                cmp     x9, x10
+                b.eq    .LCOND1
+                mov     x10, 0
+                b       .LCOND2
+        .LCOND1:
+                mov     x10, 1
+        .LCOND2:
+                cmp     x10, 0
+                b.eq    .LSTMT1
+                adrp    x9, .LSLIT1
+                add     x9, x9, :lo12:.LSLIT1
+                mov     x0, x9
+                bl      print_string
+        .LSTMT1:
                 mov     x9, #10
                 adrp    x10, arr
                 add     x10, x10, :lo12:arr
@@ -55,8 +82,8 @@ arr:
                 ldr     x9, [sp, 24]
                 mov     x0, x9
                 bl      print_integer
-                adrp    x9, .LSLIT1
-                add     x9, x9, :lo12:.LSLIT1
+                adrp    x9, .LSLIT2
+                add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
                 ldp     x29, x30, [sp], #80
@@ -64,5 +91,9 @@ arr:
         .section        .rodata
         .align 8
 .LSLIT1:
+        .string "may be working...\n"
+        .section        .rodata
+        .align 8
+.LSLIT2:
         .string "\n"
 */
