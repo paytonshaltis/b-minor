@@ -6,11 +6,9 @@ main: function void () = {
 
         arr[3] = -10;
 
-	for(i = 0; i < 10; i++) {
-		print arr[i], " ";	
-	}
+        r : integer = 10 + arr[3];
 
-	print "\n";
+	print "r\n";
 }
 
 /*
@@ -34,7 +32,7 @@ arr:
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-72]!
+                stp     x29, x30, [sp, #-80]!
                 mov     x9, #10
                 neg     x9, x9
                 mov     x0, x9
@@ -44,50 +42,24 @@ arr:
                 mov     x12, 4
                 mul     x11, x11, x12
                 str     w0, [x10, x11]
-                mov     x9, #0
-                str     x9, [sp, 16]
-        .LSTMT1:
-                ldr     x9, [sp, 16]
-                mov     x10, #10
-                cmp     x9, x10
-                b.lt    .LCOND1
-                mov     x10, 0
-                b       .LCOND2
-        .LCOND1:
-                mov     x10, 1
-        .LCOND2:
-                cmp     x10, 0
-                b.eq    .LSTMT2
-                adrp    x9, arr
-                add     x9, x9, :lo12:arr
-                ldr     x10, [sp, 16]
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                mov     x0, x9
-                bl      print_integer
+                mov     x9, #10
+                adrp    x10, arr
+                add     x10, x10, :lo12:arr
+                mov     x11, #3
+                mov     x12, 4
+                mul     x11, x11, x12
+                ldr     w0, [x10, x11]
+                mov     x10, x0
+                add     x10, x9, x10
+                str     x10, [sp, 24]
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
-                ldr     x9, [sp, 16]
-                add     x9, x9, 1
-                str     x9, [sp, 16]
-                b       .LSTMT1
-        .LSTMT2:
-                adrp    x9, .LSLIT2
-                add     x9, x9, :lo12:.LSLIT2
-                mov     x0, x9
-                bl      print_string
-                ldp     x29, x30, [sp], #72
+                ldp     x29, x30, [sp], #80
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string " "
-        .section        .rodata
-        .align 8
-.LSLIT2:
-        .string "\n"
+        .string "r\n"
 */
