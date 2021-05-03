@@ -1805,7 +1805,10 @@ void expr_codegen(struct expr* e) {
             printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
 
             // use this address to index the specific array element
-            printf("\t\tldr\t%s, [%s, %i]\n", scratch_name(e->reg), scratch_name(e->reg), e->right->literal_value * 8);
+            printf("\t\tldr\tw0, [%s, %i]\n", scratch_name(e->reg), e->right->literal_value * 4);
+
+            // move the x0 register to the register for this expression
+            printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
 
         break;
 

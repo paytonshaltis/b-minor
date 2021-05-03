@@ -1,7 +1,13 @@
 arr : array [10] integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; 
 
 main: function void () = {
-        print arr[7];
+        
+	i : integer;
+	for(i = 0; i < 10; i++) {
+		print arr[i], " ";	
+	}
+
+	print "\n";
 }
 
 /*
@@ -25,12 +31,48 @@ arr:
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-64]!
+                stp     x29, x30, [sp, #-72]!
+                mov     x9, #0
+                str     x9, [sp, 16]
+        .LSTMT1:
+                ldr     x9, [sp, 16]
+                mov     x10, #10
+                cmp     x9, x10
+                b.lt    .LCOND1
+                mov     x10, 0
+                b       .LCOND2
+        .LCOND1:
+                mov     x10, 1
+        .LCOND2:
+                cmp     x10, 0
+                b.eq    .LSTMT2
                 adrp    x9, arr
                 add     x9, x9, :lo12:arr
-                ldr     x9, [x9, 56]
+                ldr     w0, [x9, 0]
+                mov     x9, x0
                 mov     x0, x9
                 bl      print_integer
-                ldp     x29, x30, [sp], #64
+                adrp    x9, .LSLIT1
+                add     x9, x9, :lo12:.LSLIT1
+                mov     x0, x9
+                bl      print_string
+                ldr     x9, [sp, 16]
+                add     x9, x9, 1
+                str     x9, [sp, 16]
+                b       .LSTMT1
+        .LSTMT2:
+                adrp    x9, .LSLIT2
+                add     x9, x9, :lo12:.LSLIT2
+                mov     x0, x9
+                bl      print_string
+                ldp     x29, x30, [sp], #72
                 ret
+        .section        .rodata
+        .align 8
+.LSLIT1:
+        .string " "
+        .section        .rodata
+        .align 8
+.LSLIT2:
+        .string "\n"
 */
