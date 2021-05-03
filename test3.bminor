@@ -1,9 +1,13 @@
 arr : array [10] integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; 
 
 main: function void () = {
-    
-	/*arr[1] = arr[3] = arr[5] =*/ arr[1] = arr[9];
+
 	i : integer;
+
+	for(i = 0; i < 10; i++) {
+		arr[i] = 69;	
+	}
+
 	for(i = 0; i < 10; i++) {
 		print arr[i], " ";	
 	}

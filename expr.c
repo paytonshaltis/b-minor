@@ -1256,26 +1256,30 @@ void expr_codegen(struct expr* e) {
                 // if it is an array
                 if(e->left->left != NULL && e->left->left->kind == EXPR_NAME) {
                     
-                    // generate code for the right side of the expression (should be integer)
-                    // assgin a register for this indexing expression
-                    e->right->reg = scratch_alloc();
+                    // generate code for the right side of the expression (should be integer or another array index)
+                    
+                    // if it is an array index, we need its value, and in a half register (w0)
+                    if(e->right->kind == EXPR_ARRIND) {
+                        // assgin a register for this indexing expression
+                        e->right->reg = scratch_alloc();
 
-                    // load the address of the array into this address
-                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->right->reg), e->right->left->name);
-                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->right->reg), scratch_name(e->right->reg), e->right->left->name);
+                        // load the address of the array into this address
+                        printf("\t\tadrp\t%s, %s\n", scratch_name(e->right->reg), e->right->left->name);
+                        printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->right->reg), scratch_name(e->right->reg), e->right->left->name);
 
-                    // get the address from the expression in the brackets and multiply it by 4
-                    expr_codegen(e->right->right);
-                    fourReg = scratch_alloc();
-                    printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+                        // get the address from the expression in the brackets and multiply it by 4
+                        expr_codegen(e->right->right);
+                        fourReg = scratch_alloc();
+                        printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
 
-                    // use this to increment the pointer and get the value into register w0
-                    printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->right->reg), scratch_name(e->right->right->reg), scratch_name(fourReg));
-                    printf("\t\tldr\tw0, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->right->right->reg));
+                        // use this to increment the pointer and get the value into register w0
+                        printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->right->reg), scratch_name(e->right->right->reg), scratch_name(fourReg));
+                        printf("\t\tldr\tw0, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->right->right->reg));
 
-                    // free the registers used in the process
-                    scratch_free(fourReg);
-                    scratch_free(e->right->right->reg);
+                        // free the registers used in the process
+                        scratch_free(fourReg);
+                        scratch_free(e->right->right->reg);
+                    }
 
                     // generate code to get the address of the left array in a register
                     e->reg = scratch_alloc();
