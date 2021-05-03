@@ -1446,7 +1446,7 @@ void expr_codegen(struct expr* e) {
 
                         // move the source character to the destination
                         printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
-                        printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->reg), scratch_name(e->reg));
+                        printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->right->reg), scratch_name(e->reg));
 
                         // compare the source character to null terminator to see if we are done
                         printf("\t\tcmp\tw0, 0\n");
@@ -1463,7 +1463,7 @@ void expr_codegen(struct expr* e) {
 
                         // free up the three registers used
                         scratch_free(tempe2->reg);
-                        scratch_free(tempe->reg);
+                        scratch_free(tempe->right->reg);
                         scratch_free(e->reg);
 
                     }
