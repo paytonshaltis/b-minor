@@ -1337,21 +1337,6 @@ void expr_codegen(struct expr* e) {
                     scratch_free(e->left->reg);
                     scratch_free(e->reg);
 
-                    /*
-                    // need to move every character from right to left string
-                    for(int i = 0; i < 29; i++) {
-                        printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(e->right->reg), i);
-                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), i);
-                        final = i + 1;
-                    }
-                    printf("\t\tmov\tw0, 0\n");
-                    printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(e->left->reg), final);
-                    
-                    // free up the two registers used
-                    scratch_free(e->right->reg);
-                    scratch_free(e->left->reg);
-                    */
-
                     break;
                 }
 
@@ -1446,18 +1431,40 @@ void expr_codegen(struct expr* e) {
                         // generate code to get the string in a register
                         expr_codegen(tempe->right);
 
-                        // need to move every character from right to left string
-                        for(int i = 0; i < 29; i++) {
-                            printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(tempe2->reg), i);
-                            printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->right->reg), i);
-                            final = i + 1;
-                        }
-                        printf("\t\tmov\tw0, 0\n");
-                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->right->reg), final);
+                        // use this expression's register to hold the current position
+                        e->reg = scratch_alloc();
 
-                        // free up the two registers used
-                        scratch_free(tempe->right->reg);
+                        // need to make a loop label and a done label
+                        loopLabel = stmt_label_create();
+                        doneLabel = stmt_label_create();
+
+                        // start by loading the position register with a 0
+                        printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+
+                        // print the loop label
+                        printf("\t%s:\n", stmt_label_name(loopLabel));
+
+                        // move the source character to the destination
+                        printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+                        printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->reg), scratch_name(e->reg));
+
+                        // compare the source character to null terminator to see if we are done
+                        printf("\t\tcmp\tw0, 0\n");
+
+                        // if they are equal jump to done
+                        printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+
+                        // otherwise, increment the position register and jump to the top of the loop
+                        printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                        printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+
+                        // print the done label for exiting the loop
+                        printf("\t%s:\n", stmt_label_name(doneLabel));
+
+                        // free up the three registers used
                         scratch_free(tempe2->reg);
+                        scratch_free(tempe->reg);
+                        scratch_free(e->reg);
 
                     }
 
@@ -1547,18 +1554,40 @@ void expr_codegen(struct expr* e) {
                     // generate code to get the string in a register
                     expr_codegen(tempe);
 
-                    // need to move every character from right to left string
-                    for(int i = 0; i < 29; i++) {
-                        printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(tempe2->reg), i);
-                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), i);
-                        final = i + 1;
-                    }
-                    printf("\t\tmov\tw0, 0\n");
-                    printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempe->reg), final);
+                    // use this expression's register to hold the current position
+                    e->reg = scratch_alloc();
 
-                    // free up the two registers used
+                    // need to make a loop label and a done label
+                    loopLabel = stmt_label_create();
+                    doneLabel = stmt_label_create();
+
+                    // start by loading the position register with a 0
+                    printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+
+                    // print the loop label
+                    printf("\t%s:\n", stmt_label_name(loopLabel));
+
+                    // move the source character to the destination
+                    printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+                    printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->reg), scratch_name(e->reg));
+
+                    // compare the source character to null terminator to see if we are done
+                    printf("\t\tcmp\tw0, 0\n");
+
+                    // if they are equal jump to done
+                    printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+
+                    // otherwise, increment the position register and jump to the top of the loop
+                    printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                    printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+
+                    // print the done label for exiting the loop
+                    printf("\t%s:\n", stmt_label_name(doneLabel));
+
+                    // free up the three registers used
                     scratch_free(tempe2->reg);
                     scratch_free(tempe->reg);
+                    scratch_free(e->reg);
 
                     break;
                 }
