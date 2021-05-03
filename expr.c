@@ -1309,6 +1309,9 @@ void expr_codegen(struct expr* e) {
                     loopLabel = stmt_label_create();
                     doneLabel = stmt_label_create();
 
+                    // start by loading the position register with a 0
+                    printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+
                     // print the loop label
                     printf("\t%s:\n", stmt_label_name(loopLabel));
 

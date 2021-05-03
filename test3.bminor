@@ -5,11 +5,11 @@ main: function void (arr : array[] string) = {
 	str1 : string = "hello world";
 	str2 : string = "ay";
 
-	//str2 = str1;
+	str2 = str1;
 
 	print str2, "\n";
 
-	//str2 = "this is a very long string literal, I wonder if this will work or not??";
+	str2 = "this is a very long string literal, I wonder if this will work or not??";
 
 	print str2, "\n";
 
@@ -39,6 +39,19 @@ scores:
         main:
                 stp     x29, x30, [sp, #-88]!
                 str     x0, [sp, 16]
+                adrp    x9, .LSVAR1
+                add     x9, x9, :lo12:.LSVAR1
+                adrp    x10, .LSVAR2
+                add     x10, x10, :lo12:.LSVAR2
+                mov     x11, 0
+        .LSTMT1:
+                ldrb    w0, [x9, x11]
+                strb    w0, [x10, x11]
+                cmp     x9, 0
+                b.eq    .LSTMT2
+                add     x11, x11, 1
+                b       .LSTMT1
+        .LSTMT2:
                 adrp    x9, .LSVAR2
                 add     x9, x9, :lo12:.LSVAR2
                 mov     x0, x9
@@ -47,12 +60,25 @@ scores:
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
+                adrp    x9, .LSLIT2
+                add     x9, x9, :lo12:.LSLIT2
+                adrp    x10, .LSVAR2
+                add     x10, x10, :lo12:.LSVAR2
+                mov     x11, 0
+        .LSTMT3:
+                ldrb    w0, [x9, x11]
+                strb    w0, [x10, x11]
+                cmp     x9, 0
+                b.eq    .LSTMT4
+                add     x11, x11, 1
+                b       .LSTMT3
+        .LSTMT4:
                 adrp    x9, .LSVAR2
                 add     x9, x9, :lo12:.LSVAR2
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, .LSLIT2
-                add     x9, x9, :lo12:.LSLIT2
+                adrp    x9, .LSLIT3
+                add     x9, x9, :lo12:.LSLIT3
                 mov     x0, x9
                 bl      print_string
                 ldp     x29, x30, [sp], #88
@@ -72,5 +98,9 @@ scores:
         .section        .rodata
         .align 8
 .LSLIT2:
+        .string "this is a very long string literal, I wonder if this will work or not??"
+        .section        .rodata
+        .align 8
+.LSLIT3:
         .string "\n"
 */
