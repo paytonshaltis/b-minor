@@ -15,6 +15,7 @@ char localsTP[256][300];
 int localsTPCounter = 0;
 int counter;                    // counter that keeps track of the stack addresses of locals
 int callStackSize;
+extern FILE* fp;
 
 // basic factory function for creating a 'decl' struct
 struct decl * decl_create( char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ) {
@@ -372,6 +373,9 @@ void decl_codegen(struct decl* d) {
     int numLocals;
     int final;
     int tempReg;
+    int tempReg2;
+    int loopLabel;
+    int doneLabel;
     struct expr* tempe;
 
     // if there are no more declarations
@@ -387,15 +391,15 @@ void decl_codegen(struct decl* d) {
             
             // in case of a global integer
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                printf(".data\n\t.global %s\n%s:\t.word ", d->name, d->name);
-                if(d->value) expr_print(d->value);
-                printf("\n");
+                fprintf(fp, ".data\n\t.global %s\n%s:\t.word ", d->name, d->name);
+                if(d->value) expr_print_file(d->value);
+                fprintf(fp, "\n");
             }
 
             // in case of a local integer with initial expression
             if(d->symbol->kind == SYMBOL_LOCAL && d->value != NULL) {
                 expr_codegen(d->value);
-                printf("\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
                 scratch_free(d->value->reg);
             }
 
@@ -406,15 +410,15 @@ void decl_codegen(struct decl* d) {
 
             // in case of a global char
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                printf(".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
-                if(d->value) printf("%i", d->value->literal_value);
-                printf("\n");
+                fprintf(fp, ".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
+                if(d->value) fprintf(fp, "%i", d->value->literal_value);
+                fprintf(fp, "\n");
             }
 
             // in case of a local char with initial expression
             if(d->symbol->kind == SYMBOL_LOCAL && d->value != NULL) {
                 expr_codegen(d->value);
-                printf("\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
                 scratch_free(d->value->reg);
             }
 
@@ -425,15 +429,15 @@ void decl_codegen(struct decl* d) {
 
             // in case of a global boolean
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                printf(".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
-                if(d->value) printf("%i", d->value->literal_value);
-                printf("\n");
+                fprintf(fp, ".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
+                if(d->value) fprintf(fp, "%i", d->value->literal_value);
+                fprintf(fp, "\n");
             }
 
             // in case of a local boolean with initial expression
             if(d->symbol->kind == SYMBOL_LOCAL && d->value != NULL) {
                 expr_codegen(d->value);
-                printf("\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
                 scratch_free(d->value->reg);
             }
 
@@ -445,12 +449,12 @@ void decl_codegen(struct decl* d) {
             // in case of a global string
             if(d->symbol->kind == SYMBOL_GLOBAL) {
 
-                printf(".data\n\t.global %s\n\t.align 8\n%s:\t.string ", d->name, d->name);
+                fprintf(fp, ".data\n\t.global %s\n\t.align 8\n%s:\t.string ", d->name, d->name);
                 if(d->value)
-                    expr_print(d->value);
+                    expr_print_file(d->value);
                 else
-                    printf("\"\\0\"");
-                printf("\n");
+                    fprintf(fp, "\"\\0\"");
+                fprintf(fp, "\n");
             }
 
             // in case of a local string, we should create a new label for the string, store 
@@ -480,21 +484,58 @@ void decl_codegen(struct decl* d) {
 
                         // generate code to get the left string into a register (manually using its label)
                         tempReg = scratch_alloc();
-                        printf("\t\tadrp\t%s, %s\n", scratch_name(tempReg), var_label_name(d->symbol->which));
-                        printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(tempReg), scratch_name(tempReg), var_label_name(d->symbol->which));
+                        fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(tempReg), var_label_name(d->symbol->which));
+                        fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(tempReg), scratch_name(tempReg), var_label_name(d->symbol->which));
 
+                        // use this expression's register to hold the current position
+                        tempReg2 = scratch_alloc();
+
+                        // need to make a loop label and a done label
+                        loopLabel = stmt_label_create();
+                        doneLabel = stmt_label_create();
+
+                        // start by loading the position register with a 0
+                        fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(tempReg2));
+
+                        // print the loop label
+                        fprintf(fp, "\t%s:\n", stmt_label_name(loopLabel));
+
+                        // move the source character to the destination
+                        fprintf(fp, "\t\tldrb\tw0, [%s, %s]\n", scratch_name(d->value->reg), scratch_name(tempReg2));
+                        fprintf(fp, "\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempReg), scratch_name(tempReg2));
+
+                        // compare the source character to null terminator to see if we are done
+                        fprintf(fp, "\t\tcmp\tw0, 0\n");
+
+                        // if they are equal jump to done
+                        fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+
+                        // otherwise, increment the position register and jump to the top of the loop
+                        fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(tempReg2), scratch_name(tempReg2));
+                        fprintf(fp, "\t\tb\t%s\n", stmt_label_name(loopLabel));
+
+                        // print the done label for exiting the loop
+                        fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
+
+                        // free up the three registers used
+                        scratch_free(d->value->reg);
+                        scratch_free(tempReg);
+                        scratch_free(tempReg2);
+
+                        /*
                         // need to move every character from right to left string
                         for(int i = 0; i < 29; i++) {
-                            printf("\t\tldrb\tw0, [%s, %i]\n", scratch_name(d->value->reg), i);
-                            printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), i);
+                            fprintf(fp, "\t\tldrb\tw0, [%s, %i]\n", scratch_name(d->value->reg), i);
+                            fprintf(fp, "\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), i);
                             final = i + 1;
                         }
-                        printf("\t\tmov\tw0, 0\n");
-                        printf("\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), final);
+                        fprintf(fp, "\t\tmov\tw0, 0\n");
+                        fprintf(fp, "\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), final);
 
                         // free up the two registers used
                         scratch_free(d->value->reg);
                         scratch_free(tempReg);
+                        */
                     }
                 }
                 else
@@ -513,7 +554,7 @@ void decl_codegen(struct decl* d) {
         case TYPE_FUNCTION:
             
             // print the name of the function
-            printf(".text\n\t.global %s\n\t%s:\n", d->name, d->name);
+            fprintf(fp, ".text\n\t.global %s\n\t%s:\n", d->name, d->name);
             
             /* to grow the stack, we need to know how many local declarations we have, parameters, as well as account 
             for 6 extra spots for saving registers during a 'context switch' (plus 4 extra bytes for safety) */
@@ -526,7 +567,7 @@ void decl_codegen(struct decl* d) {
             callStackSize = (numLocals + numParams + 8) * 8;
 
             // grow the stack accordingly
-            printf("\t\tstp\tx29, x30, [sp, #-%i]!\n", callStackSize);
+            fprintf(fp, "\t\tstp\tx29, x30, [sp, #-%i]!\n", callStackSize);
             
             /* need to store parameters on the stack */
             // if there are more than 6 parameters, codegen error
@@ -537,18 +578,18 @@ void decl_codegen(struct decl* d) {
 
             // otherwise, store registers x0 - x5 into first 6 stack locations (local variables)
             for(int i = 0; i < numParams; i++) {
-                printf("\t\tstr\tx%i, [sp, %i]\n", i, 16 + (i*8));
+                fprintf(fp, "\t\tstr\tx%i, [sp, %i]\n", i, 16 + (i*8));
             }
             
             // generate code for the contents of the function
             stmt_codegen(d->code);
 
             // shrink the stack and return (in case of void function!)
-            printf("\t\tldp\tx29, x30, [sp], #%i\n\t\tret\n", callStackSize);
+            fprintf(fp, "\t\tldp\tx29, x30, [sp], #%i\n\t\tret\n", callStackSize);
 
             // need to print out local string labels
             for(int i = 0; i < 256; i++) {
-                printf("%s", localsTP[i]);
+                fprintf(fp, "%s", localsTP[i]);
                 for(int j = 0; j < 300; j++) {
                     localsTP[i][j] = 0;
                 }
@@ -566,10 +607,10 @@ void decl_codegen(struct decl* d) {
             }
 
             // print the special header for arrays
-            printf(".data\n");
-            printf("\t.global %s\n", d->name);
-            printf("\t.align 3\n");
-            printf("%s:\n", d->name);
+            fprintf(fp, ".data\n");
+            fprintf(fp, "\t.global %s\n", d->name);
+            fprintf(fp, "\t.align 3\n");
+            fprintf(fp, "%s:\n", d->name);
 
             // if the array was not initialized
             if(d->value == NULL) {
@@ -577,7 +618,7 @@ void decl_codegen(struct decl* d) {
                 // use the size to print zeros for each element
                 for(int i = 0; i < d->type->size; i++) {
 
-                    printf("\t.word\t0\n");
+                    fprintf(fp, "\t.word\t0\n");
                 }   
             }
 
@@ -591,9 +632,9 @@ void decl_codegen(struct decl* d) {
                 while(tempe->right != NULL && tempe->right->kind == EXPR_ARGS) {
                     
                     // prints the next arg in the EXPR_ARGS
-                    printf("\t.word\t");
-                    expr_print(tempe->left);
-                    printf("\n");
+                    fprintf(fp, "\t.word\t");
+                    expr_print_file(tempe->left);
+                    fprintf(fp, "\n");
 
                     // moves tempe along
                     tempe = tempe->right;
@@ -602,20 +643,20 @@ void decl_codegen(struct decl* d) {
                 // print the last two elements, if applicable
                 if(d->value->left->right != NULL) {
                     
-                    printf("\t.word\t");
-                    expr_print(tempe->left);
-                    printf("\n");
+                    fprintf(fp, "\t.word\t");
+                    expr_print_file(tempe->left);
+                    fprintf(fp, "\n");
 
                     
-                    printf("\t.word\t");
-                    expr_print(tempe->right);
-                    printf("\n");
+                    fprintf(fp, "\t.word\t");
+                    expr_print_file(tempe->right);
+                    fprintf(fp, "\n");
                 }
 
                 else {
-                    printf("\t.word\t");
-                    expr_print(tempe);
-                    printf("\n");
+                    fprintf(fp, "\t.word\t");
+                    expr_print_file(tempe);
+                    fprintf(fp, "\n");
                 }
                 
             }

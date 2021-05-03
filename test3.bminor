@@ -3,12 +3,7 @@ str3 : string = "soup";
 main: function void (arr : array[] string) = {
 
 	str1 : string = "hello world";
-	str2 : string = "ay";
-	str4 : string = "this is a very long string literal, I wonder if this will work or not??";
-
-	str1 = str2 = str3 = str4;
-
-	print str1, "\n", str2, "\n", str3, "\n", str4, "\n";
+	str2 : string = str1;
 
 
 
@@ -16,116 +11,172 @@ main: function void (arr : array[] string) = {
 
 /*
 .arch armv8-a
-.file   "output.s"
+.file	"output.s"
 
-.data
-        .global str3
-        .align 8
-str3:   .string "soup"
 .text
-        .global main
-        main:
-                stp     x29, x30, [sp, #-96]!
-                str     x0, [sp, 16]
-                adrp    x9, .LSVAR3
-                add     x9, x9, :lo12:.LSVAR3
-                adrp    x10, str3
-                add     x10, x10, :lo12:str3
-                mov     x11, 0
-        .LSTMT1:
-                ldrb    w0, [x9, x11]
-                strb    w0, [x10, x11]
-                cmp     w0, 0
-                b.eq    .LSTMT2
-                add     x11, x11, 1
-                b       .LSTMT1
-        .LSTMT2:
-                adrp    x9, str3
-                add     x9, x9, :lo12:str3
-                adrp    x10, .LSVAR2
-                add     x10, x10, :lo12:.LSVAR2
-                mov     x11, 0
-        .LSTMT3:
-                ldrb    w0, [x9, x11]
-                strb    w0, [x10, x11]
-                cmp     w0, 0
-                b.eq    .LSTMT4
-                add     x11, x11, 1
-                b       .LSTMT3
-        .LSTMT4:
-                adrp    x9, .LSVAR2
-                add     x9, x9, :lo12:.LSVAR2
-                adrp    x10, .LSVAR1
-                add     x10, x10, :lo12:.LSVAR1
-                mov     x11, 0
-        .LSTMT5:
-                ldrb    w0, [x9, x11]
-                strb    w0, [x10, x11]
-                cmp     w0, 0
-                b.eq    .LSTMT6
-                add     x11, x11, 1
-                b       .LSTMT5
-        .LSTMT6:
-                adrp    x9, .LSVAR1
-                add     x9, x9, :lo12:.LSVAR1
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LSLIT1
-                add     x9, x9, :lo12:.LSLIT1
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LSVAR2
-                add     x9, x9, :lo12:.LSVAR2
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LSLIT2
-                add     x9, x9, :lo12:.LSLIT2
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, str3
-                add     x9, x9, :lo12:str3
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LSLIT3
-                add     x9, x9, :lo12:.LSLIT3
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LSVAR3
-                add     x9, x9, :lo12:.LSVAR3
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LSLIT4
-                add     x9, x9, :lo12:.LSLIT4
-                mov     x0, x9
-                bl      print_string
-                ldp     x29, x30, [sp], #96
-                ret
-        .section        .data
-        .align 8
-.LSVAR1:
-        .string "hello world"
-        .section        .data
-        .align 8
-.LSVAR2:
-        .string "ay"
-        .section        .data
-        .align 8
-.LSVAR3:
-        .string "this is a very long string literal, I wonder if this will work or not??"
-        .section        .rodata
-        .align 8
+	.global fib
+	fib:
+		stp	x29, x30, [sp, #-72]!
+		str	x0, [sp, 16]
+		ldr	x9, [sp, 16]
+		mov	x10, #1
+		cmp	x9, x10
+		b.lt	.LCOND1
+		mov	x10, 0
+		b	.LCOND2
+	.LCOND1:
+		mov	x10, 1
+	.LCOND2:
+		cmp	x10, 0
+		b.eq	.LSTMT1
+		mov	x9, #0
+		mov	x0, x9
+		ldp	x29, x30, [sp], #72
+		ret
+		b	.LSTMT2
+	.LSTMT1:
+		ldr	x9, [sp, 16]
+		mov	x11, #2
+		cmp	x9, x11
+		b.lt	.LCOND3
+		mov	x11, 0
+		b	.LCOND4
+	.LCOND3:
+		mov	x11, 1
+	.LCOND4:
+		cmp	x11, 0
+		b.eq	.LSTMT3
+		mov	x9, #1
+		mov	x0, x9
+		ldp	x29, x30, [sp], #72
+		ret
+		b	.LSTMT4
+	.LSTMT3:
+		str	x9, [sp, 24]
+		str	x10, [sp, 32]
+		str	x11, [sp, 40]
+		str	x12, [sp, 48]
+		str	x13, [sp, 56]
+		str	x14, [sp, 64]
+		str	x15, [sp, 72]
+		ldr	x9, [sp, 16]
+		mov	x12, #1
+		sub	x12, x9, x12
+		mov	x0, x12
+		bl	fib
+		ldr	x9, [sp, 24]
+		ldr	x10, [sp, 32]
+		ldr	x11, [sp, 40]
+		ldr	x12, [sp, 48]
+		ldr	x13, [sp, 56]
+		ldr	x14, [sp, 64]
+		ldr	x15, [sp, 72]
+		mov	x9, x0
+		str	x9, [sp, 24]
+		str	x10, [sp, 32]
+		str	x11, [sp, 40]
+		str	x12, [sp, 48]
+		str	x13, [sp, 56]
+		str	x14, [sp, 64]
+		str	x15, [sp, 72]
+		ldr	x12, [sp, 16]
+		mov	x13, #2
+		sub	x13, x12, x13
+		mov	x0, x13
+		bl	fib
+		ldr	x9, [sp, 24]
+		ldr	x10, [sp, 32]
+		ldr	x11, [sp, 40]
+		ldr	x12, [sp, 48]
+		ldr	x13, [sp, 56]
+		ldr	x14, [sp, 64]
+		ldr	x15, [sp, 72]
+		mov	x12, x0
+		add	x12, x9, x12
+		mov	x0, x12
+		ldp	x29, x30, [sp], #72
+		ret
+	.LSTMT4:
+	.LSTMT2:
+		ldp	x29, x30, [sp], #72
+		ret
+.text
+	.global main
+	main:
+		stp	x29, x30, [sp, #-88]!
+		str	x0, [sp, 16]
+		str	x1, [sp, 24]
+		adrp	x9, .LSLIT1
+		add	x9, x9, :lo12:.LSLIT1
+		mov	x0, x9
+		bl	print_string
+		mov	x9, #0
+		str	x9, [sp, 32]
+	.LSTMT5:
+		ldr	x9, [sp, 32]
+		mov	x10, #30
+		cmp	x9, x10
+		b.lt	.LCOND5
+		mov	x10, 0
+		b	.LCOND6
+	.LCOND5:
+		mov	x10, 1
+	.LCOND6:
+		cmp	x10, 0
+		b.eq	.LSTMT6
+		ldr	x9, [sp, 32]
+		mov	x0, x9
+		bl	print_integer
+		adrp	x9, .LSLIT2
+		add	x9, x9, :lo12:.LSLIT2
+		mov	x0, x9
+		bl	print_string
+		str	x9, [sp, 40]
+		str	x10, [sp, 48]
+		str	x11, [sp, 56]
+		str	x12, [sp, 64]
+		str	x13, [sp, 72]
+		str	x14, [sp, 80]
+		str	x15, [sp, 88]
+		ldr	x9, [sp, 32]
+		mov	x0, x9
+		bl	fib
+		ldr	x9, [sp, 40]
+		ldr	x10, [sp, 48]
+		ldr	x11, [sp, 56]
+		ldr	x12, [sp, 64]
+		ldr	x13, [sp, 72]
+		ldr	x14, [sp, 80]
+		ldr	x15, [sp, 88]
+		mov	x9, x0
+		mov	x0, x9
+		bl	print_integer
+		adrp	x9, .LSLIT3
+		add	x9, x9, :lo12:.LSLIT3
+		mov	x0, x9
+		bl	print_string
+		ldr	x9, [sp, 32]
+		mov	x10, #1
+		add	x10, x9, x10
+		str	x10, [sp, 32]
+		b	.LSTMT5
+	.LSTMT6:
+		mov	x9, #0
+		mov	x0, x9
+		ldp	x29, x30, [sp], #88
+		ret
+		ldp	x29, x30, [sp], #88
+		ret
+	.section	.rodata
+	.align 8
 .LSLIT1:
-        .string "\n"
-        .section        .rodata
-        .align 8
+	.string "Table of Fibonnacci Numbers\n"
+	.section	.rodata
+	.align 8
 .LSLIT2:
-        .string "\n"
-        .section        .rodata
-        .align 8
+	.string "\t"
+	.section	.rodata
+	.align 8
 .LSLIT3:
-        .string "\n"
-        .section        .rodata
-        .align 8
-.LSLIT4:
-        .string "\n"
+	.string "\n"
 */

@@ -8,6 +8,7 @@
 extern int totalResErrors;
 extern int totalTypeErrors;
 extern int callStackSize;
+extern FILE* fp;
 
 // basic factory function for creating a 'stmt' struct
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
@@ -402,26 +403,26 @@ void stmt_codegen(struct stmt* s) {
                 // some register (from expr_codegen()) into register x0
                 if(t->kind == TYPE_INTEGER) {
                     expr_codegen(s->expr);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
-                    printf("\t\tbl\tprint_integer\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+                    fprintf(fp, "\t\tbl\tprint_integer\n");
                     scratch_free(s->expr->reg);
                 }
                 if(t->kind == TYPE_STRING) {                                                         
                     expr_codegen(s->expr);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
-                    printf("\t\tbl\tprint_string\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+                    fprintf(fp, "\t\tbl\tprint_string\n");
                     scratch_free(s->expr->reg);
                 }
                 if(t->kind == TYPE_CHAR) {
                     expr_codegen(s->expr);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
-                    printf("\t\tbl\tprint_character\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+                    fprintf(fp, "\t\tbl\tprint_character\n");
                     scratch_free(s->expr->reg);
                 }
                 if(t->kind == TYPE_BOOLEAN) {
                     expr_codegen(s->expr);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
-                    printf("\t\tbl\tprint_boolean\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+                    fprintf(fp, "\t\tbl\tprint_boolean\n");
                     scratch_free(s->expr->reg);
                 }
 
@@ -439,26 +440,26 @@ void stmt_codegen(struct stmt* s) {
 
                     if(t->kind == TYPE_INTEGER) {
                         expr_codegen(exprtemp->left);
-                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                        printf("\t\tbl\tprint_integer\n");
+                        fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        fprintf(fp, "\t\tbl\tprint_integer\n");
                         scratch_free(exprtemp->left->reg);
                     }
                     if(t->kind == TYPE_STRING) {                                                         
                         expr_codegen(exprtemp->left);
-                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                        printf("\t\tbl\tprint_string\n");
+                        fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        fprintf(fp, "\t\tbl\tprint_string\n");
                         scratch_free(exprtemp->left->reg);
                     }
                     if(t->kind == TYPE_CHAR) {
                         expr_codegen(exprtemp->left);
-                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                        printf("\t\tbl\tprint_character\n");
+                        fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        fprintf(fp, "\t\tbl\tprint_character\n");
                         scratch_free(exprtemp->left->reg);
                     }
                     if(t->kind == TYPE_BOOLEAN) {
                         expr_codegen(exprtemp->left);
-                        printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                        printf("\t\tbl\tprint_boolean\n");
+                        fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                        fprintf(fp, "\t\tbl\tprint_boolean\n");
                         scratch_free(exprtemp->left->reg);
                     }
 
@@ -469,52 +470,52 @@ void stmt_codegen(struct stmt* s) {
                 t = expr_typecheck(exprtemp->left);
                 if(t->kind == TYPE_INTEGER) {
                     expr_codegen(exprtemp->left);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                    printf("\t\tbl\tprint_integer\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    fprintf(fp, "\t\tbl\tprint_integer\n");
                     scratch_free(exprtemp->left->reg);
                 }
                 if(t->kind == TYPE_STRING) {                                                        
                     expr_codegen(exprtemp->left);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                    printf("\t\tbl\tprint_string\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    fprintf(fp, "\t\tbl\tprint_string\n");
                     scratch_free(exprtemp->left->reg);
                 }
                 if(t->kind == TYPE_CHAR) {
                     expr_codegen(exprtemp->left);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                    printf("\t\tbl\tprint_character\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    fprintf(fp, "\t\tbl\tprint_character\n");
                     scratch_free(exprtemp->left->reg);
                 }
                 if(t->kind == TYPE_BOOLEAN) {
                     expr_codegen(exprtemp->left);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
-                    printf("\t\tbl\tprint_boolean\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->left->reg));
+                    fprintf(fp, "\t\tbl\tprint_boolean\n");
                     scratch_free(exprtemp->left->reg);
                 }
 
                 t = expr_typecheck(exprtemp->right);
                 if(t->kind == TYPE_INTEGER) {
                     expr_codegen(exprtemp->right);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
-                    printf("\t\tbl\tprint_integer\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    fprintf(fp, "\t\tbl\tprint_integer\n");
                     scratch_free(exprtemp->right->reg);
                 }
                 if(t->kind == TYPE_STRING) {                                                        
                     expr_codegen(exprtemp->right);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
-                    printf("\t\tbl\tprint_string\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    fprintf(fp, "\t\tbl\tprint_string\n");
                     scratch_free(exprtemp->right->reg);
                 }
                 if(t->kind == TYPE_CHAR) {
                     expr_codegen(exprtemp->right);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
-                    printf("\t\tbl\tprint_character\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    fprintf(fp, "\t\tbl\tprint_character\n");
                     scratch_free(exprtemp->right->reg);
                 }
                 if(t->kind == TYPE_BOOLEAN) {
                     expr_codegen(exprtemp->right);
-                    printf("\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
-                    printf("\t\tbl\tprint_boolean\n");
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(exprtemp->right->reg));
+                    fprintf(fp, "\t\tbl\tprint_boolean\n");
                     scratch_free(exprtemp->right->reg);
                 }
             }
@@ -539,14 +540,14 @@ void stmt_codegen(struct stmt* s) {
                 expr_codegen(s->expr);
                 
                 // print the code to move register contents above into x0
-                printf("\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
+                fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(s->expr->reg));
 
                 // free the register used to move the return value
                 scratch_free(s->expr->reg);
             }
 
             // whether returning a value or not, we need to shrink stack and return
-            printf("\t\tldp\tx29, x30, [sp], #%i\n\t\tret\n", callStackSize);
+            fprintf(fp, "\t\tldp\tx29, x30, [sp], #%i\n\t\tret\n", callStackSize);
 
         break;
 
@@ -560,16 +561,16 @@ void stmt_codegen(struct stmt* s) {
             doneLabel = stmt_label_create();
 
             // compare the result of the expression
-            printf("\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
+            fprintf(fp, "\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
             
             // if the expression is false, jump to done
-            printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+            fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
 
             // if the expression is true, generate code for the expression
             stmt_codegen(s->body);
 
             // print the done label after the body of the statement
-            printf("\t%s:\n", stmt_label_name(doneLabel));
+            fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
             // free the scratch register used
             scratch_free(s->expr->reg);
@@ -587,25 +588,25 @@ void stmt_codegen(struct stmt* s) {
             doneLabel = stmt_label_create();
 
             // compare the result of the expression
-            printf("\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
+            fprintf(fp, "\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
             
             // if the expression is false, jump to else
-            printf("\t\tb.eq\t%s\n", stmt_label_name(elseLabel));
+            fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(elseLabel));
 
             // if the expression is true, generate code for the expression
             stmt_codegen(s->body);
 
             // jump to the done label once done with 'if' body
-            printf("\t\tb\t%s\n", stmt_label_name(doneLabel));
+            fprintf(fp, "\t\tb\t%s\n", stmt_label_name(doneLabel));
 
             // print the else label after the body of the statement
-            printf("\t%s:\n", stmt_label_name(elseLabel));
+            fprintf(fp, "\t%s:\n", stmt_label_name(elseLabel));
 
             // print the else body for if the expression is false
             stmt_codegen(s->else_body);
 
             // print the done label so that 'if' body can skip 'else' body
-            printf("\t%s:\n", stmt_label_name(doneLabel));
+            fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
             // free the scratch register used
             scratch_free(s->expr->reg);
@@ -625,7 +626,7 @@ void stmt_codegen(struct stmt* s) {
             }
 
             // print the label for the top of the loop
-            printf("\t%s:\n", stmt_label_name(loopLabel));
+            fprintf(fp, "\t%s:\n", stmt_label_name(loopLabel));
 
             // should only be done if the loop has a middle expression
             if(s->expr != NULL) {
@@ -634,10 +635,10 @@ void stmt_codegen(struct stmt* s) {
                 expr_codegen(s->expr);
 
                 // check to see if the expression is false
-                printf("\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
+                fprintf(fp, "\t\tcmp\t%s, 0\n", scratch_name(s->expr->reg));
 
                 // if so, jump to the done label outside of the loop
-                printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+                fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
 
                 // free the scratch register used
                 scratch_free(s->expr->reg);
@@ -653,10 +654,10 @@ void stmt_codegen(struct stmt* s) {
             }
 
             // jump back to the top of the loop
-            printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+            fprintf(fp, "\t\tb\t%s\n", stmt_label_name(loopLabel));
 
             // print the done label for escaping the loop
-            printf("\t%s:\n", stmt_label_name(doneLabel));
+            fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
         break;
 

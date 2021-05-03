@@ -12,6 +12,7 @@ extern int totalTypeErrors;
 extern char localsTP[256][300];
 extern int localsTPCounter;
 extern int callStackSize;
+extern FILE* fp;
 
 // basic factory function for creating an 'expr' struct (basic expression)
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
@@ -327,6 +328,232 @@ void expr_print(struct expr *e) {
         expr_print(e->left);
         printf("=");
         expr_print(e->right);
+    }
+}
+
+// printing function for use by codegen to print to file rather than stdout
+void expr_print_file(struct expr *e) {
+
+    /* for each expression, first consider the left and right sides. NOTE: single groups are not affected here, 
+    they are dealt with in the expr_print_file for 'group' section below, as well as nested groups! */
+    
+    /* if the left side of an expression is a group, do the following: */
+    if(e->left != NULL && e->left->kind == EXPR_GROUP) {
+        
+        /* if the precedence of the expression within the group is greater than OR EQUAL TO the precedence of the outer expression 
+        (we include equal to because order of ops prioritizes expressions left to right, so no need for parens if left is equal priority!)*/
+        if(precedence(e->left->left) >= precedence(e)) {
+
+            /* we can extract the expression from the group, replacing e->left */
+            e->left = e->left->left;
+
+        }
+    }
+
+    /* if the right side of an expression is a group, do the following: */
+    if(e->right != NULL && e->right->kind == EXPR_GROUP) {
+        
+        /* if the precedence of the expression within the group is greater than the precedence of the outer expression */
+        if(precedence(e->right->left) > precedence(e)) {
+
+            /* we can extract the expression from the group, replacing e->right */
+            e->right = e->right->left;
+            
+        }
+    }
+
+    /* after expressions have been extracted from groups if necessary, we can print normally */
+
+    if(e->kind == EXPR_NAME) {
+        fprintf(fp, "%s", e->name);
+    }
+    if(e->kind == EXPR_INTLIT) {
+        fprintf(fp, "%i", e->literal_value);
+    }
+    if(e->kind == EXPR_BOOLLIT) {
+        if(e->literal_value == 0) {
+            fprintf(fp, "false");
+        }
+        else
+            fprintf(fp, "true");
+    }
+    if(e->kind == EXPR_STRINGLIT) {
+
+        // go character by character, and print escape sequences literally if found
+        for(int i = 0; i < strlen(e->string_literal); i++) {
+            if(e->string_literal[i] == 10) {
+                fprintf(fp, "\\n");
+            }
+            else if(e->string_literal[i] == 0) {
+                fprintf(fp, "\\0");
+            }
+            else{
+                fprintf(fp, "%c", e->string_literal[i]);
+            }
+        }
+    }
+    if(e->kind == EXPR_CHARLIT) {
+        fprintf(fp, "\'");
+        
+        // print escape sequences literally if found
+        if(e->literal_value == 10) {
+            fprintf(fp, "\\n");
+        }
+        else if(e->literal_value == 0) {
+            fprintf(fp, "\\0");
+        }
+        else{
+            fprintf(fp, "%c", e->literal_value);
+        }
+        fprintf(fp, "\'");
+    }
+    if(e->kind == EXPR_FCALL) {
+        expr_print_file(e->left);
+        fprintf(fp, "(");
+        
+        // in case the function call requires no parameters
+        if(e->right != NULL) {
+            expr_print_file(e->right);
+        }
+        fprintf(fp, ")");
+    }
+    if(e->kind == EXPR_GROUP) {
+        
+        /* no need for more than one set of parens (((((like this))))) */
+        if(e->left->kind == EXPR_GROUP) {
+            expr_print_file(e->left);
+        }
+        
+        /* no need for parens around a single term / unary expression */
+        else if(unaryExpr(e->left->kind) == 1) {
+            expr_print_file(e->left);
+        }
+
+        /* if parens are absolutely required */
+        else {
+            fprintf(fp, "(");
+            expr_print_file(e->left);
+            fprintf(fp, ")");
+        }
+    }
+    if(e->kind == EXPR_ARRIND) {
+        expr_print_file(e->left);
+        fprintf(fp, "[");
+        expr_print_file(e->right);
+        fprintf(fp, "]");
+    }
+    if(e->kind == EXPR_BRACKET) {
+        expr_print_file(e->left);
+        fprintf(fp, "]");
+        if(e->right != NULL) {
+            fprintf(fp, "[");
+            expr_print_file(e->right);
+        }
+    }
+    if(e->kind == EXPR_CURLS) {
+        fprintf(fp, "{");
+        if(e->left != NULL) {
+            expr_print_file(e->left);
+        }
+        fprintf(fp, "}");
+    }
+    if(e->kind == EXPR_ARGS) {
+        expr_print_file(e->left);
+        if(e->right != NULL) {
+            fprintf(fp, ", ");
+            expr_print_file(e->right);
+        }
+    }
+    if(e->kind == EXPR_INC) {
+        expr_print_file(e->left);
+        fprintf(fp, "++");
+    }
+    if(e->kind == EXPR_DEC) {
+        expr_print_file(e->left);
+        fprintf(fp, "--");
+    }
+    if(e->kind == EXPR_NOT) {
+        fprintf(fp, "!");
+        expr_print_file(e->left);
+    }
+    if(e->kind == EXPR_NEG) {
+        fprintf(fp, "-");
+        expr_print_file(e->left);
+    }
+    if(e->kind == EXPR_EXPON) {
+        expr_print_file(e->left);
+        fprintf(fp, "^");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_MOD) {
+        expr_print_file(e->left);
+        fprintf(fp, "%%");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_DIV) {
+        expr_print_file(e->left);
+        fprintf(fp, "/");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_MULT) {
+        expr_print_file(e->left);
+        fprintf(fp, "*");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_SUB) {
+        expr_print_file(e->left);
+        fprintf(fp, "-");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_ADD) {
+        expr_print_file(e->left);
+        fprintf(fp, "+");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_NEQUAL) {
+        expr_print_file(e->left);
+        fprintf(fp, "!=");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_EQUAL) {
+        expr_print_file(e->left);
+        fprintf(fp, "==");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_GE) {
+        expr_print_file(e->left);
+        fprintf(fp, ">=");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_GREATER) {
+        expr_print_file(e->left);
+        fprintf(fp, ">");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_LE) {
+        expr_print_file(e->left);
+        fprintf(fp, "<=");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_LESS) {
+        expr_print_file(e->left);
+        fprintf(fp, "<");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_AND) {
+        expr_print_file(e->left);
+        fprintf(fp, "&&");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_OR) {
+        expr_print_file(e->left);
+        fprintf(fp, "||");
+        expr_print_file(e->right);
+    }
+    if(e->kind == EXPR_ASSIGN) {
+        expr_print_file(e->left);
+        fprintf(fp, "=");
+        expr_print_file(e->right);
     }
 }
 
@@ -975,37 +1202,37 @@ void expr_codegen(struct expr* e) {
             // for global string variables (using labels)
             if(e->symbol->type->kind == TYPE_STRING && e->symbol->kind == SYMBOL_GLOBAL) {
                 e->reg = scratch_alloc();
-                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->name);
-                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->name);
+                fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->name);
+                fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->name);
                 break;
             }
 
             // for local string variables (using labels)
             if(e->symbol->type->kind == TYPE_STRING && e->symbol->kind == SYMBOL_LOCAL) {
                 e->reg = scratch_alloc();
-                printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), var_label_name(e->symbol->which));
-                printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), var_label_name(e->symbol->which));
+                fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), var_label_name(e->symbol->which));
+                fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), var_label_name(e->symbol->which));
                 break;
             }
 
             // for all other variables
             e->reg = scratch_alloc();
-            printf("\t\tldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
+            fprintf(fp, "\t\tldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
         break;
 
         case EXPR_INTLIT:
             e->reg = scratch_alloc();
-            printf("\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            fprintf(fp, "\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
         break;
 
         case EXPR_BOOLLIT:
             e->reg = scratch_alloc();
-            printf("\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            fprintf(fp, "\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
         break;
 
         case EXPR_CHARLIT:
             e->reg = scratch_alloc();
-            printf("\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            fprintf(fp, "\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
         break;
 
         case EXPR_STRINGLIT:
@@ -1025,8 +1252,8 @@ void expr_codegen(struct expr* e) {
             localsTPCounter++;
 
             // generate the code to store the address of this string literal into a free register
-            printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), lit_label_name(tempLitLabel));
-            printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), lit_label_name(tempLitLabel));
+            fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), lit_label_name(tempLitLabel));
+            fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), lit_label_name(tempLitLabel));
 
         break;
 
@@ -1035,7 +1262,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_ADD:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("\t\tadd\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tadd\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
             
@@ -1044,7 +1271,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_SUB:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("\t\tsub\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tsub\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -1052,7 +1279,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_MULT:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -1060,7 +1287,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_DIV:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("\t\tsdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tsdiv\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -1073,9 +1300,9 @@ void expr_codegen(struct expr* e) {
             e->reg = scratch_alloc();
 
             // will need more than one machine instruction for mod
-            printf("\t\tudiv\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
-            printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->right->reg), scratch_name(e->reg));
-            printf("\t\tsub\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->reg));
+            fprintf(fp, "\t\tudiv\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tmul\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->right->reg), scratch_name(e->reg));
+            fprintf(fp, "\t\tsub\t%s, %s, %s\n", scratch_name(e->reg), scratch_name(e->left->reg), scratch_name(e->reg));
             
             // free the two operand scratch registers
             scratch_free(e->left->reg);
@@ -1085,7 +1312,7 @@ void expr_codegen(struct expr* e) {
         case EXPR_AND:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("\t\tand\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tand\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
@@ -1093,34 +1320,34 @@ void expr_codegen(struct expr* e) {
         case EXPR_OR:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            printf("\t\torr\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\torr\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
         break;
 
         case EXPR_INC:
             expr_codegen(e->left);
-            printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
-            printf("\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
+            fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
         break;
 
         case EXPR_DEC:
             expr_codegen(e->left);
-            printf("\t\tsub\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
-            printf("\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
+            fprintf(fp, "\t\tsub\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
         break;
 
         case EXPR_NEG:
             expr_codegen(e->left);
-            printf("\t\tneg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            fprintf(fp, "\t\tneg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
         case EXPR_NOT:
             expr_codegen(e->left);
-            printf("\t\tmvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            fprintf(fp, "\t\tmvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
@@ -1136,13 +1363,13 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->right);
 
             // move operands from their registers to x0 and x1 and call function
-            printf("\t\tmov\tx0, %s\n", scratch_name(e->left->reg));
-            printf("\t\tmov\tx1, %s\n", scratch_name(e->right->reg));
-            printf("\t\tbl\tinteger_power\n");
+            fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(e->left->reg));
+            fprintf(fp, "\t\tmov\tx1, %s\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t\tbl\tinteger_power\n");
 
             // this expression's register will be the right register, which needs x0's contents
             e->reg = e->right->reg;
-            printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+            fprintf(fp, "\t\tmov\t%s, x0\n", scratch_name(e->reg));
             
             // free the register used to fetch the left operand
             scratch_free(e->right->reg);
@@ -1152,21 +1379,21 @@ void expr_codegen(struct expr* e) {
         case EXPR_FCALL:
 
             // before the function call, we should save the contents of each register x9-x15 (obviously not optimized!)
-            printf("\t\tstr\tx9, [sp, %i]\n",  callStackSize - 8*6);
-            printf("\t\tstr\tx10, [sp, %i]\n", callStackSize - 8*5);
-            printf("\t\tstr\tx11, [sp, %i]\n", callStackSize - 8*4);
-            printf("\t\tstr\tx12, [sp, %i]\n", callStackSize - 8*3);
-            printf("\t\tstr\tx13, [sp, %i]\n", callStackSize - 8*2);
-            printf("\t\tstr\tx14, [sp, %i]\n", callStackSize - 8*1);
-            printf("\t\tstr\tx15, [sp, %i]\n", callStackSize - 8*0);
+            fprintf(fp, "\t\tstr\tx9, [sp, %i]\n",  callStackSize - 8*6);
+            fprintf(fp, "\t\tstr\tx10, [sp, %i]\n", callStackSize - 8*5);
+            fprintf(fp, "\t\tstr\tx11, [sp, %i]\n", callStackSize - 8*4);
+            fprintf(fp, "\t\tstr\tx12, [sp, %i]\n", callStackSize - 8*3);
+            fprintf(fp, "\t\tstr\tx13, [sp, %i]\n", callStackSize - 8*2);
+            fprintf(fp, "\t\tstr\tx14, [sp, %i]\n", callStackSize - 8*1);
+            fprintf(fp, "\t\tstr\tx15, [sp, %i]\n", callStackSize - 8*0);
 
             // if the function call does not pass parameters
             if(e->right == NULL) {
                 
                 // simply branch to the function, no params needed
-                printf("\t\tbl\t");
-                expr_print(e->left);
-                printf("\n");
+                fprintf(fp, "\t\tbl\t");
+                expr_print_file(e->left);
+                fprintf(fp, "\n");
 
             }
 
@@ -1177,12 +1404,12 @@ void expr_codegen(struct expr* e) {
                 expr_codegen(e->right->left);
 
                 // move the register with param into x0
-                printf("\t\tmov\tx0, %s\n", scratch_name(e->right->left->reg));
+                fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(e->right->left->reg));
                 
                 // branch to the function's label
-                printf("\t\tbl\t");
-                expr_print(e->left);
-                printf("\n");
+                fprintf(fp, "\t\tbl\t");
+                expr_print_file(e->left);
+                fprintf(fp, "\n");
 
                 // free the register used
                 scratch_free(e->right->left->reg);
@@ -1201,7 +1428,7 @@ void expr_codegen(struct expr* e) {
 
                     // load the argument into the next parameter register
                     expr_codegen(tempe->left);
-                    printf("\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
+                    fprintf(fp, "\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
                     scratch_free(tempe->left->reg);
 
                     // increment register count and update tempe
@@ -1217,33 +1444,33 @@ void expr_codegen(struct expr* e) {
                 
                 // load the second to last parameter
                 expr_codegen(tempe->left);
-                printf("\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
+                fprintf(fp, "\t\tmov\tx%i, %s\n", paramRegCount, scratch_name(tempe->left->reg));
                 scratch_free(tempe->left->reg);
 
                 // load the last parameter
                 expr_codegen(tempe->right);
-                printf("\t\tmov\tx%i, %s\n", paramRegCount + 1, scratch_name(tempe->right->reg));
+                fprintf(fp, "\t\tmov\tx%i, %s\n", paramRegCount + 1, scratch_name(tempe->right->reg));
                 scratch_free(tempe->right->reg);
 
                 // branch to the function's label
-                printf("\t\tbl\t");
-                expr_print(e->left);
-                printf("\n");
+                fprintf(fp, "\t\tbl\t");
+                expr_print_file(e->left);
+                fprintf(fp, "\n");
                 
             }
 
             // after the function call, we should restore the contents of each register x9-x15 (obviously not optimized!)
-            printf("\t\tldr\tx9, [sp, %i]\n",  callStackSize - 8*6);
-            printf("\t\tldr\tx10, [sp, %i]\n", callStackSize - 8*5);
-            printf("\t\tldr\tx11, [sp, %i]\n", callStackSize - 8*4);
-            printf("\t\tldr\tx12, [sp, %i]\n", callStackSize - 8*3);
-            printf("\t\tldr\tx13, [sp, %i]\n", callStackSize - 8*2);
-            printf("\t\tldr\tx14, [sp, %i]\n", callStackSize - 8*1);
-            printf("\t\tldr\tx15, [sp, %i]\n", callStackSize - 8*0);
+            fprintf(fp, "\t\tldr\tx9, [sp, %i]\n",  callStackSize - 8*6);
+            fprintf(fp, "\t\tldr\tx10, [sp, %i]\n", callStackSize - 8*5);
+            fprintf(fp, "\t\tldr\tx11, [sp, %i]\n", callStackSize - 8*4);
+            fprintf(fp, "\t\tldr\tx12, [sp, %i]\n", callStackSize - 8*3);
+            fprintf(fp, "\t\tldr\tx13, [sp, %i]\n", callStackSize - 8*2);
+            fprintf(fp, "\t\tldr\tx14, [sp, %i]\n", callStackSize - 8*1);
+            fprintf(fp, "\t\tldr\tx15, [sp, %i]\n", callStackSize - 8*0);
 
             // function call result should be saved to an alternate register (NOT x0) upon return
             e->reg = scratch_alloc();
-            printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+            fprintf(fp, "\t\tmov\t%s, x0\n", scratch_name(e->reg));
         break;
 
         // for assigning expressions
@@ -1267,22 +1494,22 @@ void expr_codegen(struct expr* e) {
 
                     // generate code to get the address of the left array in a register
                     e->reg = scratch_alloc();
-                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->left->name);
-                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->left->name);
+                    fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->left->name);
+                    fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->left->name);
 
                     // get the address from the expression in the brackets and multiply it by 4
                     expr_codegen(e->left->right);
                     fourReg = scratch_alloc();
-                    printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+                    fprintf(fp, "\t\tmov\t%s, 4\n", scratch_name(fourReg));
 
                     // use this to increment the pointer
-                    printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->left->right->reg), scratch_name(e->left->right->reg), scratch_name(fourReg));
+                    fprintf(fp, "\t\tmul\t%s, %s, %s\n", scratch_name(e->left->right->reg), scratch_name(e->left->right->reg), scratch_name(fourReg));
 
                     // need to move the result of the right expression into x0
-                    printf("\t\tmov\tx0, %s\n", scratch_name(e->right->reg));
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(e->right->reg));
 
                     // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
-                    printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->left->right->reg));
+                    fprintf(fp, "\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->left->right->reg));
 
                     // free the registers used
                     scratch_free(e->right->reg);
@@ -1310,27 +1537,27 @@ void expr_codegen(struct expr* e) {
                     doneLabel = stmt_label_create();
 
                     // start by loading the position register with a 0
-                    printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+                    fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->reg));
 
                     // print the loop label
-                    printf("\t%s:\n", stmt_label_name(loopLabel));
+                    fprintf(fp, "\t%s:\n", stmt_label_name(loopLabel));
 
                     // move the source character to the destination
-                    printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
-                    printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tstrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));
 
                     // compare the source character to null terminator to see if we are done
-                    printf("\t\tcmp\tw0, 0\n");
+                    fprintf(fp, "\t\tcmp\tw0, 0\n");
 
                     // if they are equal jump to done
-                    printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+                    fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
 
                     // otherwise, increment the position register and jump to the top of the loop
-                    printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
-                    printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+                    fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tb\t%s\n", stmt_label_name(loopLabel));
 
                     // print the done label for exiting the loop
-                    printf("\t%s:\n", stmt_label_name(doneLabel));
+                    fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
                     // free up the three registers used
                     scratch_free(e->right->reg);
@@ -1347,7 +1574,7 @@ void expr_codegen(struct expr* e) {
                     expr_codegen(e->right);
 
                     // store the result into the memory location
-                    printf("\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+                    fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
 
                     // free the register since no more assigns are needed
                     scratch_free(e->right->reg);
@@ -1363,11 +1590,11 @@ void expr_codegen(struct expr* e) {
 
                     // store the address of the global variable in a free register
                     e->reg = scratch_alloc();
-                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
-                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+                    fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
+                    fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
                     
                     // store the result of the right expression into the global variable
-                    printf("\t\tstr\t%s, [%s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->right->reg), scratch_name(e->reg));
 
                     // free the register that held the address of the global
                     scratch_free(e->reg);
@@ -1397,22 +1624,22 @@ void expr_codegen(struct expr* e) {
 
                         // generate code to get the address of the left array in a register
                         e->reg = scratch_alloc();
-                        printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->right->left->name);
-                        printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->right->left->name);
+                        fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->right->left->name);
+                        fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->right->left->name);
 
                         // get the address from the expression in the brackets and multiply it by 4
                         expr_codegen(tempe->right->right);
                         fourReg = scratch_alloc();
-                        printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+                        fprintf(fp, "\t\tmov\t%s, 4\n", scratch_name(fourReg));
 
                         // use this to increment the pointer
-                        printf("\t\tmul\t%s, %s, %s\n", scratch_name(tempe->right->right->reg), scratch_name(tempe->right->right->reg), scratch_name(fourReg));
+                        fprintf(fp, "\t\tmul\t%s, %s, %s\n", scratch_name(tempe->right->right->reg), scratch_name(tempe->right->right->reg), scratch_name(fourReg));
 
                         // need to move the result of the right expression into x0
-                        printf("\t\tmov\tx0, %s\n", scratch_name(tempe2->reg));
+                        fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(tempe2->reg));
 
                         // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
-                        printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->right->reg));
+                        fprintf(fp, "\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->right->reg));
 
                         // free the registers used
                         scratch_free(tempe2->reg);
@@ -1439,27 +1666,27 @@ void expr_codegen(struct expr* e) {
                         doneLabel = stmt_label_create();
 
                         // start by loading the position register with a 0
-                        printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+                        fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->reg));
 
                         // print the loop label
-                        printf("\t%s:\n", stmt_label_name(loopLabel));
+                        fprintf(fp, "\t%s:\n", stmt_label_name(loopLabel));
 
                         // move the source character to the destination
-                        printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
-                        printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->right->reg), scratch_name(e->reg));
+                        fprintf(fp, "\t\tldrb\tw0, [%s, %s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+                        fprintf(fp, "\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->right->reg), scratch_name(e->reg));
 
                         // compare the source character to null terminator to see if we are done
-                        printf("\t\tcmp\tw0, 0\n");
+                        fprintf(fp, "\t\tcmp\tw0, 0\n");
 
                         // if they are equal jump to done
-                        printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+                        fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
 
                         // otherwise, increment the position register and jump to the top of the loop
-                        printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
-                        printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+                        fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                        fprintf(fp, "\t\tb\t%s\n", stmt_label_name(loopLabel));
 
                         // print the done label for exiting the loop
-                        printf("\t%s:\n", stmt_label_name(doneLabel));
+                        fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
                         // free up the three registers used
                         scratch_free(tempe2->reg);
@@ -1475,7 +1702,7 @@ void expr_codegen(struct expr* e) {
                         expr_codegen(tempe2);
 
                         // store the result into the memory location
-                        printf("\t\tstr\t%s, %s\n", scratch_name(tempe2->reg), symbol_codegen(tempe->right->symbol));
+                        fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(tempe2->reg), symbol_codegen(tempe->right->symbol));
 
                         // free the used register, value stored in tempe now
                         scratch_free(tempe2->reg);
@@ -1490,11 +1717,11 @@ void expr_codegen(struct expr* e) {
 
                         // store the address of the global variable in a free register
                         e->reg = scratch_alloc();
-                        printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->right->name);
-                        printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->right->name);
+                        fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->right->name);
+                        fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->right->name);
                         
                         // store the result of the right expression into the global variable
-                        printf("\t\tstr\t%s, [%s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+                        fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
 
                         // free the register that held the address of the global
                         scratch_free(e->reg);
@@ -1519,22 +1746,22 @@ void expr_codegen(struct expr* e) {
 
                     // generate code to get the address of the left array in a register
                     e->reg = scratch_alloc();
-                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->left->name);
-                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->left->name);
+                    fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->left->name);
+                    fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->left->name);
 
                     // get the address from the expression in the brackets and multiply it by 4
                     expr_codegen(tempe->right);
                     fourReg = scratch_alloc();
-                    printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+                    fprintf(fp, "\t\tmov\t%s, 4\n", scratch_name(fourReg));
 
                     // use this to increment the pointer
-                    printf("\t\tmul\t%s, %s, %s\n", scratch_name(tempe->right->reg), scratch_name(tempe->right->reg), scratch_name(fourReg));
+                    fprintf(fp, "\t\tmul\t%s, %s, %s\n", scratch_name(tempe->right->reg), scratch_name(tempe->right->reg), scratch_name(fourReg));
 
                     // need to move the result of the right expression into x0
-                    printf("\t\tmov\tx0, %s\n", scratch_name(tempe2->reg));
+                    fprintf(fp, "\t\tmov\tx0, %s\n", scratch_name(tempe2->reg));
 
                     // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
-                    printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->reg));
+                    fprintf(fp, "\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->reg));
 
                     // free the registers used
                     scratch_free(tempe2->reg);
@@ -1562,27 +1789,27 @@ void expr_codegen(struct expr* e) {
                     doneLabel = stmt_label_create();
 
                     // start by loading the position register with a 0
-                    printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+                    fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->reg));
 
                     // print the loop label
-                    printf("\t%s:\n", stmt_label_name(loopLabel));
+                    fprintf(fp, "\t%s:\n", stmt_label_name(loopLabel));
 
                     // move the source character to the destination
-                    printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
-                    printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tldrb\tw0, [%s, %s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tstrb\tw0, [%s, %s]\n", scratch_name(tempe->reg), scratch_name(e->reg));
 
                     // compare the source character to null terminator to see if we are done
-                    printf("\t\tcmp\tw0, 0\n");
+                    fprintf(fp, "\t\tcmp\tw0, 0\n");
 
                     // if they are equal jump to done
-                    printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
+                    fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
 
                     // otherwise, increment the position register and jump to the top of the loop
-                    printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
-                    printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+                    fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tb\t%s\n", stmt_label_name(loopLabel));
 
                     // print the done label for exiting the loop
-                    printf("\t%s:\n", stmt_label_name(doneLabel));
+                    fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
                     // free up the three registers used
                     scratch_free(tempe2->reg);
@@ -1599,7 +1826,7 @@ void expr_codegen(struct expr* e) {
                     expr_codegen(tempe2);
 
                     // store the result into the memory location
-                    printf("\t\tstr\t%s, %s\n", scratch_name(tempe2->reg), symbol_codegen(tempe->symbol));
+                    fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(tempe2->reg), symbol_codegen(tempe->symbol));
 
                     // free the used register, no more assignments needed
                     scratch_free(tempe2->reg);
@@ -1615,11 +1842,11 @@ void expr_codegen(struct expr* e) {
 
                     // store the address of the global variable in a free register
                     e->reg = scratch_alloc();
-                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->name);
-                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->name);
+                    fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->name);
+                    fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->name);
                     
                     // store the result of the right expression into the global variable
-                    printf("\t\tstr\t%s, [%s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
+                    fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(tempe2->reg), scratch_name(e->reg));
 
                     // free the register that held the address of the global
                     scratch_free(e->reg);
@@ -1645,19 +1872,19 @@ void expr_codegen(struct expr* e) {
             doneLabel = cond_label_create();
 
             // print out the execution flow for EXPR_GREATER expressions
-            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            printf("\t\tb.gt\t%s\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb.gt\t%s\n", cond_label_name(trueLabel));
 
             // this is the false condition
-            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
-            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb\t%s\n", cond_label_name(doneLabel));
 
             // this is the true condition
-            printf("\t%s:\n", cond_label_name(trueLabel));
-            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t%s:\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
 
             // this is the end of the conditional
-            printf("\t%s:\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t%s:\n", cond_label_name(doneLabel));
 
             // this expression takes over the right register, free the left
             scratch_free(e->left->reg);
@@ -1676,19 +1903,19 @@ void expr_codegen(struct expr* e) {
             doneLabel = cond_label_create();
 
             // print out the execution flow for EXPR_GE expressions
-            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            printf("\t\tb.ge\t%s\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb.ge\t%s\n", cond_label_name(trueLabel));
 
             // this is the false condition
-            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
-            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb\t%s\n", cond_label_name(doneLabel));
 
             // this is the true condition
-            printf("\t%s:\n", cond_label_name(trueLabel));
-            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t%s:\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
 
             // this is the end of the conditional
-            printf("\t%s:\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t%s:\n", cond_label_name(doneLabel));
 
             // this expression takes over the right register, free the left
             scratch_free(e->left->reg);
@@ -1707,19 +1934,19 @@ void expr_codegen(struct expr* e) {
             doneLabel = cond_label_create();
 
             // print out the execution flow for EXPR_LESS expressions
-            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            printf("\t\tb.lt\t%s\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb.lt\t%s\n", cond_label_name(trueLabel));
 
             // this is the false condition
-            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
-            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb\t%s\n", cond_label_name(doneLabel));
 
             // this is the true condition
-            printf("\t%s:\n", cond_label_name(trueLabel));
-            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t%s:\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
 
             // this is the end of the conditional
-            printf("\t%s:\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t%s:\n", cond_label_name(doneLabel));
 
             // this expression takes over the right register, free the left
             scratch_free(e->left->reg);
@@ -1738,19 +1965,19 @@ void expr_codegen(struct expr* e) {
             doneLabel = cond_label_create();
 
             // print out the execution flow for EXPR_LE expressions
-            printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            printf("\t\tb.le\t%s\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb.le\t%s\n", cond_label_name(trueLabel));
 
             // this is the false condition
-            printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
-            printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t\tb\t%s\n", cond_label_name(doneLabel));
 
             // this is the true condition
-            printf("\t%s:\n", cond_label_name(trueLabel));
-            printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+            fprintf(fp, "\t%s:\n", cond_label_name(trueLabel));
+            fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
 
             // this is the end of the conditional
-            printf("\t%s:\n", cond_label_name(doneLabel));
+            fprintf(fp, "\t%s:\n", cond_label_name(doneLabel));
 
             // this expression takes over the right register, free the left
             scratch_free(e->left->reg);
@@ -1771,7 +1998,7 @@ void expr_codegen(struct expr* e) {
 
                 // store 0 into a position register (EXPR_EQUAL takes this one over later anyway)
                 e->reg = scratch_alloc();   // r3
-                printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+                fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->reg));
 
                 // create labels for loop, true, false, and done
                 loopLabel = stmt_label_create();
@@ -1780,52 +2007,52 @@ void expr_codegen(struct expr* e) {
                 doneLabel = stmt_label_create();
 
                 // print the label for the start of the loop
-                printf("\t%s:\n", stmt_label_name(loopLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(loopLabel));
 
                 // move each of the characters at the stored position into a register
-                printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));   // r4
-                printf("\t\tldrb\tw1, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));   // r5
+                fprintf(fp, "\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));   // r4
+                fprintf(fp, "\t\tldrb\tw1, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));   // r5
 
                 // compare the characters
-                printf("\t\tcmp\tw0, w1\n");
+                fprintf(fp, "\t\tcmp\tw0, w1\n");
                 
 
                 // if unequal, jump to the false label
-                printf("\t\tb.ne\t%s\n", stmt_label_name(falseLabel));
+                fprintf(fp, "\t\tb.ne\t%s\n", stmt_label_name(falseLabel));
 
                 // if equal, characters match, we continue
 
                 // compare one of the characters (we know they are equal now) to 0
-                printf("\t\tcmp\tw0, 0\n");
+                fprintf(fp, "\t\tcmp\tw0, 0\n");
 
                 // if equal, we are done, jump to the true label
-                printf("\t\tb.eq\t%s\n", stmt_label_name(trueLabel));
+                fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(trueLabel));
 
                 // if unqeual, not at the end of string, we continue
 
                 // increment the position register
-                printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
 
                 // jump back to the top of the loop label
-                printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+                fprintf(fp, "\t\tb\t%s\n", stmt_label_name(loopLabel));
 
                 // print out the false label
-                printf("\t%s:\n", stmt_label_name(falseLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(falseLabel));
 
                 // since false, we store a 0 in the position register (belongs to this EXPR_EQUAL anyway)
-                printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+                fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->reg));
 
                 // jump to done label to avoid true part
-                printf("\t\tb\t%s\n", stmt_label_name(doneLabel));
+                fprintf(fp, "\t\tb\t%s\n", stmt_label_name(doneLabel));
 
                 // print out the true label
-                printf("\t%s:\n", stmt_label_name(trueLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(trueLabel));
 
                 // since true, we store a 1 in the position register (belongs to this EXPR_EQUAL anyway)
-                printf("\t\tmov\t%s, 1\n", scratch_name(e->reg));
+                fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->reg));
 
                 // print out the done label (false jumps here, true falls here)
-                printf("\t%s:\n", stmt_label_name(doneLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
                 // free registers used to store addresses
                 scratch_free(e->left->reg);     // r1
@@ -1844,19 +2071,19 @@ void expr_codegen(struct expr* e) {
                 doneLabel = cond_label_create();
 
                 // print out the execution flow for EXPR_EQUAL expressions
-                printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-                printf("\t\tb.eq\t%s\n", cond_label_name(trueLabel));
+                fprintf(fp, "\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+                fprintf(fp, "\t\tb.eq\t%s\n", cond_label_name(trueLabel));
 
                 // this is the false condition
-                printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
-                printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+                fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+                fprintf(fp, "\t\tb\t%s\n", cond_label_name(doneLabel));
 
                 // this is the true condition
-                printf("\t%s:\n", cond_label_name(trueLabel));
-                printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+                fprintf(fp, "\t%s:\n", cond_label_name(trueLabel));
+                fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
 
                 // this is the end of the conditional
-                printf("\t%s:\n", cond_label_name(doneLabel));
+                fprintf(fp, "\t%s:\n", cond_label_name(doneLabel));
 
                 // this expression takes over the right register, free the left
                 scratch_free(e->left->reg);
@@ -1878,7 +2105,7 @@ void expr_codegen(struct expr* e) {
 
                 // store 0 into a position register (EXPR_NEQUAL takes this one over later anyway)
                 e->reg = scratch_alloc();   // r3
-                printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+                fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->reg));
 
                 // create labels for loop, true, false, and done
                 loopLabel = stmt_label_create();
@@ -1887,51 +2114,51 @@ void expr_codegen(struct expr* e) {
                 doneLabel = stmt_label_create();
 
                 // print the label for the start of the loop
-                printf("\t%s:\n", stmt_label_name(loopLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(loopLabel));
 
                 // move each of the characters at the stored position into a register
-                printf("\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));   // r4
-                printf("\t\tldrb\tw1, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));   // r5
+                fprintf(fp, "\t\tldrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));   // r4
+                fprintf(fp, "\t\tldrb\tw1, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg));   // r5
 
                 // compare the characters
-                printf("\t\tcmp\tw0, w1\n");
+                fprintf(fp, "\t\tcmp\tw0, w1\n");
                 
                 // if unequal, jump to the true label
-                printf("\t\tb.ne\t%s\n", stmt_label_name(trueLabel));
+                fprintf(fp, "\t\tb.ne\t%s\n", stmt_label_name(trueLabel));
 
                 // if equal, characters match, we continue
 
                 // compare one of the characters (we know they are equal now) to 0
-                printf("\t\tcmp\tw0, 0\n");
+                fprintf(fp, "\t\tcmp\tw0, 0\n");
 
                 // if equal, we are done, jump to the false label
-                printf("\t\tb.eq\t%s\n", stmt_label_name(falseLabel));
+                fprintf(fp, "\t\tb.eq\t%s\n", stmt_label_name(falseLabel));
 
                 // if unqeual, not at the end of string, we continue
 
                 // increment the position register
-                printf("\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
+                fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->reg), scratch_name(e->reg));
 
                 // jump back to the top of the loop label
-                printf("\t\tb\t%s\n", stmt_label_name(loopLabel));
+                fprintf(fp, "\t\tb\t%s\n", stmt_label_name(loopLabel));
 
                 // print out the false label
-                printf("\t%s:\n", stmt_label_name(falseLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(falseLabel));
 
                 // since false, we store a 0 in the position register (belongs to this EXPR_NEQUAL anyway)
-                printf("\t\tmov\t%s, 0\n", scratch_name(e->reg));
+                fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->reg));
 
                 // jump to done label to avoid true part
-                printf("\t\tb\t%s\n", stmt_label_name(doneLabel));
+                fprintf(fp, "\t\tb\t%s\n", stmt_label_name(doneLabel));
 
                 // print out the true label
-                printf("\t%s:\n", stmt_label_name(trueLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(trueLabel));
 
                 // since true, we store a 1 in the position register (belongs to this EXPR_EQUAL anyway)
-                printf("\t\tmov\t%s, 1\n", scratch_name(e->reg));
+                fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->reg));
 
                 // print out the done label (false jumps here, true falls here)
-                printf("\t%s:\n", stmt_label_name(doneLabel));
+                fprintf(fp, "\t%s:\n", stmt_label_name(doneLabel));
 
                 // free registers used to store addresses
                 scratch_free(e->left->reg);     // r1
@@ -1949,19 +2176,19 @@ void expr_codegen(struct expr* e) {
                 doneLabel = cond_label_create();
 
                 // print out the execution flow for EXPR_NEQUAL expressions
-                printf("\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-                printf("\t\tb.ne\t%s\n", cond_label_name(trueLabel));
+                fprintf(fp, "\t\tcmp\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+                fprintf(fp, "\t\tb.ne\t%s\n", cond_label_name(trueLabel));
 
                 // this is the false condition
-                printf("\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
-                printf("\t\tb\t%s\n", cond_label_name(doneLabel));
+                fprintf(fp, "\t\tmov\t%s, 0\n", scratch_name(e->right->reg));
+                fprintf(fp, "\t\tb\t%s\n", cond_label_name(doneLabel));
 
                 // this is the true condition
-                printf("\t%s:\n", cond_label_name(trueLabel));
-                printf("\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
+                fprintf(fp, "\t%s:\n", cond_label_name(trueLabel));
+                fprintf(fp, "\t\tmov\t%s, 1\n", scratch_name(e->right->reg));
 
                 // this is the end of the conditional
-                printf("\t%s:\n", cond_label_name(doneLabel));
+                fprintf(fp, "\t%s:\n", cond_label_name(doneLabel));
 
                 // this expression takes over the right register, free the left
                 scratch_free(e->left->reg);
@@ -1976,20 +2203,20 @@ void expr_codegen(struct expr* e) {
             e->reg = scratch_alloc();
 
             // load the address of the array into this address
-            printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
-            printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+            fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
+            fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
 
             // get the address from the expression in the brackets and multiply it by 4
             expr_codegen(e->right);
             fourReg = scratch_alloc();
-            printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+            fprintf(fp, "\t\tmov\t%s, 4\n", scratch_name(fourReg));
 
             // use this to increment the pointer and get the value into register w0
-            printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->right->reg), scratch_name(fourReg));
-            printf("\t\tldr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->right->reg));
+            fprintf(fp, "\t\tmul\t%s, %s, %s\n", scratch_name(e->right->reg), scratch_name(e->right->reg), scratch_name(fourReg));
+            fprintf(fp, "\t\tldr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->right->reg));
 
             // move the x0 register to the register for this expression
-            printf("\t\tmov\t%s, x0\n", scratch_name(e->reg));
+            fprintf(fp, "\t\tmov\t%s, x0\n", scratch_name(e->reg));
 
             // free the registers used in the process
             scratch_free(fourReg);
