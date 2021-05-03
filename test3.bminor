@@ -35,6 +35,15 @@ arr:
         .global main
         main:
                 stp     x29, x30, [sp, #-72]!
+                mov     x9, #10
+                neg     x9, x9
+                mov     x0, x9
+                adrp    x10, arr
+                add     x10, x10, :lo12:arr
+                mov     x11, #3
+                mov     x12, 4
+                mul     x11, x11, x12
+                str     w0, [x10, x11]
                 mov     x9, #0
                 str     x9, [sp, 16]
         .LSTMT1:
@@ -49,65 +58,6 @@ arr:
         .LCOND2:
                 cmp     x10, 0
                 b.eq    .LSTMT2
-                ldr     x9, [sp, 16]
-                mov     x10, #2
-                udiv    x11, x9, x10
-                mul     x11, x10, x11
-                sub     x11, x9, x11
-                mov     x9, #0
-                cmp     x11, x9
-                b.eq    .LCOND3
-                mov     x9, 0
-                b       .LCOND4
-        .LCOND3:
-                mov     x9, 1
-        .LCOND4:
-                cmp     x9, 0
-                b.eq    .LSTMT3
-                mov     x10, #69
-                mov     x0, x10
-                adrp    x11, arr
-                add     x11, x11, :lo12:arr
-                ldr     x12, [sp, 16]
-                mov     x13, 4
-                mul     x12, x12, x13
-                str     w0, [x11, x12]
-                b       .LSTMT4
-        .LSTMT3:
-                adrp    x10, arr
-                add     x10, x10, :lo12:arr
-                mov     x11, #3
-                mov     x12, 4
-                mul     x11, x11, x12
-                ldr     w0, [x10, x11]
-                mov     x10, x0
-                mov     x0, x10
-                adrp    x11, arr
-                add     x11, x11, :lo12:arr
-                ldr     x12, [sp, 16]
-                mov     x13, 4
-                mul     x12, x12, x13
-                str     w0, [x11, x12]
-        .LSTMT4:
-                ldr     x9, [sp, 16]
-                add     x9, x9, 1
-                str     x9, [sp, 16]
-                b       .LSTMT1
-        .LSTMT2:
-                mov     x9, #0
-                str     x9, [sp, 16]
-        .LSTMT5:
-                ldr     x9, [sp, 16]
-                mov     x10, #10
-                cmp     x9, x10
-                b.lt    .LCOND5
-                mov     x10, 0
-                b       .LCOND6
-        .LCOND5:
-                mov     x10, 1
-        .LCOND6:
-                cmp     x10, 0
-                b.eq    .LSTMT6
                 adrp    x9, arr
                 add     x9, x9, :lo12:arr
                 ldr     x10, [sp, 16]
@@ -124,8 +74,8 @@ arr:
                 ldr     x9, [sp, 16]
                 add     x9, x9, 1
                 str     x9, [sp, 16]
-                b       .LSTMT5
-        .LSTMT6:
+                b       .LSTMT1
+        .LSTMT2:
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9

@@ -1288,7 +1288,7 @@ void expr_codegen(struct expr* e) {
                 }
                 
                 // if it is a string
-                if(e->left->symbol->type != NULL && e->left->symbol->type->kind == TYPE_STRING) {
+                if(e->left->symbol != NULL && e->left->symbol->type != NULL && e->left->symbol->type->kind == TYPE_STRING) {
                     
                     // generate code to get the righmost string into a register
                     expr_codegen(e->right);
@@ -1313,7 +1313,7 @@ void expr_codegen(struct expr* e) {
                 }
 
                 // if it is a local, non-string
-                if(e->left->symbol->kind == SYMBOL_LOCAL) {
+                if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_LOCAL) {
                     
                     // generate code to compute the right expression
                     expr_codegen(e->right);
@@ -1328,7 +1328,7 @@ void expr_codegen(struct expr* e) {
                 }
 
                 // if it is a global, non-string
-                else if(e->left->symbol->kind == SYMBOL_GLOBAL) {
+                if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_GLOBAL) {
                     
                     // generate code to compute the right expression
                     expr_codegen(e->right);
@@ -1427,7 +1427,7 @@ void expr_codegen(struct expr* e) {
                 }
 
                 // for the last assignment
-                
+
                 // if it is a string
                 if(tempe->symbol->type != NULL && tempe->symbol->type->kind == TYPE_STRING) {
                     
