@@ -1259,9 +1259,6 @@ void expr_codegen(struct expr* e) {
                     // generate code for the right side of the expression (should be integer)
                     expr_codegen(e->right);
 
-                    // need to move the result of the right expression into x0
-                    printf("\t\tmov\tx0, %s\n", scratch_name(e->right->reg));
-
                     // generate code to get the address of the left array in a register
                     e->reg = scratch_alloc();
                     printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->left->name);
@@ -1274,6 +1271,9 @@ void expr_codegen(struct expr* e) {
 
                     // use this to increment the pointer
                     printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->left->right->reg), scratch_name(e->left->right->reg), scratch_name(fourReg));
+
+                    // need to move the result of the right expression into x0
+                    printf("\t\tmov\tx0, %s\n", scratch_name(e->right->reg));
 
                     // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
                     printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->left->right->reg));
@@ -1361,8 +1361,41 @@ void expr_codegen(struct expr* e) {
                 
                 while(tempe->kind == EXPR_ASSIGN) {
 
+                    // if it is an array
+                    if(tempe->right->left != NULL && tempe->right->left->kind == EXPR_NAME) {
+                        
+                        // generate code for the right side of the expression (should be integer)
+                        expr_codegen(tempe2);
+
+                        // generate code to get the address of the left array in a register
+                        e->reg = scratch_alloc();
+                        printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->right->left->name);
+                        printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->right->left->name);
+
+                        // get the address from the expression in the brackets and multiply it by 4
+                        expr_codegen(tempe->right->right);
+                        fourReg = scratch_alloc();
+                        printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+
+                        // use this to increment the pointer
+                        printf("\t\tmul\t%s, %s, %s\n", scratch_name(tempe->right->right->reg), scratch_name(tempe->right->right->reg), scratch_name(fourReg));
+
+                        // need to move the result of the right expression into x0
+                        printf("\t\tmov\tx0, %s\n", scratch_name(tempe2->reg));
+
+                        // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
+                        printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->reg));
+
+                        // free the registers used
+                        scratch_free(tempe2->reg);
+                        scratch_free(e->reg);
+                        scratch_free(tempe->right->right->reg);
+                        scratch_free(fourReg);
+
+                    }
+
                     // if it is a string
-                    if(tempe->right->symbol->type != NULL && tempe->right->symbol->type->kind == TYPE_STRING) {
+                    if(tempe->right->symbol != NULL && tempe->right->symbol->type != NULL && tempe->right->symbol->type->kind == TYPE_STRING) {
                         
                         // generate code to get the righmost string into a register
                         expr_codegen(tempe2);
@@ -1386,7 +1419,7 @@ void expr_codegen(struct expr* e) {
                     }
 
                     // if it is a local, non-string
-                    else if(tempe->right->symbol->kind == SYMBOL_LOCAL) {
+                    else if(tempe->right->symbol != NULL && tempe->right->symbol->kind == SYMBOL_LOCAL) {
                     
                         // generate code to compute the right expression
                         expr_codegen(tempe2);
@@ -1400,7 +1433,7 @@ void expr_codegen(struct expr* e) {
                     }
 
                     // if it is a global, non-string
-                    else if(tempe->right->symbol->kind == SYMBOL_GLOBAL) {
+                    else if(tempe->right->symbol != NULL && tempe->right->symbol->kind == SYMBOL_GLOBAL) {
                         
                         // generate code to compute the right expression
                         expr_codegen(tempe2);
@@ -1428,8 +1461,42 @@ void expr_codegen(struct expr* e) {
 
                 // for the last assignment
 
+                // if it is an array
+                if(tempe->left != NULL && tempe->left->kind == EXPR_NAME) {
+                    
+                    // generate code for the right side of the expression (should be integer)
+                    expr_codegen(tempe2);
+
+                    // generate code to get the address of the left array in a register
+                    e->reg = scratch_alloc();
+                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), tempe->left->name);
+                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), tempe->left->name);
+
+                    // get the address from the expression in the brackets and multiply it by 4
+                    expr_codegen(tempe->right);
+                    fourReg = scratch_alloc();
+                    printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+
+                    // use this to increment the pointer
+                    printf("\t\tmul\t%s, %s, %s\n", scratch_name(tempe->right->reg), scratch_name(tempe->right->reg), scratch_name(fourReg));
+
+                    // need to move the result of the right expression into x0
+                    printf("\t\tmov\tx0, %s\n", scratch_name(tempe2->reg));
+
+                    // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
+                    printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(tempe->right->reg));
+
+                    // free the registers used
+                    scratch_free(tempe2->reg);
+                    scratch_free(e->reg);
+                    scratch_free(tempe->right->reg);
+                    scratch_free(fourReg);
+
+                    break;
+                }
+
                 // if it is a string
-                if(tempe->symbol->type != NULL && tempe->symbol->type->kind == TYPE_STRING) {
+                if(tempe->symbol != NULL && tempe->symbol->type != NULL && tempe->symbol->type->kind == TYPE_STRING) {
                     
                     // generate code to get the righmost string into a register
                     expr_codegen(tempe2);
@@ -1454,7 +1521,7 @@ void expr_codegen(struct expr* e) {
                 }
 
                 // for local, non-string
-                else if(tempe->symbol->kind == SYMBOL_LOCAL) {
+                else if(tempe->symbol != NULL && tempe->symbol->kind == SYMBOL_LOCAL) {
                 
                     // generate code to compute the right expression
                     expr_codegen(tempe2);
@@ -1469,7 +1536,7 @@ void expr_codegen(struct expr* e) {
                 }
 
                 // for global, non-string
-                else if(tempe->symbol->kind == SYMBOL_GLOBAL) {
+                else if(tempe->symbol != NULL && tempe->symbol->kind == SYMBOL_GLOBAL) {
                     
                     // generate code to compute the right expression
                     expr_codegen(tempe2);

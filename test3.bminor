@@ -2,28 +2,18 @@ scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88};
 
 main: function void () = {
 
+	scores[1] = scores[3] = scores[5] = 200;
+	scores[0] = scores[2] = 300;
+	scores[4] = 300;
+	scores[6] = scores[8] = 300;
+	scores[7] = scores[9] = 200;
+
 	i : integer = 0;
-	total : integer = 0;
-	avg : integer = 0;
-	max : integer = scores[0];
-	min : integer = scores[0];
-
 	for(i = 0; i < 10; i++) {
-		total = total + scores[i];
-		if(scores[i] > max) {
-			max = scores[i];
-		}
-		if(scores[i] < min) {
-			min = scores[i];
-		}
+		print scores[i], " ";
 	}
-	avg = total / 10;
+	print "\n";
 
-	print "The average test score is ", avg, "\n";
-	print "The maximum test score is ", max, "\n";
-	print "The minimum test score is ", min, "\n";
-	
-	return;
 }
 
 /*
@@ -47,29 +37,119 @@ scores:
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-104]!
+                stp     x29, x30, [sp, #-72]!
+                mov     x9, #200
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #5
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x9]
+                adrp    x9, scores
+                add     x9, x9, :lo12:scores
+                mov     x10, #5
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #3
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x9]
+                adrp    x9, scores
+                add     x9, x9, :lo12:scores
+                mov     x10, #3
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #1
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x11]
+                mov     x9, #300
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #2
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x9]
+                adrp    x9, scores
+                add     x9, x9, :lo12:scores
+                mov     x10, #2
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #0
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x11]
+                mov     x9, #300
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #4
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x11]
+                mov     x9, #300
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #8
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x9]
+                adrp    x9, scores
+                add     x9, x9, :lo12:scores
+                mov     x10, #8
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #6
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x11]
+                mov     x9, #200
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #9
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x9]
+                adrp    x9, scores
+                add     x9, x9, :lo12:scores
+                mov     x10, #9
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #7
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x11]
                 mov     x9, #0
                 str     x9, [sp, 16]
-                mov     x9, #0
-                str     x9, [sp, 24]
-                mov     x9, #0
-                str     x9, [sp, 32]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #0
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                str     x9, [sp, 40]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #0
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                str     x9, [sp, 48]
                 mov     x9, #0
                 str     x9, [sp, 16]
         .LSTMT1:
@@ -84,16 +164,6 @@ scores:
         .LCOND2:
                 cmp     x10, 0
                 b.eq    .LSTMT2
-                ldr     x9, [sp, 24]
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                ldr     x11, [sp, 16]
-                mov     x12, 4
-                mul     x11, x11, x12
-                ldr     w0, [x10, x11]
-                mov     x10, x0
-                add     x10, x9, x10
-                str     x10, [sp, 24]
                 adrp    x9, scores
                 add     x9, x9, :lo12:scores
                 ldr     x10, [sp, 16]
@@ -101,119 +171,29 @@ scores:
                 mul     x10, x10, x11
                 ldr     w0, [x9, x10]
                 mov     x9, x0
-                ldr     x10, [sp, 40]
-                cmp     x9, x10
-                b.gt    .LCOND3
-                mov     x10, 0
-                b       .LCOND4
-        .LCOND3:
-                mov     x10, 1
-        .LCOND4:
-                cmp     x10, 0
-                b.eq    .LSTMT3
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                ldr     x11, [sp, 16]
-                mov     x12, 4
-                mul     x11, x11, x12
-                ldr     w0, [x9, x11]
-                mov     x9, x0
-                str     x9, [sp, 40]
-        .LSTMT3:
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                ldr     x10, [sp, 16]
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                ldr     x10, [sp, 48]
-                cmp     x9, x10
-                b.lt    .LCOND5
-                mov     x10, 0
-                b       .LCOND6
-        .LCOND5:
-                mov     x10, 1
-        .LCOND6:
-                cmp     x10, 0
-                b.eq    .LSTMT4
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                ldr     x11, [sp, 16]
-                mov     x12, 4
-                mul     x11, x11, x12
-                ldr     w0, [x9, x11]
-                mov     x9, x0
-                str     x9, [sp, 48]
-        .LSTMT4:
+                mov     x0, x9
+                bl      print_integer
+                adrp    x9, .LSLIT1
+                add     x9, x9, :lo12:.LSLIT1
+                mov     x0, x9
+                bl      print_string
                 ldr     x9, [sp, 16]
                 add     x9, x9, 1
                 str     x9, [sp, 16]
                 b       .LSTMT1
         .LSTMT2:
-                ldr     x9, [sp, 24]
-                mov     x10, #10
-                sdiv    x10, x9, x10
-                str     x10, [sp, 32]
-                adrp    x9, .LSLIT1
-                add     x9, x9, :lo12:.LSLIT1
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 32]
-                mov     x0, x9
-                bl      print_integer
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, .LSLIT3
-                add     x9, x9, :lo12:.LSLIT3
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 40]
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LSLIT4
-                add     x9, x9, :lo12:.LSLIT4
-                mov     x0, x9
-                bl      print_string
-                adrp    x9, .LSLIT5
-                add     x9, x9, :lo12:.LSLIT5
-                mov     x0, x9
-                bl      print_string
-                ldr     x9, [sp, 48]
-                mov     x0, x9
-                bl      print_integer
-                adrp    x9, .LSLIT6
-                add     x9, x9, :lo12:.LSLIT6
-                mov     x0, x9
-                bl      print_string
-                ldp     x29, x30, [sp], #104
-                ret
-                ldp     x29, x30, [sp], #104
+                ldp     x29, x30, [sp], #72
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "The average test score is "
+        .string " "
         .section        .rodata
         .align 8
 .LSLIT2:
-        .string "\n"
-        .section        .rodata
-        .align 8
-.LSLIT3:
-        .string "The maximum test score is "
-        .section        .rodata
-        .align 8
-.LSLIT4:
-        .string "\n"
-        .section        .rodata
-        .align 8
-.LSLIT5:
-        .string "The minimum test score is "
-        .section        .rodata
-        .align 8
-.LSLIT6:
         .string "\n"
 */
