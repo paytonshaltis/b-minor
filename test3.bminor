@@ -39,13 +39,12 @@ arr:
                 mov     x11, 4
                 mul     x10, x10, x11
                 ldr     w0, [x9, x10]
-                mov     x9, x0
                 adrp    x10, arr
                 add     x10, x10, :lo12:arr
                 mov     x11, #1
                 mov     x12, 4
                 mul     x11, x11, x12
-                str     x9, [x10, x11]
+                str     w0, [x10, x11]
                 mov     x9, #0
                 str     x9, [sp, 16]
         .LSTMT1:

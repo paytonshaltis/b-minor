@@ -1257,7 +1257,25 @@ void expr_codegen(struct expr* e) {
                 if(e->left->left != NULL && e->left->left->kind == EXPR_NAME) {
                     
                     // generate code for the right side of the expression (should be integer)
-                    expr_codegen(e->right);
+                    // assgin a register for this indexing expression
+                    e->right->reg = scratch_alloc();
+
+                    // load the address of the array into this address
+                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->right->reg), e->right->left->name);
+                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->right->reg), scratch_name(e->right->reg), e->right->left->name);
+
+                    // get the address from the expression in the brackets and multiply it by 4
+                    expr_codegen(e->right->right);
+                    fourReg = scratch_alloc();
+                    printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+
+                    // use this to increment the pointer and get the value into register w0
+                    printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->right->right->reg), scratch_name(e->right->right->reg), scratch_name(fourReg));
+                    printf("\t\tldr\tw0, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->right->right->reg));
+
+                    // free the registers used in the process
+                    scratch_free(fourReg);
+                    scratch_free(e->right->right->reg);
 
                     // generate code to get the address of the left array in a register
                     e->reg = scratch_alloc();
@@ -1273,7 +1291,7 @@ void expr_codegen(struct expr* e) {
                     printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->left->right->reg), scratch_name(e->left->right->reg), scratch_name(fourReg));
 
                     // store the value of the right register into the memory address of the left
-                    printf("\t\tstr\t%s, [%s, %s]\n", scratch_name(e->right->reg), scratch_name(e->reg), scratch_name(e->left->right->reg));
+                    printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->left->right->reg));
 
                     // free the registers used
                     scratch_free(e->right->reg);
