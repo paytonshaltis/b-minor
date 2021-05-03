@@ -1,4 +1,4 @@
-scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88}; 
+str3 : string = "soup";
 
 main: function void (arr : array[] string) = {
 
@@ -13,6 +13,10 @@ main: function void (arr : array[] string) = {
 
 	print str2, "\n";
 
+	str2 = str3;
+
+	print str2, "\n";
+
 
 }
 
@@ -21,19 +25,9 @@ main: function void (arr : array[] string) = {
 .file   "output.s"
 
 .data
-        .global scores
-        .align 3
-scores:
-        .word   97
-        .word   87
-        .word   83
-        .word   99
-        .word   77
-        .word   80
-        .word   72
-        .word   100
-        .word   92
-        .word   88
+        .global str3
+        .align 8
+str3:   .string "soup"
 .text
         .global main
         main:
@@ -81,6 +75,27 @@ scores:
                 add     x9, x9, :lo12:.LSLIT3
                 mov     x0, x9
                 bl      print_string
+                adrp    x9, str3
+                add     x9, x9, :lo12:str3
+                adrp    x10, .LSVAR2
+                add     x10, x10, :lo12:.LSVAR2
+                mov     x11, 0
+        .LSTMT5:
+                ldrb    w0, [x9, x11]
+                strb    w0, [x10, x11]
+                cmp     w0, 0
+                b.eq    .LSTMT6
+                add     x11, x11, 1
+                b       .LSTMT5
+        .LSTMT6:
+                adrp    x9, .LSVAR2
+                add     x9, x9, :lo12:.LSVAR2
+                mov     x0, x9
+                bl      print_string
+                adrp    x9, .LSLIT4
+                add     x9, x9, :lo12:.LSLIT4
+                mov     x0, x9
+                bl      print_string
                 ldp     x29, x30, [sp], #88
                 ret
         .section        .data
@@ -102,5 +117,9 @@ scores:
         .section        .rodata
         .align 8
 .LSLIT3:
+        .string "\n"
+        .section        .rodata
+        .align 8
+.LSLIT4:
         .string "\n"
 */
