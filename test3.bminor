@@ -4,12 +4,7 @@ main: function void () = {
 
 	i : integer;
 
-	for(i = 0; i < 10; i++) {
-		if(i % 2 == 0)
-                        arr[i] = 69;
-                else 
-                        arr[i] = arr[3];	
-	}
+        arr[3] = -10;
 
 	for(i = 0; i < 10; i++) {
 		print arr[i], " ";	
