@@ -2,7 +2,7 @@ arr : array [10] integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
 main: function void () = {
     
-	/*arr[1] = arr[3] = arr[5] =*/ arr[7] = arr[9];
+	/*arr[1] = arr[3] = arr[5] =*/ arr[1] = arr[9];
 	i : integer;
 	for(i = 0; i < 10; i++) {
 		print arr[i], " ";	
@@ -42,7 +42,7 @@ arr:
                 mov     x9, x0
                 adrp    x10, arr
                 add     x10, x10, :lo12:arr
-                mov     x11, #7
+                mov     x11, #1
                 mov     x12, 4
                 mul     x11, x11, x12
                 str     x9, [x10, x11]
