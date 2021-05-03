@@ -1,18 +1,19 @@
-arr : array [10] integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; 
+scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88}; 
 
 main: function void () = {
 
-	i : integer;
+	i : integer = 0;
+	total : integer = 0;
+	avg : integer = 0;
 
-        arr[3] = -10;
+	// computes the average test score
+	for(i = 0; i < 10; i++) {
+		total = total + scores[i];
+	}
+	avg = total / 10;
 
-        if(arr[3] == -10) {
-                print "may be working...\n";
-        }
-
-        r : integer = 10 + arr[3];
-
-	print r, "\n";
+	print "The average test score is ", avg, "\n";
+	return;
 }
 
 /*
@@ -20,78 +21,81 @@ main: function void () = {
 .file   "output.s"
 
 .data
-        .global arr
+        .global scores
         .align 3
-arr:
-        .word   1
-        .word   2
-        .word   3
-        .word   4
-        .word   5
-        .word   6
-        .word   7
-        .word   8
-        .word   9
-        .word   10
+scores:
+        .word   97
+        .word   87
+        .word   83
+        .word   99
+        .word   77
+        .word   80
+        .word   72
+        .word   100
+        .word   92
+        .word   88
 .text
         .global main
         main:
-                stp     x29, x30, [sp, #-80]!
-                mov     x9, #10
-                neg     x9, x9
-                mov     x0, x9
-                adrp    x10, arr
-                add     x10, x10, :lo12:arr
-                mov     x11, #3
-                mov     x12, 4
-                mul     x11, x11, x12
-                str     w0, [x10, x11]
-                adrp    x9, arr
-                add     x9, x9, :lo12:arr
-                mov     x10, #3
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
+                stp     x29, x30, [sp, #-88]!
+                mov     x9, #0
+                str     x9, [sp, 16]
+                mov     x9, #0
+                str     x9, [sp, 24]
+                mov     x9, #0
+                str     x9, [sp, 32]
+                mov     x9, #0
+                str     x9, [sp, 16]
+        .LSTMT1:
+                ldr     x9, [sp, 16]
                 mov     x10, #10
-                neg     x10, x10
                 cmp     x9, x10
-                b.eq    .LCOND1
+                b.lt    .LCOND1
                 mov     x10, 0
                 b       .LCOND2
         .LCOND1:
                 mov     x10, 1
         .LCOND2:
                 cmp     x10, 0
-                b.eq    .LSTMT1
-                adrp    x9, .LSLIT1
-                add     x9, x9, :lo12:.LSLIT1
-                mov     x0, x9
-                bl      print_string
-        .LSTMT1:
-                mov     x9, #10
-                adrp    x10, arr
-                add     x10, x10, :lo12:arr
-                mov     x11, #3
+                b.eq    .LSTMT2
+                ldr     x9, [sp, 24]
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                ldr     x11, [sp, 16]
                 mov     x12, 4
                 mul     x11, x11, x12
                 ldr     w0, [x10, x11]
                 mov     x10, x0
                 add     x10, x9, x10
                 str     x10, [sp, 24]
+                ldr     x9, [sp, 16]
+                add     x9, x9, 1
+                str     x9, [sp, 16]
+                b       .LSTMT1
+        .LSTMT2:
                 ldr     x9, [sp, 24]
+                mov     x10, #10
+                sdiv    x10, x9, x10
+                str     x10, [sp, 32]
+                adrp    x9, .LSLIT1
+                add     x9, x9, :lo12:.LSLIT1
+                mov     x0, x9
+                bl      print_string
+                ldr     x9, [sp, 32]
                 mov     x0, x9
                 bl      print_integer
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-                ldp     x29, x30, [sp], #80
+                ldp     x29, x30, [sp], #88
+                ret
+                ldp     x29, x30, [sp], #88
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "may be working...\n"
+        .string "The average test score is "
         .section        .rodata
         .align 8
 .LSLIT2:
