@@ -8,7 +8,7 @@ main: function void () = {
 
         r : integer = 10 + arr[3];
 
-	print "r\n";
+	print r, "\n";
 }
 
 /*
@@ -52,6 +52,9 @@ arr:
                 mov     x10, x0
                 add     x10, x9, x10
                 str     x10, [sp, 24]
+                ldr     x9, [sp, 24]
+                mov     x0, x9
+                bl      print_integer
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
@@ -61,5 +64,5 @@ arr:
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string "r\n"
+        .string "\n"
 */
