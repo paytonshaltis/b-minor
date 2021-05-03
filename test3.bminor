@@ -5,7 +5,10 @@ main: function void () = {
 	i : integer;
 
 	for(i = 0; i < 10; i++) {
-		arr[i] = 69;	
+		if(i % 2 == 0)
+                        arr[i] = 69;
+                else 
+                        arr[i] = arr[3];	
 	}
 
 	for(i = 0; i < 10; i++) {
@@ -23,25 +26,15 @@ main: function void () = {
         .global arr
         .align 3
 arr:
-        .word   0
-		.word   1
-        .word   0
+        .word   1
         .word   2
-        .word   0
         .word   3
-        .word   0
         .word   4
-        .word   0
         .word   5
-        .word   0
         .word   6
-        .word   0
         .word   7
-        .word   0
         .word   8
-        .word   0
         .word   9
-        .word   0
         .word   10
 .text
         .global main
@@ -61,13 +54,46 @@ arr:
         .LCOND2:
                 cmp     x10, 0
                 b.eq    .LSTMT2
-                mov     x9, #69
+                ldr     x9, [sp, 16]
+                mov     x10, #2
+                udiv    x11, x9, x10
+                mul     x11, x10, x11
+                sub     x11, x9, x11
+                mov     x9, #0
+                cmp     x11, x9
+                b.eq    .LCOND3
+                mov     x9, 0
+                b       .LCOND4
+        .LCOND3:
+                mov     x9, 1
+        .LCOND4:
+                cmp     x9, 0
+                b.eq    .LSTMT3
+                mov     x10, #69
+                mov     x0, x10
+                adrp    x11, arr
+                add     x11, x11, :lo12:arr
+                ldr     x12, [sp, 16]
+                mov     x13, 4
+                mul     x12, x12, x13
+                str     w0, [x11, x12]
+                b       .LSTMT4
+        .LSTMT3:
                 adrp    x10, arr
                 add     x10, x10, :lo12:arr
-                ldr     x11, [sp, 16]
-                mov     x12, 8
+                mov     x11, #3
+                mov     x12, 4
                 mul     x11, x11, x12
-                str     x10, [x10, x11]
+                ldr     w0, [x10, x11]
+                mov     x10, x0
+                mov     x0, x10
+                adrp    x11, arr
+                add     x11, x11, :lo12:arr
+                ldr     x12, [sp, 16]
+                mov     x13, 4
+                mul     x12, x12, x13
+                str     w0, [x11, x12]
+        .LSTMT4:
                 ldr     x9, [sp, 16]
                 add     x9, x9, 1
                 str     x9, [sp, 16]
@@ -75,22 +101,22 @@ arr:
         .LSTMT2:
                 mov     x9, #0
                 str     x9, [sp, 16]
-        .LSTMT3:
+        .LSTMT5:
                 ldr     x9, [sp, 16]
                 mov     x10, #10
                 cmp     x9, x10
-                b.lt    .LCOND3
+                b.lt    .LCOND5
                 mov     x10, 0
-                b       .LCOND4
-        .LCOND3:
+                b       .LCOND6
+        .LCOND5:
                 mov     x10, 1
-        .LCOND4:
+        .LCOND6:
                 cmp     x10, 0
-                b.eq    .LSTMT4
+                b.eq    .LSTMT6
                 adrp    x9, arr
                 add     x9, x9, :lo12:arr
                 ldr     x10, [sp, 16]
-                mov     x11, 8
+                mov     x11, 4
                 mul     x10, x10, x11
                 ldr     w0, [x9, x10]
                 mov     x9, x0
@@ -103,8 +129,8 @@ arr:
                 ldr     x9, [sp, 16]
                 add     x9, x9, 1
                 str     x9, [sp, 16]
-                b       .LSTMT3
-        .LSTMT4:
+                b       .LSTMT5
+        .LSTMT6:
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9

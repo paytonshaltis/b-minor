@@ -1253,6 +1253,40 @@ void expr_codegen(struct expr* e) {
             // identifiers may either be string, non-string local, or non-string global
             if(e->left->kind != EXPR_ASSIGN) {
 
+                // if it is an array
+                if(e->left->left != NULL && e->left->left->kind == EXPR_NAME) {
+                    
+                    // generate code for the right side of the expression (should be integer)
+                    expr_codegen(e->right);
+
+                    // need to move the result of the right expression into x0
+                    printf("\t\tmov\tx0, %s\n", scratch_name(e->right->reg));
+
+                    // generate code to get the address of the left array in a register
+                    e->reg = scratch_alloc();
+                    printf("\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->left->name);
+                    printf("\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->left->name);
+
+                    // get the address from the expression in the brackets and multiply it by 4
+                    expr_codegen(e->left->right);
+                    fourReg = scratch_alloc();
+                    printf("\t\tmov\t%s, 4\n", scratch_name(fourReg));
+
+                    // use this to increment the pointer
+                    printf("\t\tmul\t%s, %s, %s\n", scratch_name(e->left->right->reg), scratch_name(e->left->right->reg), scratch_name(fourReg));
+
+                    // store the value of the right register (now in x0, 32 bit integer in w0) into the memory address of the left
+                    printf("\t\tstr\tw0, [%s, %s]\n", scratch_name(e->reg), scratch_name(e->left->right->reg));
+
+                    // free the registers used
+                    scratch_free(e->right->reg);
+                    scratch_free(e->reg);
+                    scratch_free(e->left->right->reg);
+                    scratch_free(fourReg);
+
+                    break;
+                }
+                
                 // if it is a string
                 if(e->left->symbol->type != NULL && e->left->symbol->type->kind == TYPE_STRING) {
                     
