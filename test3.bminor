@@ -2,11 +2,11 @@ scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88};
 
 main: function void () = {
 
-	scores[1] = scores[3] = scores[5] = 200;
+	scores[1] = scores[3] = scores[5] = scores[7] = scores[9] = 200;
 	scores[0] = scores[2] = 300;
 	scores[4] = 300;
 	scores[6] = scores[8] = 300;
-	scores[7] = scores[9] = 200;
+	
 
 	i : integer = 0;
 	for(i = 0; i < 10; i++) {
@@ -39,6 +39,34 @@ scores:
         main:
                 stp     x29, x30, [sp, #-72]!
                 mov     x9, #200
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #9
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x11]
+                adrp    x9, scores
+                add     x9, x9, :lo12:scores
+                mov     x10, #9
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                adrp    x10, scores
+                add     x10, x10, :lo12:scores
+                mov     x11, #7
+                mov     x12, 4
+                mul     x11, x11, x12
+                mov     x0, x9
+                str     w0, [x10, x11]
+                adrp    x9, scores
+                add     x9, x9, :lo12:scores
+                mov     x10, #7
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
                 adrp    x10, scores
                 add     x10, x10, :lo12:scores
                 mov     x11, #5
@@ -122,28 +150,6 @@ scores:
                 adrp    x10, scores
                 add     x10, x10, :lo12:scores
                 mov     x11, #6
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                mov     x9, #200
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #9
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #9
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #7
                 mov     x12, 4
                 mul     x11, x11, x12
                 mov     x0, x9
