@@ -1,6 +1,6 @@
 scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88}; 
 
-main: function void () = {
+main: function void (arr : array[] string) = {
 
 	str : string = "hello world";
 	//"string" = str;
@@ -12,147 +12,13 @@ main: function void () = {
 .arch armv8-a
 .file   "output.s"
 
-.data
-        .global scores
-        .align 3
-scores:
-        .word   97
-        .word   87
-        .word   83
-        .word   99
-        .word   77
-        .word   80
-        .word   72
-        .word   100
-        .word   92
-        .word   88
 .text
-        .global main
-        main:
+        .global fib
+        fib:
                 stp     x29, x30, [sp, #-72]!
-                mov     x9, #200
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #9
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #9
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #7
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #7
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #5
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #5
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #3
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #3
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #1
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                mov     x9, #300
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #2
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #2
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #0
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                mov     x9, #300
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #4
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                mov     x9, #300
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #8
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                mov     x10, #8
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
-                adrp    x10, scores
-                add     x10, x10, :lo12:scores
-                mov     x11, #6
-                mov     x12, 4
-                mul     x11, x11, x12
-                mov     x0, x9
-                str     w0, [x10, x11]
-                mov     x9, #0
-                str     x9, [sp, 16]
-                mov     x9, #0
-                str     x9, [sp, 16]
-        .LSTMT1:
+                str     x0, [sp, 16]
                 ldr     x9, [sp, 16]
-                mov     x10, #10
+                mov     x10, #1
                 cmp     x9, x10
                 b.lt    .LCOND1
                 mov     x10, 0
@@ -161,37 +27,155 @@ scores:
                 mov     x10, 1
         .LCOND2:
                 cmp     x10, 0
-                b.eq    .LSTMT2
-                adrp    x9, scores
-                add     x9, x9, :lo12:scores
-                ldr     x10, [sp, 16]
-                mov     x11, 4
-                mul     x10, x10, x11
-                ldr     w0, [x9, x10]
-                mov     x9, x0
+                b.eq    .LSTMT1
+                mov     x9, #0
                 mov     x0, x9
-                bl      print_integer
+                ldp     x29, x30, [sp], #72
+                ret
+                b       .LSTMT2
+        .LSTMT1:
+                ldr     x9, [sp, 16]
+                mov     x11, #2
+                cmp     x9, x11
+                b.lt    .LCOND3
+                mov     x11, 0
+                b       .LCOND4
+        .LCOND3:
+                mov     x11, 1
+        .LCOND4:
+                cmp     x11, 0
+                b.eq    .LSTMT3
+                mov     x9, #1
+                mov     x0, x9
+                ldp     x29, x30, [sp], #72
+                ret
+                b       .LSTMT4
+        .LSTMT3:
+                str     x9, [sp, 24]
+                str     x10, [sp, 32]
+                str     x11, [sp, 40]
+                str     x12, [sp, 48]
+                str     x13, [sp, 56]
+                str     x14, [sp, 64]
+                str     x15, [sp, 72]
+                ldr     x9, [sp, 16]
+                mov     x12, #1
+                sub     x12, x9, x12
+                mov     x0, x12
+                bl      fib
+                ldr     x9, [sp, 24]
+                ldr     x10, [sp, 32]
+                ldr     x11, [sp, 40]
+                ldr     x12, [sp, 48]
+                ldr     x13, [sp, 56]
+                ldr     x14, [sp, 64]
+                ldr     x15, [sp, 72]
+                mov     x9, x0
+                str     x9, [sp, 24]
+                str     x10, [sp, 32]
+                str     x11, [sp, 40]
+                str     x12, [sp, 48]
+                str     x13, [sp, 56]
+                str     x14, [sp, 64]
+                str     x15, [sp, 72]
+                ldr     x12, [sp, 16]
+                mov     x13, #2
+                sub     x13, x12, x13
+                mov     x0, x13
+                bl      fib
+                ldr     x9, [sp, 24]
+                ldr     x10, [sp, 32]
+                ldr     x11, [sp, 40]
+                ldr     x12, [sp, 48]
+                ldr     x13, [sp, 56]
+                ldr     x14, [sp, 64]
+                ldr     x15, [sp, 72]
+                mov     x12, x0
+                add     x12, x9, x12
+                mov     x0, x12
+                ldp     x29, x30, [sp], #72
+                ret
+        .LSTMT4:
+        .LSTMT2:
+                ldp     x29, x30, [sp], #72
+                ret
+.text
+        .global main
+        main:
+                stp     x29, x30, [sp, #-88]!
+                str     x0, [sp, 16]
+                str     x1, [sp, 24]
                 adrp    x9, .LSLIT1
                 add     x9, x9, :lo12:.LSLIT1
                 mov     x0, x9
                 bl      print_string
-                ldr     x9, [sp, 16]
-                add     x9, x9, 1
-                str     x9, [sp, 16]
-                b       .LSTMT1
-        .LSTMT2:
+                mov     x9, #0
+                str     x9, [sp, 32]
+        .LSTMT5:
+                ldr     x9, [sp, 32]
+                mov     x10, #30
+                cmp     x9, x10
+                b.lt    .LCOND5
+                mov     x10, 0
+                b       .LCOND6
+        .LCOND5:
+                mov     x10, 1
+        .LCOND6:
+                cmp     x10, 0
+                b.eq    .LSTMT6
+                ldr     x9, [sp, 32]
+                mov     x0, x9
+                bl      print_integer
                 adrp    x9, .LSLIT2
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-                ldp     x29, x30, [sp], #72
+                str     x9, [sp, 40]
+                str     x10, [sp, 48]
+                str     x11, [sp, 56]
+                str     x12, [sp, 64]
+                str     x13, [sp, 72]
+                str     x14, [sp, 80]
+                str     x15, [sp, 88]
+                ldr     x9, [sp, 32]
+                mov     x0, x9
+                bl      fib
+                ldr     x9, [sp, 40]
+                ldr     x10, [sp, 48]
+                ldr     x11, [sp, 56]
+                ldr     x12, [sp, 64]
+                ldr     x13, [sp, 72]
+                ldr     x14, [sp, 80]
+                ldr     x15, [sp, 88]
+                mov     x9, x0
+                mov     x0, x9
+                bl      print_integer
+                adrp    x9, .LSLIT3
+                add     x9, x9, :lo12:.LSLIT3
+                mov     x0, x9
+                bl      print_string
+                ldr     x9, [sp, 32]
+                mov     x10, #1
+                add     x10, x9, x10
+                str     x10, [sp, 32]
+                b       .LSTMT5
+        .LSTMT6:
+                mov     x9, #0
+                mov     x0, x9
+                ldp     x29, x30, [sp], #88
+                ret
+                ldp     x29, x30, [sp], #88
                 ret
         .section        .rodata
         .align 8
 .LSLIT1:
-        .string " "
+        .string "Table of Fibonnacci Numbers\n"
         .section        .rodata
         .align 8
 .LSLIT2:
+        .string "\t"
+        .section        .rodata
+        .align 8
+.LSLIT3:
         .string "\n"
 */

@@ -183,18 +183,25 @@ bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p) {
 }
 
 // returns the number of parameters in a function
-int param_list_count(struct param_list* p) {
+int param_list_count(struct param_list* p, const char* name) {
 
     // in the case where there are no parameters
     if(p == NULL) {
         return 0;
     }
 
-    // in the case where there is 1 parameter
+    // in the case where there are more than 0 parameters
     struct param_list* ptemp = p;
     int count = 0;
     while(ptemp != NULL) {
         count++;
+        
+        // arrays as parameters not supported as per assignment description; exit with code 1 
+        // (main allowed to pass fib test case good19.bminor)
+        if(ptemp->type->kind == TYPE_ARRAY && strcmp(name, "main") != 0 ) {
+            printf("\033[0;31mcodegen error\033[0;0m: arrays as function parameters not implemented\n");
+            exit(1);
+        }
         ptemp = ptemp->next;
     }
 

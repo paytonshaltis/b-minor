@@ -518,8 +518,8 @@ void decl_codegen(struct decl* d) {
             /* to grow the stack, we need to know how many local declarations we have, parameters, as well as account 
             for 6 extra spots for saving registers during a 'context switch' (plus 4 extra bytes for safety) */
             
-            // count the number of parameters and locals
-            numParams = param_list_count(d->type->params);
+            // count the number of parameters and locals (name sent to allow main array parameter)
+            numParams = param_list_count(d->type->params, d->name);
             numLocals = decl_local_count(d->code);
 
             // update the externam callStackSize variable

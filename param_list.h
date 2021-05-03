@@ -23,6 +23,6 @@ struct param_list* param_list_copy(struct param_list* p);
 void param_list_delete(struct param_list* p);
 bool param_list_fcall_compare(struct expr* calledArgs, struct param_list* p);
 
-int param_list_count(struct param_list* p);
+int param_list_count(struct param_list* p, const char* name);
 
 #endif
