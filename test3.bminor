@@ -47,7 +47,7 @@ scores:
         .LSTMT1:
                 ldrb    w0, [x9, x11]
                 strb    w0, [x10, x11]
-                cmp     x9, 0
+                cmp     w0, 0
                 b.eq    .LSTMT2
                 add     x11, x11, 1
                 b       .LSTMT1
@@ -68,7 +68,7 @@ scores:
         .LSTMT3:
                 ldrb    w0, [x9, x11]
                 strb    w0, [x10, x11]
-                cmp     x9, 0
+                cmp     w0, 0
                 b.eq    .LSTMT4
                 add     x11, x11, 1
                 b       .LSTMT3

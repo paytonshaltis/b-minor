@@ -1320,7 +1320,7 @@ void expr_codegen(struct expr* e) {
                     printf("\t\tstrb\tw0, [%s, %s]\n", scratch_name(e->left->reg), scratch_name(e->reg));
 
                     // compare the source character to null terminator to see if we are done
-                    printf("\t\tcmp\t%s, 0\n", scratch_name(e->right->reg));
+                    printf("\t\tcmp\tw0, 0\n");
 
                     // if they are equal jump to done
                     printf("\t\tb.eq\t%s\n", stmt_label_name(doneLabel));
