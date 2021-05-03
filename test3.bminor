@@ -1,13 +1,14 @@
 arr : array [10] integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; 
 
 main: function void () = {
-        
+    
+	/*arr[1] = arr[3] = arr[5] =*/ arr[7] = arr[9];
 	i : integer;
 	for(i = 0; i < 10; i++) {
 		print arr[i], " ";	
 	}
 
-	print "\nthis is 5: ", arr[ (10 - 4) * 0 + 4];
+	print "\n";
 }
 
 /*
@@ -32,6 +33,19 @@ arr:
         .global main
         main:
                 stp     x29, x30, [sp, #-72]!
+                adrp    x9, arr
+                add     x9, x9, :lo12:arr
+                mov     x10, #9
+                mov     x11, 4
+                mul     x10, x10, x11
+                ldr     w0, [x9, x10]
+                mov     x9, x0
+                adrp    x10, arr
+                add     x10, x10, :lo12:arr
+                mov     x11, #7
+                mov     x12, 4
+                mul     x11, x11, x12
+                str     x9, [x10, x11]
                 mov     x9, #0
                 str     x9, [sp, 16]
         .LSTMT1:
@@ -68,21 +82,6 @@ arr:
                 add     x9, x9, :lo12:.LSLIT2
                 mov     x0, x9
                 bl      print_string
-                adrp    x9, arr
-                add     x9, x9, :lo12:arr
-                mov     x10, #10
-                mov     x11, #4
-                sub     x11, x10, x11
-                mov     x10, #0
-                mul     x10, x11, x10
-                mov     x11, #4
-                add     x11, x10, x11
-                mov     x10, 4
-                mul     x11, x11, x10
-                ldr     w0, [x9, x11]
-                mov     x9, x0
-                mov     x0, x9
-                bl      print_integer
                 ldp     x29, x30, [sp], #72
                 ret
         .section        .rodata
@@ -92,5 +91,5 @@ arr:
         .section        .rodata
         .align 8
 .LSLIT2:
-        .string "\nthis is 5: "
+        .string "\n"
 */
