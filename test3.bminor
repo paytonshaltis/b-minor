@@ -2,17 +2,9 @@ scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88};
 
 main: function void () = {
 
-	scores[1] = scores[3] = scores[5] = scores[7] = scores[9] = 200;
-	scores[0] = scores[2] = 300;
-	scores[4] = 300;
-	scores[6] = scores[8] = 300;
-	
+	str : string = "hello world";
+	//"string" = str;
 
-	i : integer = 0;
-	for(i = 0; i < 10; i++) {
-		print scores[i], " ";
-	}
-	print "\n";
 
 }
 

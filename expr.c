@@ -1249,6 +1249,12 @@ void expr_codegen(struct expr* e) {
         // for assigning expressions
         case EXPR_ASSIGN:
 
+            // if the left side of an assignment is a literal, emit a codegen error and exit with code 1
+            if( e->left->kind == EXPR_INTLIT || e->left->kind == EXPR_STRINGLIT || e->left->kind == EXPR_BOOLLIT || e->left->kind == EXPR_CHARLIT) {
+                printf("\033[0;31mcodegen error\033[0;0m: cannot assign a value to a literal\n");
+                exit(1);
+            }
+
             // for assigning one (1) variable a value
             // identifiers may either be string, non-string local, or non-string global
             if(e->left->kind != EXPR_ASSIGN) {
