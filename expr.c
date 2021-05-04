@@ -1545,6 +1545,8 @@ void expr_codegen(struct expr* e) {
         // for unary not 
         case EXPR_NOT:
             expr_codegen(e->left);
+
+            // cool workaround: exclusive OR any bit with 1 to toggle it; we want to toggle LSB
             fprintf(fp, "\t\teor\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
