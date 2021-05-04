@@ -1329,7 +1329,16 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->left);
             fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_GLOBAL) {
-                fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+                
+                // store the address of the global variable in a free register
+                e->reg = scratch_alloc();
+                fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
+                fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+                
+                fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->left->reg), scratch_name(e->reg));
+
+                // free the temporary register
+                scratch_free(e->reg);
             }
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_LOCAL) {
                 fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
@@ -1341,6 +1350,17 @@ void expr_codegen(struct expr* e) {
             expr_codegen(e->left);
             fprintf(fp, "\t\tsub\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_GLOBAL) {
+                
+                // store the address of the global variable in a free register
+                e->reg = scratch_alloc();
+                fprintf(fp, "\t\tadrp\t%s, %s\n", scratch_name(e->reg), e->left->name);
+                fprintf(fp, "\t\tadd\t%s, %s, :lo12:%s\n", scratch_name(e->reg), scratch_name(e->reg), e->left->name);
+                
+                fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->left->reg), scratch_name(e->reg));
+
+                // free the temporary register
+                scratch_free(e->reg);
+                
                 fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             }
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_LOCAL) {
