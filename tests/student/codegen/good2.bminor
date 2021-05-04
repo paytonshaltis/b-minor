@@ -1,0 +1,23 @@
+// testing basic boolean operations in a function
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    // declaring some booleans, with and without initial values
+    a : boolean;
+    b : boolean = false;
+
+    // a should be true by the end
+    a = ( true || b ) && true;
+    a = !( !a || false )
+
+    print "This should be true: ", a, "\n";
+
+    // b should be false by the end
+    b = !b;
+    b = !( true && b && a );
+
+    print "This should be false: ", b, "\n";
+
+    return 0;
+}
