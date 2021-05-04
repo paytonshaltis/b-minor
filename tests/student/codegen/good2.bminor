@@ -9,7 +9,7 @@ main : function integer (argc : integer, argv : array [] string) = {
 
     // a should be true by the end
     a = ( true || b ) && true;
-    a = !( !a || false )
+    a = !( !a || false );
 
     print "This should be true: ", a, "\n";
 
