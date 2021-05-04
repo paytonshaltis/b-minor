@@ -1,0 +1,37 @@
+// testing a simple program with integer arithmetic, global vars, local vars, expressions, multiple scopes, and print statements
+
+g_num1 : integer = 65;
+g_num2 : integer;
+
+main : function integer (argc : integer, argv : array[] string) = {
+
+    // should print 65 then nothing
+    print g_num1;
+    print g_num2;
+
+    // declaring some local variables
+    x : integer = 90;
+    y : integer = -15;
+    z : integer;
+
+    // negate the negative number, add 5
+    y = -y + 5;
+
+    // compute the mod of 90 and 20, print it
+    print x % y;
+
+    // enter a new scope here
+    {
+        x : integer = 8;
+        y : integer = 16;
+        print x;
+        print y;
+    }
+
+    // should be 10, add this to g_num1
+    g_num1 = g_num1 + (x % y);
+
+    // print the result of the addition
+    print g_num1;
+
+}
