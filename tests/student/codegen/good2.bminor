@@ -15,8 +15,8 @@ main : function integer (argc : integer, argv : array [] string) = {
 
     // b should be false by the end
     b = !b;
-    print !(true && b && a), "\n";
-    b = !( true && b && a );
+    b = true && b && a;
+    b = !b;
 
     print "This should be false: ", b, "\n";
 
