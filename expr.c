@@ -1328,10 +1328,10 @@ void expr_codegen(struct expr* e) {
         case EXPR_INC:
             expr_codegen(e->left);
             fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
-            if(e->symbol != NULL && e->symbol->kind == SYMBOL_GLOBAL) {
+            if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_GLOBAL) {
                 fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             }
-            if(e->symbol != NULL && e->symbol->kind == SYMBOL_LOCAL) {
+            if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_LOCAL) {
                 fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             }
             e->reg = e->left->reg;
@@ -1340,10 +1340,10 @@ void expr_codegen(struct expr* e) {
         case EXPR_DEC:
             expr_codegen(e->left);
             fprintf(fp, "\t\tsub\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
-            if(e->symbol != NULL && e->symbol->kind == SYMBOL_GLOBAL) {
+            if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_GLOBAL) {
                 fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             }
-            if(e->symbol != NULL && e->symbol->kind == SYMBOL_LOCAL) {
+            if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_LOCAL) {
                 fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             }
             e->reg = e->left->reg;
