@@ -1545,7 +1545,7 @@ void expr_codegen(struct expr* e) {
         // for unary not 
         case EXPR_NOT:
             expr_codegen(e->left);
-            fprintf(fp, "\t\tmvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            fprintf(fp, "\t\teor\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
