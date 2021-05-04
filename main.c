@@ -46,6 +46,7 @@ extern int yylineno;                    // the line number of the current scan/p
 extern int totalResErrors;              // stores the total number of resolution errors (SOURCE: 'decl.c')
 extern int totalTypeErrors;             // stores the total number of typechecking errors (SOURCE: 'decl.c')
 FILE* fp;                               // file descriptor for the output file
+int resOutput;                          // determines whether resolution messages other than errors should be output
 
 
 // function used to modify 'yytext' for char and string literals
@@ -179,11 +180,11 @@ int main(int argc, char* argv[]) {
     if(filename != NULL) {
         yyin = fopen(filename,"r");
         if(!yyin) {
-            fprintf(stderr, "Error, could not open %s!\n",filename);
+            fprintf(stderr, "\033[0;31mERROR\033[0;0m: could not open %s\n",filename);
             exit(1);
         }
         if(strlen(filename) < 8 || strcmp(filename + strlen(filename) - 7, ".bminor") != 0) {
-            fprintf(stderr, "Error, not a .bminor source file!\n");
+            fprintf(stderr, "\033[0;31mERROR\033[0;0m: not a '.bminor' source file\n");
             exit(1);
         }
     }
@@ -203,15 +204,17 @@ int main(int argc, char* argv[]) {
             
             // reached end of file (yylex returns 0 when at EOF)
             if(t==0) {
-                if(tokenOutput == 1)
+                if(tokenOutput == 1) {
+                    printf("\033[38;5;46mSUCCESS\033[0;0m: scanning phase passed, all tokens valid\n");
                     exit(0);
+                }
                 else
                     break;
             }
             
             // reached unrecognized token
             else if(t==TOKEN_ERROR) {
-                fprintf(stderr, "Scan error near line %d: %s is not a valid token.\n", yylineno, yytext);
+                fprintf(stderr, "\033[0;31mERROR\033[0;0m: while scanning; near line %d: %s is not a valid token\n", yylineno, yytext);
                 exit(1);
             }
             
@@ -254,7 +257,7 @@ int main(int argc, char* argv[]) {
         // if the source file has valid B-Minor syntax
         if(yyparse() == 0) {
             if(parseOutput == 1) {
-                printf("Parse successful!\n");
+                printf("\033[38;5;46mSUCCESS\033[0;0m: parsing phase passed, all grammar is valid\n");
                 exit(0);
             }
         }
@@ -267,22 +270,24 @@ int main(int argc, char* argv[]) {
 
     // printing phase: done with the command line option -print
     if(printFlag == 1) {
-        printf("Pretty Print:\n\n");
         
         // you cannot get here without passing the parsing phase,
         // so a NULL 'parser_result' means we have an empty program
         if(parser_result != NULL) {
             decl_print(parser_result, 0);
         }
-        printf("\nEnd of Pretty Print\n");
+        printf("\033[38;5;46mSUCCESS\033[0;0m: printing phase passed, program preview above\n");
+    }
+
+    // resolution 'adds' and 'references' do not need to be displayed during typechecking and codegen
+    resOutput = 0;
+    if(resolveFlag == 1) {
+       resOutput = 1;
     }
 
     // resolution phase: done with the command line option -resolve, -typecheck, and -codegen
     if(resolveFlag == 1 || typecheckFlag == 1 || codegenFlag == 1) {
-
-        printf("\nThis is the resolution phase\n");
-        printf("=============================\n\n");
-                
+        
         // we must enter the global scope before doing any resolutions
         scope_enter();
         
@@ -291,27 +296,45 @@ int main(int argc, char* argv[]) {
 
         // print out the total number of resolution errors found
         if(totalResErrors == 1) {
-            printf("\n~~ There was %i resolution error detected. ~~\n\n", totalResErrors);
+            printf("\n\033[0;31mERROR\033[0;0m: there was %d total resolution error detected\n", totalResErrors);
+
+            // new line for typechecking
+            if(typecheckFlag == 1) {
+                printf("\n");
+            }
         }
-        else {
-            printf("\n~~ There were %i resolution errors detected. ~~\n\n", totalResErrors);
+        else if(totalResErrors > 1){
+            printf("\n\033[0;31mERROR\033[0;0m: there were %d total resolution errors detected\n", totalResErrors);
+            
+            // new line for typechecking
+            if(typecheckFlag == 1) {
+                printf("\n");
+            }
+        }
+
+        // print out success message if resOutput is 1
+        if(totalResErrors == 0 && resOutput == 1) {
+            printf("\n\033[38;5;46mSUCCESS\033[0;0m: name resolution phase passed, see above for references\n");
         }
     }
     
     // typechecking phase: done with the command line options -typecheck and -codegen
     if(typecheckFlag == 1 || codegenFlag == 1) {
-        printf("\nThis is the typechecking phase\n");
-        printf("=============================\n\n");
 
         // just need to call the decl_typecheck() function on the first declaration of the AST
         decl_typecheck(parser_result);
 
         // print out the totla number of typechecking errors found
         if(totalTypeErrors == 1) {
-            printf("\n~~ There was %i typechecking error detected. ~~\n\n", totalTypeErrors);        
+            printf("\n\033[0;31mERROR\033[0;0m: there was %d total typechecking error detected\n", totalTypeErrors);       
         }
-        else {
-            printf("\n~~ There were %i typechecking errors detected. ~~\n\n", totalTypeErrors);
+        else if(totalTypeErrors > 0){
+            printf("\n\033[0;31mERROR\033[0;0m: there were %d total typechecking errors detected\n", totalTypeErrors);
+        }
+
+        // print out success message if on typechecking phase specifically
+        if(totalTypeErrors == 0 && typecheckFlag == 1) {
+            printf("\033[38;5;46mSUCCESS\033[0;0m: typechecking phase passed, all types match\n");
         }
     }
 
@@ -322,12 +345,10 @@ int main(int argc, char* argv[]) {
 
     // codegen phase: done with the command line option -codegen
     if(codegenFlag == 1) {
-        printf("This is the Code Generation phase.\n");
-        printf("=============================\n\n");
-        
+
         // print an error and exit with code 1 if no output name is given
         if(argc < 4) {
-            printf("\033[0;31mcodegen usage error\033[0;0m: ./bminor -codegen <source.bminor> <outputname.s>\n");
+            printf("\033[0;31mERROR\033[0;0m: codegen usage: ./bminor -codegen <source.bminor> <outputname.s>\n");
             exit(1);
         }
 
@@ -335,6 +356,7 @@ int main(int argc, char* argv[]) {
         fp = fopen(argv[3], "w+");
 
         // assembly header
+        fprintf(fp, "@\tARMv8-a assembly code generated by \n@\t'B-Minor Compiler' v1.0,\n@\twritten by:\n@\n@\tPAYTON JAMES SHALTIS\n@\tCOMPLETED MAY 4TH, 2021 for\n@\n@\tCSC-425: \"Compilers and Interpreters\", \n@\tProfessor John DeGood, Spring 2021 at\n@\tThe College of New Jersey\n\n");
         fprintf(fp, ".arch armv8-a\n.file \"%s\"\n\n", argv[3]);
 
         // call decl_codegen(), which recursively generates code for the entire program
@@ -344,7 +366,7 @@ int main(int argc, char* argv[]) {
         fclose(fp);
 
         // print a success message to stdout
-        printf("\033[38;5;46mSUCESS\033[0;0m: file \"%s\" compiled to \"%s\"!\n\n", filename, argv[3]);
+        printf("\033[38;5;46mSUCCESS\033[0;0m: file \033[38;5;45m\"%s\"\033[0;0m compiled to \033[38;5;45m\"%s\"\033[0;0m!\n", filename, argv[3]);
     }
 
     // completed each phase of the compiler

@@ -43,7 +43,7 @@ int scratch_alloc() {
     }
 
     // in case of no free registers, print error and exit with status 1
-    printf("\033[0;31mcodegen error\033[0;0m: all scratch registers currently in use\n");
+    printf("\033[0;31mERROR\033[0;0m: while generating code; all scratch registers currently in use\n");
     exit(1);
     return -1;
 }
@@ -58,7 +58,7 @@ void scratch_free(int r) {
 
     // otherwise print an error
     else {
-        printf("\033[0;31mcodegen usage error\033[0;0m: not a valid index to the register table\n");
+        printf("\033[0;31mERROR\033[0;0m: codegen usage; not a valid index to the register table\n");
     }
 }
 
@@ -71,7 +71,7 @@ const char* scratch_name(int r) {
     }
 
     // otherwise print an error and return ERROR
-    printf("\033[0;31mcodegen usage error\033[0;0m: not a valid index to the register table\n");
+    printf("\033[0;31mERROR\033[0;0m: codegen usage; not a valid index to the register table\n");
     return "ERROR";
 
 }

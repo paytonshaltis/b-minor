@@ -31,6 +31,7 @@
 
 // variables used by parameter list functions
 extern int totalResErrors;      // keeps track of the total number of resolution errors (SOURCE: 'decl.c')
+extern int resOutput;           // determines whether resolution messages other than errors should be output (SOURCE: 'main.c')
 
 // basic factory function for creating a 'param_list' struct
 struct param_list* param_list_create(char* name, struct type *type, struct param_list *next) {
@@ -73,7 +74,8 @@ void param_list_resolve(struct param_list* p) {
 
         // bind this 'name', 'symbol' pair into the symbol table
         scope_bind(p->name, p->symbol);
-        printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table (which = %i)\n", p->name, p->symbol->which);
+        if(resOutput == 1)
+            printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table (which = %i)\n", p->name, p->symbol->which);
     }
 
     // resolve the next parameter in the list
@@ -225,7 +227,7 @@ int param_list_count(struct param_list* p, const char* name) {
         // arrays as parameters not supported as per assignment description; exit with code 1 
         // (main allowed to pass fib test case good19.bminor, and for command-line args (not implemented!))
         if(ptemp->type->kind == TYPE_ARRAY && strcmp(name, "main") != 0 ) {
-            printf("\033[0;31mcodegen error\033[0;0m: arrays as function parameters not implemented\n");
+            printf("\033[0;31mERROR\033[0;0m: while generating code; arrays as function parameters not implemented\n");
             exit(1);
         }
         ptemp = ptemp->next;

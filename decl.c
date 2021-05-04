@@ -29,6 +29,7 @@
 // variables used in declaration functions
 int totalResErrors = 0;         // keeps track of the total number of resolution errors
 int totalTypeErrors = 0;        // keeps track of the total number of typechecking errors
+extern int resOutput;           // determines whether resolution messages other than errors should be output (SOURCE: 'main.c')
 int counter;                    // counter used to generate relative stack addresses of local variables during name resolution
 
 char localsTP[256][300];        // array of strings; stores local symbols for codegen to be printed at the bottom of the output file
@@ -127,18 +128,20 @@ void decl_resolve(struct decl* d) {
         else {
             scope_bind(d->name, d->symbol);
             
-            // print proper message depending on scope
-            if(scope_lookup_current(d->name)->type->kind == TYPE_PROTOTYPE) {
-                printf("\033[38;5;46madded\033[0;0m prototype \"%s\" to symbol table\n", d->name);
-            }
-            else if(scope_lookup_current(d->name)->kind == SYMBOL_GLOBAL) {
-                printf("\033[38;5;46madded\033[0;0m global \"%s\" to symbol table\n", d->name);
-            }
-            if(scope_lookup_current(d->name)->kind == SYMBOL_LOCAL) {
-                printf("\033[38;5;46madded\033[0;0m local \"%s\" to symbol table (which = %i)\n", d->name, d->symbol->which);
-            }
-            if(scope_lookup_current(d->name)->kind == SYMBOL_PARAM) {
-                printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table (which = %i)\n", d->name, d->symbol->which);
+            // print proper message depending on scope IF resOutput is 1
+            if(resOutput == 1) {
+                if(scope_lookup_current(d->name)->type->kind == TYPE_PROTOTYPE) {
+                    printf("\033[38;5;46madded\033[0;0m prototype \"%s\" to symbol table\n", d->name);
+                }
+                else if(scope_lookup_current(d->name)->kind == SYMBOL_GLOBAL) {
+                    printf("\033[38;5;46madded\033[0;0m global \"%s\" to symbol table\n", d->name);
+                }
+                if(scope_lookup_current(d->name)->kind == SYMBOL_LOCAL) {
+                    printf("\033[38;5;46madded\033[0;0m local \"%s\" to symbol table (which = %i)\n", d->name, d->symbol->which);
+                }
+                if(scope_lookup_current(d->name)->kind == SYMBOL_PARAM) {
+                    printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table (which = %i)\n", d->name, d->symbol->which);
+                }
             }
             resolveParamCode = true;
         }
@@ -168,8 +171,9 @@ void decl_resolve(struct decl* d) {
                 // rebind the key and symbol structure to the symbol table
                 scope_bind(d->name, d->symbol);
 
-                // print message to identify function update
-                printf("\033[38;5;46madded\033[0;0m implementation for \"%s\" to symbol table\n", d->name);
+                // print message to identify function update IF resOutput is 1
+                if(resOutput == 1)
+                    printf("\033[38;5;46madded\033[0;0m implementation for \"%s\" to symbol table\n", d->name);
             }
             
             // if the parameters do not match
@@ -195,7 +199,8 @@ void decl_resolve(struct decl* d) {
 
             // bind the name and symbol to the symbol table
             scope_bind(d->name, d->symbol);
-            printf("\033[38;5;46madded\033[0;0m function \"%s\" to symbol table\n", d->name);
+            if(resOutput == 1)
+                printf("\033[38;5;46madded\033[0;0m function \"%s\" to symbol table\n", d->name);
         }
     }
 
@@ -588,7 +593,7 @@ void decl_codegen(struct decl* d) {
             // need to store parameters on the stack
             // if there are more than 6 parameters, codegen error
             if(numParams > 6) {
-                printf("\033[0;31mcodegen error\033[0;0m: cannot exceed 6 function parameters, registers filled\n");
+                printf("\033[0;31mERROR\033[0;0m: while generating gode; cannot exceed 6 function parameters, registers filled\n");
                 exit(1);
             }
 
@@ -622,7 +627,7 @@ void decl_codegen(struct decl* d) {
             // print a code generation error if the array is NOT of type integer, or is local
             // (assignment specifies that ONLY 1D, global integer arrays need be implemented)
             if( d->type->subtype->kind != TYPE_INTEGER || d->symbol->kind != SYMBOL_GLOBAL) {
-                printf("\033[0;31mcodegen error\033[0;0m: arrays of non-integer types and local arrays not implemented\n");
+                printf("\033[0;31mERROR\033[0;0m: while generating code; arrays of non-integer types and local arrays not implemented\n");
                 exit(1);
             }
 

@@ -29,6 +29,7 @@
 // variables used in expression functions
 extern int totalResErrors;          // keeps track of the total number of resolution errors (SOURCE: 'decl.c')
 extern int totalTypeErrors;         // keeps track of the total number of typechecking errors (SOURCE: 'decl.c')
+extern int resOutput;               // determines whether resolution messages other than errors should be output (SOURCE: 'main.c')
 
 extern char localsTP[256][300];     // array of strings; stores local symbols for codegen to be printed at the bottom of the output file (SOURCE: 'decl.c')
 extern int localsTPCounter;         // counter that keeps track of the next position to write into localsTP (SOURCE: 'decl.c')
@@ -704,23 +705,24 @@ void expr_resolve(struct expr* e) {
         // if the symbol was found in the symbol table
         else {
             
-            // print proper message depending on scope
-            if(scope_lookup(e->name)->type->kind == TYPE_PROTOTYPE) {
-                printf("\033[38;5;45mreferenced\033[0;0m prototype \"%s\" from symbol table\n", e->name);
+            // print proper message depending on scope IF resOutput is 1
+            if(resOutput == 1) {
+                if(scope_lookup(e->name)->type->kind == TYPE_PROTOTYPE) {
+                    printf("\033[38;5;45mreferenced\033[0;0m prototype \"%s\" from symbol table\n", e->name);
+                }
+                else if(scope_lookup(e->name)->type->kind == TYPE_FUNCTION) {
+                    printf("\033[38;5;45mreferenced\033[0;0m function \"%s\" from symbol table\n", e->name);
+                }
+                else if(scope_lookup(e->name)->kind == SYMBOL_GLOBAL) {
+                    printf("\033[38;5;45mreferenced\033[0;0m global \"%s\" from symbol table\n", e->name);
+                }
+                if(scope_lookup(e->name)->kind == SYMBOL_LOCAL) {
+                    printf("\033[38;5;45mreferenced\033[0;0m local \"%s\" from symbol table\n", e->name);
+                }
+                if(scope_lookup(e->name)->kind == SYMBOL_PARAM) {
+                    printf("\033[38;5;45mreferenced\033[0;0m parameter \"%s\" from symbol table\n", e->name);
+                }
             }
-            else if(scope_lookup(e->name)->type->kind == TYPE_FUNCTION) {
-                printf("\033[38;5;45mreferenced\033[0;0m function \"%s\" from symbol table\n", e->name);
-            }
-            else if(scope_lookup(e->name)->kind == SYMBOL_GLOBAL) {
-                printf("\033[38;5;45mreferenced\033[0;0m global \"%s\" from symbol table\n", e->name);
-            }
-            if(scope_lookup(e->name)->kind == SYMBOL_LOCAL) {
-                printf("\033[38;5;45mreferenced\033[0;0m local \"%s\" from symbol table\n", e->name);
-            }
-            if(scope_lookup(e->name)->kind == SYMBOL_PARAM) {
-                printf("\033[38;5;45mreferenced\033[0;0m parameter \"%s\" from symbol table\n", e->name);
-            }
-               
         }
     }
     
@@ -1636,7 +1638,7 @@ void expr_codegen(struct expr* e) {
 
                     // if more than 6 parameters are called
                     if(paramRegCount == 5) {
-                        printf("\033[0;31mcodegen error\033[0;0m: cannot exceed 6 function parameters, registers filled\n");
+                        printf("\033[0;31mERROR\033[0;0m: while generating code; cannot exceed 6 function parameters, registers filled\n");
                         exit(1);
                     }
                 }
@@ -1678,7 +1680,7 @@ void expr_codegen(struct expr* e) {
 
             // if the left side of an assignment is a literal, emit a codegen error and exit with code 1
             if( e->left->kind == EXPR_INTLIT || e->left->kind == EXPR_STRINGLIT || e->left->kind == EXPR_BOOLLIT || e->left->kind == EXPR_CHARLIT) {
-                printf("\033[0;31mcodegen error\033[0;0m: cannot assign a value to a literal\n");
+                printf("\033[0;31mERROR\033[0;0m: while generating code; cannot assign a value to a literal\n");
                 exit(1);
             }
 
