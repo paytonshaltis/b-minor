@@ -318,6 +318,9 @@ int main(int argc, char* argv[]) {
 
         // close the file after writing has concluded
         fclose(fp);
+
+        // print a success message to stdout
+        printf("\033[38;5;46mSUCESS\033[0;0m: file \"%s\" compiled to \"%s\"!\n\n", filename, argv[3]);
     }
 
     /* completed each phase of the compiler */

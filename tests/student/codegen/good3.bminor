@@ -1,0 +1,49 @@
+// testing print statements of multiple types both individually as well as on one line
+
+str2 : string = "two ";
+str4 : string = "four ";
+str6 : string = "six ";
+
+print0string : function void () = {
+    print "empty\n";
+}
+
+print1string : function void (str1: string) = {
+    print str1, "\n";
+}
+
+print2string : function void (str1: string, str2: string) = {
+    print str1, str2, "\n";    
+}
+
+print3string : function void (str1: string, str2: string, str3: string) = {
+    print str1, str2, str3, "\n";    
+}
+
+print4string : function void (str1: string, str2: string, str3: string, str4: string) = {
+    print str1, str2, str3, str4, "\n";   
+}
+
+print5string : function void (str1: string, str2: string, str3: string, str4: string, str5: string) = {
+    print str1, str2, str3, str4, str5, "\n";
+}
+
+print6string : function void (str1: string, str2: string, str3: string, str4: string, str5: string, str6: string) = {
+    print str1, str2, str3, str4, str5, str6, "\n";
+}
+
+main : function integer (argc : integer, argv : array [] string) = {
+    str1 : string = "one ";
+    str3 : string = "three ";
+    str5 : string = "five ";
+    
+    print0string();
+    print1string(str1);
+    print2string(str1, str2);
+    print3string(str1, str2, str3);
+    print4string(str1, str2, str3, str4);
+    print5string(str1, str2, str3, str4, str5);
+    print6string(str1, str2, str3, str4, str5, str6);
+
+    return 0;
+}
