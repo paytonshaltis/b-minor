@@ -1,17 +1,37 @@
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                   'scope.c'
+*                                   ---------
+*   This file implements the functions that will be used as the interface into the symbol
+*   table. Each 'scope' structure is a node in the scope stack, each having a hash
+*   table that maps [name, symbol] pairs for use in name resolution.
+*
+*/
+
 #include "scope.h"
-#include "hash_table.h"
-#include "symbol.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
 
-extern int counter;
 
-// set DEBUG to true to see debugging messages, false to turn them off
-bool DEBUG = false;
+// variables used by the 'scope.c' file
+extern int counter;                 // counter used to generate relative stack addresses of local variables during name resolution (SOURCE: 'decl.c')    
+bool DEBUG = false;                 // set DEBUG to true to see debugging messages, false to turn them off
+struct stack_node* theStackTop;     // this is the master stack that will be used by all functions below
 
-// this is the master stack that will be used by all functions below
-struct stack_node* theStackTop;
 
 // pushes a new hash table on top of the stack, indicating entry of a new scope
 void scope_enter() {

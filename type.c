@@ -1,14 +1,42 @@
-#include <stdio.h>
-#include <stdlib.h>
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                   'type.c'
+*                                   --------
+*   This is the implementation file for all functions for the 'type' AST nodes. It
+*   includes a heavily commented breakdown of each function and how it works, which
+*   serve as great debugging elements and descriptions of how the compiler works.
+*
+*/
+
 #include "type.h"
+
 
 // basic factory function for creating a 'type' struct
 struct type * type_create( type_t kind, struct type *subtype, struct param_list *params, int size ) {
+    
     struct type *t = malloc(sizeof(*t));
-    t->kind = kind;                         // used for all
+    
+    t->kind = kind;                         // used for all type kinds
     t->subtype = subtype;                   // used for functions and arrays
     t->params = params;                     // only used for functions
     t->size = size;                         // only used for arrays
+    
     return t;
 }
 
@@ -67,7 +95,7 @@ void type_print(struct type *t) {
 
 }
 
-// compares two types to make sure they are the same
+// compares two types to make sure they are the same (returns true if same, false otherwise)
 bool type_compare(struct type* t1, struct type* t2) {
 
     // base case for recursion
@@ -86,7 +114,8 @@ bool type_compare(struct type* t1, struct type* t2) {
     return false;
 }
 
-// compares two types to make sure they are the same (no sizes for arrays!)
+// compares two types to make sure they are the same (does not check array size to allow
+// arrays as parameters to pass!) (returns true if same, false otherwise)
 bool type_compare_no_size(struct type* t1, struct type* t2) {
 
     // base case for recursion

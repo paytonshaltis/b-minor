@@ -1,50 +1,70 @@
-#include "token.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                   'main.c'
+*                                   --------
+*   This file uses the command-line arguments in order to determine which phase of 
+*   compilation the user is requesting, and calls the appropriate functions to perform
+*   those phases. Successful compilations exit with code 0; failures with code 1.
+*
+*/
+
 #include <getopt.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include "decl.h"
 #include "scope.h"
-#include "symbol.h"
-#include "type.h"
-#include "expr.h"
-#include "scratch.h"
-#include "label.h"
+#include "token.h"
 
-extern FILE *yyin;
-extern int yylex();
-extern int yyparse();
-extern void yyrestart();
-extern char *yytext;
-extern struct decl* parser_result;
-extern int yylineno;
-extern int totalResErrors;
-extern int totalTypeErrors;
-extern char localsTP[256][300];
-FILE* fp;
-int localsTPCounter;
+// variables used within the 'main' and 'modify_text' functions
+extern FILE *yyin;                      // file descriptor for the source file (SOURCE: 'scanner.c')
+extern int yylex();                     // function to perform lexical analysis (scanning) (SOURCE: 'scanner.c')
+extern int yyparse();                   // function to perform parsing (parsing) (SOURCE: 'parser.c')
+extern void yyrestart();                // function to reset the read head of the input file between phases (SOURCE: 'scanner.c')
+extern char *yytext;                    // pointer the the actual text of a literal or variable name (SOURCE: 'scanner.c')
+extern struct decl* parser_result;      // the root node of the abstract syntax tree (SOURCE: 'parser.bison')
+extern int yylineno;                    // the line number of the current scan/parse position; used to print errors (SOURCE: 'scanner.c')
+extern int totalResErrors;              // stores the total number of resolution errors (SOURCE: 'decl.c')
+extern int totalTypeErrors;             // stores the total number of typechecking errors (SOURCE: 'decl.c')
+FILE* fp;                               // file descriptor for the output file
 
 
-/* function used to modify 'yytext' for char and string literals */
+// function used to modify 'yytext' for char and string literals
 void modifyText(enum yytokentype t) {
 
-    /* creates a new array for storing characters one by one */
+    // creates a new array for storing characters one by one
     int stringSize = strlen(yytext) + 1;
     char newyytext[stringSize];
     int textPos = 0;
 
-    /* copies one character at a time, ignoring quotes 
-    and taking proper action for escape characters */
+    // copies one character at a time, ignoring quotes and taking proper action for escape characters
     for(int i = 0; i < stringSize; i++) {
         
-        /* in case of starting and ending quotes */
+        // in case of starting and ending quotes
         if((yytext[i] == '\"' && t == TOKEN_STRINGLIT) || (yytext[i] == '\'' && t == TOKEN_CHARLIT)) {
-            /* nothing should be duplicated into the 'newyytext' array */
+            // nothing should be duplicated into the 'newyytext' array
         }
         
-        /* in case of escape sequence */
+        // in case of escape sequence
         else if(yytext[i] == '\\') {
             if(yytext[i+1] == 'n') {
                 newyytext[textPos] = 10;
@@ -63,25 +83,25 @@ void modifyText(enum yytokentype t) {
             }
         }
         
-        /* in case of any other character */
+        // in case of any other character
         else {
             newyytext[textPos] = yytext[i];
             textPos++;
         }
     }
 
-    /* copies characters from 'newyytext' array to 'yytext' pointer,
-    overwriting the originally scanned string from the souce file 
-    with the new changes made within this function */
+    // copies characters from 'newyytext' array to 'yytext' pointer,
+    // overwriting the originally scanned string from the souce file 
+    // with the new changes made within this function
     for(int i = 0; i < stringSize; i++) {
         yytext[i] = newyytext[i];
     }
 }
 
-/* main function */
+// main function that initiates the compiler phases
 int main(int argc, char* argv[]) {
 
-    /* array that maps token value to name (implicitly through array indices) */
+    // array that maps token value to name (implicitly through array indices, ORDER IS CRITICAL HERE, DO NOT CHANGE!)
     char* tokenArray[46] = {   
         "ARRAY",
         "BOOLEAN",
@@ -131,7 +151,7 @@ int main(int argc, char* argv[]) {
         "ERROR"  
     };
       
-    /* flags that determine the command line option / index for getopt_long_only() call */
+    // flags that determine the command line option / index for getopt_long_only() call
     int scanFlag = 0;
     int parseFlag = 0;
     int printFlag = 0;
@@ -140,7 +160,7 @@ int main(int argc, char* argv[]) {
     int codegenFlag = 0;
     int index = 0;
 
-    /* array of options; all possible command-line options and the required "all-0s" option structs */
+    // array of options; all possible command-line options and the required "all-0s" option structs
     struct option options[] = { 
         {"scan", required_argument, &scanFlag, 1},
         {"parse", required_argument, &parseFlag, 1},
@@ -151,10 +171,10 @@ int main(int argc, char* argv[]) {
         {0, 0, 0, 0} 
     };
 
-    /* gets options from the command line */
+    // gets options from the command line
     int opt = getopt_long_only(argc, argv, "", options, &index);
 
-    /* tries to open the source file */
+    //tries to open the source file
     char* filename = optarg;
     if(filename != NULL) {
         yyin = fopen(filename,"r");
@@ -168,66 +188,70 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    /* tokens should only be output during the scanning phase if '-scan' option is used */
+    // tokens should only be output during the scanning phase if '-scan' option is used
     int tokenOutput = 0;
     if(scanFlag == 1) {
        tokenOutput = 1;
     }
 
-    /* scanning phase: done with all command line options */
+    // scanning phase: done with all command line options
     if(scanFlag == 1 || parseFlag == 1 || printFlag == 1 || resolveFlag == 1 || typecheckFlag == 1 || codegenFlag == 1) {
 
-        /* loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR) */
+        // loops until end of file (TOKEN_EOF) or invalid token (TOKEN_ERROR)
         while(1) {
             enum yytokentype t = yylex();
             
-            /* reached end of file (yylex returns 0 when at EOF) */
+            // reached end of file (yylex returns 0 when at EOF)
             if(t==0) {
                 if(tokenOutput == 1)
                     exit(0);
                 else
                     break;
             }
-            /* reached unrecognized token */
+            
+            // reached unrecognized token
             else if(t==TOKEN_ERROR) {
                 fprintf(stderr, "Scan error near line %d: %s is not a valid token.\n", yylineno, yytext);
                 exit(1);
             }
-            /* reached identifier or an integer literal token */
+            
+            // reached identifier or an integer literal token
             else if((t==TOKEN_IDENT || t==TOKEN_INTLIT) && tokenOutput == 1) {
                 printf("%s %s\n", tokenArray[t - 258], yytext);
             }
-            /* reached char literal or string literal token */
+            
+            // reached char literal or string literal token
             else if((t==TOKEN_CHARLIT || t==TOKEN_STRINGLIT) && tokenOutput == 1) {
+                
                 //cleans up the string or char literal
                 modifyText(t);
                 printf("%s %s\n", tokenArray[t - 258], yytext);
             }
-            /* reached any other token */
+            // reached any other token
             else if(tokenOutput == 1) {
                 printf("%s\n",tokenArray[t - 258]);
             }
         }
     }
     
-    /* parser status should only be output during the parsing phase if '-parse' option is used */
+    // parser status should only be output during the parsing phase if '-parse' option is used
     int parseOutput = 0;
     if(parseFlag == 1) {
        parseOutput = 1;
     }
 
-    /* parsing phase: done with all command line options other than '-scan' */
+    // parsing phase: done with all command line options other than '-scan'
     if(parseFlag == 1 || printFlag == 1 || resolveFlag == 1 || typecheckFlag == 1 || codegenFlag == 1) {
         
-        /* reopens and restarts the source file so parsing may
-        begin from the beginning of the file after scanning */
+        // reopens and restarts the source file so parsing may
+        // begin from the beginning of the file after scanning
         yyin = fopen(filename,"r");
         yyrestart(yyin);
         
-        /* resets 'yylineno' for parsing */
+        // resets 'yylineno' for parsing
         yylineno = 1;
 
-        /* if the source file has valid B-Minor syntax */
+        // if the source file has valid B-Minor syntax
         if(yyparse() == 0) {
             if(parseOutput == 1) {
                 printf("Parse successful!\n");
@@ -235,13 +259,13 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        /* if the source file does not have valid B-Minor syntax */
+        // if the source file does not have valid B-Minor syntax
         else {
             exit(1);
         }
     }
 
-    /* printing phase: done with the command line option -print */
+    // printing phase: done with the command line option -print
     if(printFlag == 1) {
         printf("Pretty Print:\n\n");
         
@@ -253,7 +277,7 @@ int main(int argc, char* argv[]) {
         printf("\nEnd of Pretty Print\n");
     }
 
-    /* resolution phase: done with the command line option -resolve, -typecheck, and -codegen */
+    // resolution phase: done with the command line option -resolve, -typecheck, and -codegen
     if(resolveFlag == 1 || typecheckFlag == 1 || codegenFlag == 1) {
 
         printf("\nThis is the resolution phase\n");
@@ -274,7 +298,7 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    /* typechecking phase: done with the command line options -typecheck and -codegen */
+    // typechecking phase: done with the command line options -typecheck and -codegen
     if(typecheckFlag == 1 || codegenFlag == 1) {
         printf("\nThis is the typechecking phase\n");
         printf("=============================\n\n");
@@ -296,7 +320,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    /* codegen phase: done with the command line option -codegen */
+    // codegen phase: done with the command line option -codegen
     if(codegenFlag == 1) {
         printf("This is the Code Generation phase.\n");
         printf("=============================\n\n");
@@ -323,6 +347,6 @@ int main(int argc, char* argv[]) {
         printf("\033[38;5;46mSUCESS\033[0;0m: file \"%s\" compiled to \"%s\"!\n\n", filename, argv[3]);
     }
 
-    /* completed each phase of the compiler */
+    // completed each phase of the compiler
     exit(0);
 }

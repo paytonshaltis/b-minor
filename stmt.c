@@ -1,14 +1,37 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "stmt.h"
-#include "scope.h"
-#include "scratch.h"
-#include "label.h"
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                   'stmt.c'
+*                                   --------
+*   This is the implementation file for all functions for the 'stmt' AST nodes. It
+*   includes a heavily commented breakdown of each function and how it works, which
+*   serve as great debugging elements and descriptions of how the compiler works.
+*
+*/
 
-extern int totalResErrors;
-extern int totalTypeErrors;
-extern int callStackSize;
-extern FILE* fp;
+#include "stmt.h"
+
+
+// variables used by the different statement functions below
+extern int totalResErrors;          // keeps track of the total number of resolution errors (SOURCE: 'decl.c')
+extern int totalTypeErrors;         // keeps track of the total number of typechecking errors (SOURCE: 'decl.c')
+extern int callStackSize;           // the size in bytes of a function's call stack (SOURCE: 'decl.c')
+extern FILE* fp;                    // file pointer to the output file for assembly code (SOURCE: 'main.c')
 
 // basic factory function for creating a 'stmt' struct
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
@@ -206,23 +229,33 @@ void stmt_resolve(struct stmt* s) {
     stmt_resolve(s->next);
 }
 
+// performs typechecking on the elements of a statement
 void stmt_typecheck(struct stmt* s, struct type* ft) {
     
+    // base case for recursion
     if(s == NULL) {
         return;
     }
 
-    struct type* t;
-    struct expr* temp;
-    struct type* printType;
+    // temporary structures used for statement traversal in the switch below
+    struct type* t;             // temporary type; used to store results of typechecks
+    struct expr* temp;          // temporary expression; used to traverse complex statements
+    struct type* printType;     // temporary type; used to store the type of an expression being printed
     
+    // switch for all of the different statement kinds
     switch(s->kind) {
+        
+        // for expression statements
         case STMT_EXPR:
             t = expr_typecheck(s->expr);
             type_delete(t);
             break;
+        
+        // for if statements
         case STMT_IF:
             t = expr_typecheck(s->expr);
+            
+            // the condition should always be a boolean type
             if(t->kind != TYPE_BOOLEAN) {
                 printf("\033[0;31mtypechecking error\033[0;0m: condition of 'if' statement must return boolean type\n");
                 totalTypeErrors++;
@@ -231,8 +264,12 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             type_delete(t);
             stmt_typecheck(s->body, ft);
             break;
+        
+        // for if-else statements
         case STMT_IF_ELSE:
             t = expr_typecheck(s->expr);
+            
+            // the condition should always be a boolean type
             if(t->kind != TYPE_BOOLEAN) {
                 printf("\033[0;31mtypechecking error\033[0;0m: condition of 'if' statement must return boolean type\n");
                 totalTypeErrors++;
@@ -242,9 +279,13 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             stmt_typecheck(s->body, ft);
             stmt_typecheck(s->else_body, ft);
             break;
+        
+        // for 'for-loops'
         case STMT_FOR:
             if(s->init_expr != NULL) {
                 t = expr_typecheck(s->init_expr);
+                
+                // the initial expression should be an integer type
                 if(t->kind != TYPE_INTEGER) {
                     printf("\033[0;31mtypechecking error\033[0;0m: first expression in 'for-loop' must return integer type\n");
                     totalTypeErrors++;
@@ -254,6 +295,8 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             }
             if(s->expr != NULL) {
                 t = expr_typecheck(s->expr);
+                
+                // the conditional expression must be a boolea ntype
                 if(t->kind != TYPE_BOOLEAN) {
                     printf("\033[0;31mtypechecking error\033[0;0m: second expression in 'for-loop' must return boolean type\n");
                     totalTypeErrors++;
@@ -263,6 +306,8 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             }
             if(s->next_expr != NULL) {
                 t = expr_typecheck(s->next_expr);
+                
+                // the next expression should be an integer type
                 if(t->kind != TYPE_INTEGER) {
                     printf("\033[0;31mtypechecking error\033[0;0m: third expression in 'for-loop' must return integer type\n");
                     totalTypeErrors++;
@@ -272,8 +317,10 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
             }
             stmt_typecheck(s->body, ft);
             break;
+        
+        // for print statements
         case STMT_PRINT:
-            // need to check each expression being printed to make sure they are of the valid type
+            // need to check each expression being printed to make sure they are a type
             
             // if only one expression is being printed:
             if(s->expr->kind != EXPR_ARGS) {
@@ -326,13 +373,17 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
                 }
             }
             break;
+
+        // for return statements
         case STMT_RETURN:
+            
             // void function returning some value
             if(ft->kind == TYPE_VOID && s->expr != NULL) {
                 printf("\033[0;31mtypechecking error\033[0;0m: void function must not return value\n");
                 totalTypeErrors++;
                 break;
             }
+            
             // non-void function not returning a value
             else if (ft->kind != TYPE_VOID && s->expr == NULL) {
                 printf("\033[0;31mtypechecking error\033[0;0m: non-void function type (");
@@ -341,6 +392,7 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
                 totalTypeErrors++;
                 break;
             }
+
             // functions that return other types
             else if(s->expr != NULL && expr_typecheck(s->expr)->kind != ft->kind) {
                 printf("\033[0;31mtypechecking error\033[0;0m: returned type does not match function type (");
@@ -350,25 +402,32 @@ void stmt_typecheck(struct stmt* s, struct type* ft) {
                 break;
             }
             break;
+
+        // for block statements
         case STMT_BLOCK:
             stmt_typecheck(s->body, ft);
             break;
+
+        // for declaration statements
         case STMT_DECL:
             decl_typecheck(s->decl);
     }
+
+    // typecheck the next statement in the statement list
     stmt_typecheck(s->next, ft);
 }
 
+// generate ARM assembly code for a statement structure
 void stmt_codegen(struct stmt* s) {
     
-    // type used in printing expressions
-    struct type* t;
-    struct expr* exprtemp;
-    int elseLabel;
-    int doneLabel;
-    int loopLabel;
+    // variables used in the statement kind switch below
+    struct type* t;             // temporary type; stores the type of an expression to print
+    struct expr* exprtemp;      // temporary expression; used to traverse expressions to print
+    int elseLabel;              // label for if-else statements; the else label
+    int doneLabel;              // label for if-else, if, for-loop statements; the done label
+    int loopLabel;              // label for for-loop statements; the loop label
 
-    //final statement should return
+    //final statement in a statement list should return
     if(s == NULL) {
         return;
     }
@@ -376,7 +435,7 @@ void stmt_codegen(struct stmt* s) {
     // switches for all kinds of statements
     switch(s->kind) {
 
-        // for expressions statemtents
+        // for expression statements
         case STMT_EXPR:
             expr_codegen(s->expr);
             scratch_free(s->expr->reg);
@@ -399,7 +458,7 @@ void stmt_codegen(struct stmt* s) {
             if(s->expr->kind != EXPR_ARGS) {
                 t = expr_typecheck(s->expr);
 
-                // check the type and call the appropriate function after loading the value from
+                // check the type and branch to the appropriate function after loading the value from
                 // some register (from expr_codegen()) into register x0
                 if(t->kind == TYPE_INTEGER) {
                     expr_codegen(s->expr);
@@ -435,7 +494,7 @@ void stmt_codegen(struct stmt* s) {
                 exprtemp = s->expr;
                 while(exprtemp->right->kind == EXPR_ARGS) {
                     
-                    // call the correct function for each argument visited
+                    // branch to the correct function for each argument visited
                     t = expr_typecheck(exprtemp->left);
 
                     if(t->kind == TYPE_INTEGER) {
@@ -613,6 +672,7 @@ void stmt_codegen(struct stmt* s) {
 
         break;
 
+        // for for-loop statements
         case STMT_FOR:
 
             // create a label for the top of the loop and for escaping when done

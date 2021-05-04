@@ -1,21 +1,41 @@
-#include "decl.h"
-#include "expr.h"
-#include "type.h"
-#include "scope.h"
-#include "label.h"
-#include "scratch.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                   'decl.c'
+*                                   --------
+*   This is the implementation file for all functions for the 'decl' AST nodes. It
+*   includes a heavily commented breakdown of each function and how it works, which
+*   serve as great debugging elements and descriptions of how the compiler works.
+*
+*/
 
-int totalResErrors = 0;
-int totalTypeErrors = 0;
-char localsTP[256][300];
-int localsTPCounter = 0;
-int counter;                    // counter that keeps track of the stack addresses of locals
-int callStackSize;
-extern FILE* fp;
+#include "decl.h"
+
+// variables used in declaration functions
+int totalResErrors = 0;         // keeps track of the total number of resolution errors
+int totalTypeErrors = 0;        // keeps track of the total number of typechecking errors
+int counter;                    // counter used to generate relative stack addresses of local variables during name resolution
+
+char localsTP[256][300];        // array of strings; stores local symbols for codegen to be printed at the bottom of the output file
+int localsTPCounter = 0;        // counter that keeps track of the next position to write into localsTP
+int callStackSize;              // the size in bytes of a function's call stack
+extern FILE* fp;                // file pointer to the output file for assembly code (SOURCE: 'main.c')
+
 
 // basic factory function for creating a 'decl' struct
 struct decl * decl_create( char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ) {
@@ -127,9 +147,10 @@ void decl_resolve(struct decl* d) {
     // if the declaration is of type 'function'
     if(d->type->kind == TYPE_FUNCTION) {
         
+        // create a symbol that will be used to check the function in question
         struct symbol* symCheck = scope_lookup_current(d->name);
 
-        /* CASE (1): if it is in the symbol table and if the symbol in the table is of type TYPE_PROTOTYPE, we can update it with implementation */
+        // CASE (1): if it is in the symbol table and if the symbol in the table is of type TYPE_PROTOTYPE, we can update it with implementation
         if(symCheck != NULL && symCheck->type->kind == TYPE_PROTOTYPE) {
 
             // if the parameters AND return types match between prototype and implementation
@@ -158,7 +179,7 @@ void decl_resolve(struct decl* d) {
             }
         }
 
-        /* CASE (2): if it is in the symbol table and if the symbol in the table is of any type other than TYPE_PROTOTYPE, emit error */
+        // CASE (2): if it is in the symbol table and if the symbol in the table is of any type other than TYPE_PROTOTYPE, emit error
         else if(symCheck != NULL && symCheck->type->kind != TYPE_PROTOTYPE) {
             
             // will reach here if the same name is declared as anything other than a function prototype
@@ -166,7 +187,7 @@ void decl_resolve(struct decl* d) {
             totalResErrors++;
         }
     
-        /* CASE (3): if it is not in the symbol table, we add it as a type TYPE_FUNCTION */
+        // CASE (3): if it is not in the symbol table, we add it as a type TYPE_FUNCTION
         else {
             
             // set the flag to true so we know to resolve params and code
@@ -181,16 +202,18 @@ void decl_resolve(struct decl* d) {
     // if the declaration is a function prototype, resolve parameters and code (if applicapble) **NOTE - To properly typecheck, even if implementation does not match
     // a prototype, we should still resolve everything within so that typechecking may work appropriately**
     if((d->type->kind == TYPE_FUNCTION) || (d->type->kind == TYPE_PROTOTYPE)) {
+        
         scope_enter();
         
-        //reset counter after entering a funtion's scope
+        //reset counter after entering a funtion's scope for determining stack locations for locals
         counter = 0;
 
+        // perform name resolution on the function's contents
         param_list_resolve(d->type->params);
         stmt_resolve(d->code);
         scope_exit();
         
-        // reset counter after leaving a function's scope
+        // reset counter after leaving a function's scope (for safety) for determining stack locations for locals
         counter = 0;
     }
 
@@ -254,6 +277,7 @@ void decl_typecheck(struct decl* d) {
 // function being used to verify an array's initializer list
 void decl_check_initList(struct type* t, struct expr* initList) {
 
+    // temporary type structures used to traverse the initializer list
     struct type* temp = t;
     struct type* trav = t;
     struct expr* list = initList;
@@ -271,7 +295,7 @@ void decl_check_initList(struct type* t, struct expr* initList) {
 
 }
 
-// counts the number of elements in an initializer list (non-nested initializer lists)
+// counts the number of elements in an initializer list
 int count_list_elements(struct expr* e, struct type* t) {
 
     // traverses through, counting the number of elements in list e
@@ -330,6 +354,7 @@ int count_list_elements(struct expr* e, struct type* t) {
     return total;
 }
 
+// counts and returns the number of local variables within a statement list
 int decl_local_count(struct stmt* s) {
 
     // if the stmt_list is empty, return 0
@@ -365,18 +390,18 @@ int decl_local_count(struct stmt* s) {
     return count;
 }
 
+// function that generates ARM assembly code for a given abstract syntax tree (d is the root of the tree)
 void decl_codegen(struct decl* d) {
 
-    // temporary string buffer
-    char strBuffer[300];
-    int numParams;
-    int numLocals;
-    int final;
-    int tempReg;
-    int tempReg2;
-    int loopLabel;
-    int doneLabel;
-    struct expr* tempe;
+    // variables used within the switch
+    char strBuffer[300];    // buffer to hold a local string that needs to be printed after a function
+    int numParams;          // stores the number of parameters in a function
+    int numLocals;          // stores the number of locals in a function
+    int tempReg;            // temporary register used in a number of places
+    int tempReg2;           // second temporary register used in a number of places
+    int loopLabel;          // loop label used for an assembly loop
+    int doneLabel;          // done label used for an assembly loop
+    struct expr* tempe;     // temporary expression structure used for traversing lists of expressions
 
     // if there are no more declarations
     if(d == NULL) {
@@ -458,10 +483,10 @@ void decl_codegen(struct decl* d) {
             }
 
             // in case of a local string, we should create a new label for the string, store 
-            // it in the which, then print it with all other labels at the end of the code
+            // it in the 'which', then print it with all other labels at the end of the code
             if(d->symbol->kind == SYMBOL_LOCAL) {
                 
-                // unique label number will come from 'which'
+                // unique label number will be stored in 'which'
                 memset(strBuffer, 0, 300);
                 d->symbol->which = var_label_create();
                 if(d->value != NULL) {
@@ -471,14 +496,14 @@ void decl_codegen(struct decl* d) {
                         sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string %s\n", var_label_name(d->symbol->which), d->value->string_literal);
                     }
 
-                    // if that value is a string variable name, we have to print its value
+                    // if that value is a string variable name, we have to print an empty field and assign the var's value to this new string
                     if(d->value->kind == EXPR_NAME) {
                         
                         // still store its label, this time empty
                         sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\\0\"\n", var_label_name(d->symbol->which));
                         
-                        /* now we need to do like a normal assign for this string using the label above */
-
+                        // now we need to do like a normal assign for this string using the label above.
+                        // this is my algorithm for string assignments; one character at a time until '\0' is reached
                         // generate code to get the righmost string into a register
                         expr_codegen(d->value);
 
@@ -522,22 +547,10 @@ void decl_codegen(struct decl* d) {
                         scratch_free(tempReg);
                         scratch_free(tempReg2);
 
-                        /*
-                        // need to move every character from right to left string
-                        for(int i = 0; i < 29; i++) {
-                            fprintf(fp, "\t\tldrb\tw0, [%s, %i]\n", scratch_name(d->value->reg), i);
-                            fprintf(fp, "\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), i);
-                            final = i + 1;
-                        }
-                        fprintf(fp, "\t\tmov\tw0, 0\n");
-                        fprintf(fp, "\t\tstrb\tw0, [%s, %i]\n", scratch_name(tempReg), final);
-
-                        // free up the two registers used
-                        scratch_free(d->value->reg);
-                        scratch_free(tempReg);
-                        */
                     }
                 }
+                
+                // if no initial value is given, set it as the empty string
                 else
                     sprintf(strBuffer, "\t.section\t.data\n\t.align 8\n%s:\n\t.string \"\\0\"\n", var_label_name(d->symbol->which));
 
@@ -545,31 +558,34 @@ void decl_codegen(struct decl* d) {
                 for(int i = 0; i < 300; i++) {
                     localsTP[localsTPCounter][i] = strBuffer[i];
                 }
+                
+                // move the write head of this buffer ahead one position
                 localsTPCounter++;
 
             }
 
         break;
 
+        // declaring function implementations
         case TYPE_FUNCTION:
             
             // print the name of the function
             fprintf(fp, ".text\n\t.global %s\n\t%s:\n", d->name, d->name);
             
-            /* to grow the stack, we need to know how many local declarations we have, parameters, as well as account 
-            for 6 extra spots for saving registers during a 'context switch' (plus 4 extra bytes for safety) */
+            // to grow the stack, we need to know how many local declarations we have, parameters, as well as account 
+            // for 6 extra spots for saving registers during a 'context switch' (plus 4 extra bytes for safety)
             
             // count the number of parameters and locals (name sent to allow main array parameter)
             numParams = param_list_count(d->type->params, d->name);
             numLocals = decl_local_count(d->code);
 
-            // update the externam callStackSize variable
+            // update the external callStackSize variable
             callStackSize = (numLocals + numParams + 8) * 8;
 
             // grow the stack accordingly
             fprintf(fp, "\t\tstp\tx29, x30, [sp, #-%i]!\n", callStackSize);
             
-            /* need to store parameters on the stack */
+            // need to store parameters on the stack
             // if there are more than 6 parameters, codegen error
             if(numParams > 6) {
                 printf("\033[0;31mcodegen error\033[0;0m: cannot exceed 6 function parameters, registers filled\n");
@@ -594,13 +610,17 @@ void decl_codegen(struct decl* d) {
                     localsTP[i][j] = 0;
                 }
             }
+            
+            // reset the write head for this buffer for the next function implementation
             localsTPCounter = 0;
             
         break;
 
+        // declaring arrays
         case TYPE_ARRAY:
         
             // print a code generation error if the array is NOT of type integer, or is local
+            // (assignment specifies that ONLY 1D, global integer arrays need be implemented)
             if( d->type->subtype->kind != TYPE_INTEGER || d->symbol->kind != SYMBOL_GLOBAL) {
                 printf("\033[0;31mcodegen error\033[0;0m: arrays of non-integer types and local arrays not implemented\n");
                 exit(1);
@@ -663,7 +683,11 @@ void decl_codegen(struct decl* d) {
 
         break;
         
+        // prototypes need not print anything; they are useful only for name resolution
         case TYPE_PROTOTYPE:
+        break;
+        
+        // no 'void' type is ever declared explicitly (only ever as a 'function' subtype)
         case TYPE_VOID:
         break;
 

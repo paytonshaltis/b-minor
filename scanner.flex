@@ -1,12 +1,38 @@
 %{
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                  'scanner.flex'
+*                                  --------------
+*   This file defines the rules for scanning in the B-Minor language. Flex will use
+*   this file to create 'scanner.c', the source-code for a lexical analyzer. Rules
+*   use regular expressions to define how tokens are scanner during compilation.
+*
+*/
+
 #include "token.h"
 %}
 %option yylineno
 DIGIT  [0-9]
 LETTER [a-zA-Z]
 %%
-(" "|\t|\n|\r)  /* skip whitespace */
- /*~~~~~~~~~~~~~  KEYWORDS  ~~~~~~~~~~~~~*/
+(" "|\t|\n|\r)  // skip whitespace
+ /* ~~~~~~~~~~~~~  KEYWORDS  ~~~~~~~~~~~~~ */
 array           { return TOKEN_ARRAY; }
 boolean         { return TOKEN_BOOLEAN; }
 char            { return TOKEN_CHAR; }
@@ -21,7 +47,7 @@ return          { return TOKEN_RETURN; }
 string          { return TOKEN_STRING; }
 true            { return TOKEN_TRUE; }
 void            { return TOKEN_VOID; }
- /*~~~~~~~~~~~~~  SYMBOLS  ~~~~~~~~~~~~~*/
+ /* ~~~~~~~~~~~~~  SYMBOLS  ~~~~~~~~~~~~~ */
 :               { return TOKEN_COLON; }
 ;               { return TOKEN_SEMICOLON; }
 ,               { return TOKEN_COMMA; }
@@ -49,14 +75,14 @@ void            { return TOKEN_VOID; }
 \|\|            { return TOKEN_OR; }
 &&              { return TOKEN_AND; }
 !               { return TOKEN_NOT; }
- /*~~~~~~~~~~~~~   LITERALS / IDENTIFIER   ~~~~~~~~~~~~~*/
+ /* ~~~~~~~~~~~~~   LITERALS / IDENTIFIER   ~~~~~~~~~~~~~ */
 ({LETTER}|"_")({LETTER}|"_"|{DIGIT}){0,255}     { return TOKEN_IDENT; }
 {DIGIT}+                                        { return TOKEN_INTLIT; }
 '((\\?[^\\\'\n])|(\\\\)|(\\\'))'                { return TOKEN_CHARLIT; }
 \"((\\.|[^\\"\n]){0,255})\"                     { return TOKEN_STRINGLIT; }
- /*~~~~~~~~~~~~~   COMMENTS   ~~~~~~~~~~~~~*/
-"//".*          /* skips single line C++ style comments */
-"/*"            {
+ /* ~~~~~~~~~~~~~   COMMENTS   ~~~~~~~~~~~~~ */
+"//".*          // skips single line C++ style comments, multi-lined C style comments below
+"/*"            {               
                 int lineNumber = 0;
                 int c;
                 while((c = input()) != 0) {
@@ -73,7 +99,7 @@ void            { return TOKEN_VOID; }
                     escape: 
                     break;
                 }
- /*~~~~~~~~~~~~~   ERROR   ~~~~~~~~~~~~~*/
+ /* ~~~~~~~~~~~~~   ERROR   ~~~~~~~~~~~~~ */
 .               { return TOKEN_ERROR; }
 %%
 int yywrap() { return 1; }

@@ -1,3 +1,29 @@
+#  	all code in this file is original, and was written by:
+#  
+#   PAYTON JAMES SHALTIS
+#   COMPLETED MAY 4TH, 2021
+#
+#			for
+#
+#	B-MINOR COMPILER, v1.0
+#
+#
+#   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+#   over the course of the Spring 2021 semester. I understand that keeping this
+#   code in a public repository may allow other students to have access. In the
+#   event that the course is taught again, with a similar project component, this 
+#   code is NOT to be used in place of another student's work.
+#
+#
+#
+#                                   'Makefile'
+#                                   ----------
+#   This Makefile handles dependencies for compiling elements of the project. Most
+#   source-code files are compiled into object files, which are later linked together   
+#   to generate the executable file 'bminor'.
+#
+#
+
 bminor: main.o scanner.o parser.o decl.o type.o stmt.o expr.o param_list.o hash_table.o symbol.o scope.o scratch.o label.o
 	gcc main.o scanner.o parser.o decl.o type.o stmt.o expr.o param_list.o hash_table.o symbol.o scope.o scratch.o label.o -o bminor
 

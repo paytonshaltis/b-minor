@@ -1,14 +1,39 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                  'param_list.c'
+*                                  --------------
+*   This is the implementation file for all functions for the 'param_list' AST nodes. It
+*   includes a heavily commented breakdown of each function and how it works, which
+*   serve as great debugging elements and descriptions of how the compiler works.
+*
+*/
+
+#include "expr.h"
 #include "param_list.h"
 #include "scope.h"
-#include "expr.h"
 
-extern int totalResErrors;
+
+// variables used by parameter list functions
+extern int totalResErrors;      // keeps track of the total number of resolution errors (SOURCE: 'decl.c')
 
 // basic factory function for creating a 'param_list' struct
-struct param_list * param_list_create( char *name, struct type *type, struct param_list *next ) {
+struct param_list* param_list_create(char* name, struct type *type, struct param_list *next) {
     struct param_list *p = malloc(sizeof(*p));
     p->name = name;
     p->type = type;                             
@@ -51,6 +76,7 @@ void param_list_resolve(struct param_list* p) {
         printf("\033[38;5;46madded\033[0;0m parameter \"%s\" to symbol table (which = %i)\n", p->name, p->symbol->which);
     }
 
+    // resolve the next parameter in the list
     param_list_resolve(p->next);
 
     return;
@@ -197,7 +223,7 @@ int param_list_count(struct param_list* p, const char* name) {
         count++;
         
         // arrays as parameters not supported as per assignment description; exit with code 1 
-        // (main allowed to pass fib test case good19.bminor)
+        // (main allowed to pass fib test case good19.bminor, and for command-line args (not implemented!))
         if(ptemp->type->kind == TYPE_ARRAY && strcmp(name, "main") != 0 ) {
             printf("\033[0;31mcodegen error\033[0;0m: arrays as function parameters not implemented\n");
             exit(1);

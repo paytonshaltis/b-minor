@@ -1,22 +1,50 @@
 %{
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                  'parser.bison'
+*                                  --------------
+*   This file defines the rules for the grammar of B-Minor. Bison uses this file to 
+*   generate 'parser.c', the source-code for a complete LR parser. Rules use terminal
+*   tokens and nonterminals in order to parse a '.bminor' file during compilation.
+*
+*/
+
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
+
 #include "decl.h" 
-#include "type.h"
-#include "stmt.h"
 #include "expr.h"
 #include "param_list.h"
+#include "stmt.h"
+#include "type.h"
 
-extern char* yytext;
-extern int yylex();
-extern int yyerror(char* str);
-extern int yylineno;
-
-struct decl* parser_result = 0;
+// variables used within the parsing process
+extern char* yytext;				// pointer the the actual text of a literal or variable name (SOURCE: 'scanner.c')
+extern int yylex();					// function to perform lexical analysis (scanning) (SOURCE: 'scanner.c')
+extern int yyerror(char* str);		// function that emits a parse error (SOURCE: 'parser.bison', ??unsure why external??)
+extern int yylineno;				// the line number of the current scan/parse position; used to print errors (SOURCE: 'scanner.c')
+struct decl* parser_result = 0;		// this is the root of the abstract syntax tree after a successful parse 
 
 %}
 
+// the different token types used in grammar rules
 %token TOKEN_ARRAY
 %token TOKEN_BOOLEAN
 %token TOKEN_CHAR
@@ -64,6 +92,7 @@ struct decl* parser_result = 0;
 %token TOKEN_NOT
 %token TOKEN_ERROR
 
+// unioning the different AST nodes, words, letters, and numbers
 %union {
 	struct decl* decl;
 	struct type* type;
@@ -76,6 +105,7 @@ struct decl* parser_result = 0;
 
 }
 
+// a single union element with each nonterminal that falls into that category
 %type <decl> program programlist decl global proto function stddecl cstdecl expdecl
 %type <type> type array sizearr nosizearr
 %type <stmt> stmtlist unbalanced balanced otherstmt
@@ -330,7 +360,7 @@ paramslist		: ident TOKEN_COLON type TOKEN_COMMA paramslist			{$$ = param_list_c
 				;
 
 %%
-
+// in the case of a failed parse, emit an error message along with estimated line number
 int yyerror(char* str) {
 	printf("Parse failed near line %d\n", yylineno);
 	return 1;

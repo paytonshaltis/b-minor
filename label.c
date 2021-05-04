@@ -1,17 +1,37 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "label.h"
-
-/*
-implements the functions that allow for creating and accessing
-labels that will be used when printing to the output file
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                   'label.c'
+*                                   ---------
+*   This file contains the implementation for the function prototypes in 'label.h'.
+*   It implements functions for creating and returning names of different kinds of
+*   labels used during the code generation phase of compiling.
+*
 */
 
-int varLabelCount = 0;
-int litLabelCount = 0;
-int condLabelCount = 0;
-int stmtLabelCount = 0;
+#include "label.h"
+
+
+// variables used in the label functions below
+int varLabelCount = 0;      // counter for variable labels
+int litLabelCount = 0;      // counter for literal labels
+int condLabelCount = 0;     // counter for conditional labels
+int stmtLabelCount = 0;     // counter for statement labels
 
 // increments the label counter, returns its current value
 int var_label_create() {

@@ -1,18 +1,39 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "expr.h"
-#include "scope.h"
-#include "symbol.h"
-#include "scratch.h"
-#include "label.h"
+/*  all code in this file is original, and was written by:
+*  
+*   PAYTON JAMES SHALTIS
+*   COMPLETED MAY 4TH, 2021
+*
+*			for
+*
+*	B-MINOR COMPILER, v1.0
+*
+*
+*   in CSC-425: "Compilers and Interpreters" taught by Professor John DeGood,
+*   over the course of the Spring 2021 semester. I understand that keeping this
+*   code in a public repository may allow other students to have access. In the
+*   event that the course is taught again, with a similar project component, this 
+*   code is NOT to be used in place of another student's work.
+*
+*
+*
+*                                   'expr.c'
+*                                   --------
+*   This is the implementation file for all functions for the 'expr' AST nodes. It
+*   includes a heavily commented breakdown of each function and how it works, which
+*   serve as great debugging elements and descriptions of how the compiler works.
+*
+*/
 
-extern int totalResErrors;
-extern int totalTypeErrors;
-extern char localsTP[256][300];
-extern int localsTPCounter;
-extern int callStackSize;
-extern FILE* fp;
+#include "expr.h"
+
+// variables used in expression functions
+extern int totalResErrors;          // keeps track of the total number of resolution errors (SOURCE: 'decl.c')
+extern int totalTypeErrors;         // keeps track of the total number of typechecking errors (SOURCE: 'decl.c')
+
+extern char localsTP[256][300];     // array of strings; stores local symbols for codegen to be printed at the bottom of the output file (SOURCE: 'decl.c')
+extern int localsTPCounter;         // counter that keeps track of the next position to write into localsTP (SOURCE: 'decl.c')
+extern int callStackSize;           // the size in bytes of a function's call stack (SOURCE: 'decl.c')
+extern FILE* fp;                    // file pointer to the output file for assembly code (SOURCE: 'main.c')
 
 // basic factory function for creating an 'expr' struct (basic expression)
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ) {
@@ -92,6 +113,7 @@ int precedence(struct expr* e) {
         return 10;
     }
 
+    // if it is not one of these expression kinds, return -1 (lowest precedence)
     return -1;
 }
 
@@ -108,36 +130,37 @@ int unaryExpr(expr_t t) {
 // printing function for use by the pretty printer
 void expr_print(struct expr *e) {
 
-    /* for each expression, first consider the left and right sides. NOTE: single groups are not affected here, 
-    they are dealt with in the expr_print for 'group' section below, as well as nested groups! */
+    // for each expression, first consider the left and right sides. NOTE: single groups are not affected here, 
+    // they are dealt with in the expr_print for 'group' section below, as well as nested groups!
     
-    /* if the left side of an expression is a group, do the following: */
+    // if the left side of an expression is a group, do the following:
     if(e->left != NULL && e->left->kind == EXPR_GROUP) {
         
-        /* if the precedence of the expression within the group is greater than OR EQUAL TO the precedence of the outer expression 
-        (we include equal to because order of ops prioritizes expressions left to right, so no need for parens if left is equal priority!)*/
+        // if the precedence of the expression within the group is greater than OR EQUAL TO the precedence of the outer expression 
+        // (we include equal to because order of ops prioritizes expressions left to right, so no need for parens if left is equal priority!)
         if(precedence(e->left->left) >= precedence(e)) {
 
-            /* we can extract the expression from the group, replacing e->left */
+            // we can extract the expression from the group, replacing e->left
             e->left = e->left->left;
 
         }
     }
 
-    /* if the right side of an expression is a group, do the following: */
+    // if the right side of an expression is a group, do the following:
     if(e->right != NULL && e->right->kind == EXPR_GROUP) {
         
-        /* if the precedence of the expression within the group is greater than the precedence of the outer expression */
+        // if the precedence of the expression within the group is greater than the precedence of the outer expression
         if(precedence(e->right->left) > precedence(e)) {
 
-            /* we can extract the expression from the group, replacing e->right */
+            // we can extract the expression from the group, replacing e->right
             e->right = e->right->left;
             
         }
     }
 
-    /* after expressions have been extracted from groups if necessary, we can print normally */
+    // after expressions have been extracted from groups if necessary, we can print normally
 
+    // for the basic leaf expressions
     if(e->kind == EXPR_NAME) {
         printf("%s", e->name);
     }
@@ -181,6 +204,8 @@ void expr_print(struct expr *e) {
         }
         printf("\'");
     }
+
+    // for function calls
     if(e->kind == EXPR_FCALL) {
         expr_print(e->left);
         printf("(");
@@ -191,31 +216,37 @@ void expr_print(struct expr *e) {
         }
         printf(")");
     }
+
+    // for group exptrssions
     if(e->kind == EXPR_GROUP) {
         
-        /* no need for more than one set of parens (((((like this))))) */
+        // no need for more than one set of parens (((((like this)))))
         if(e->left->kind == EXPR_GROUP) {
             expr_print(e->left);
         }
         
-        /* no need for parens around a single term / unary expression */
+        // no need for parens around a single term / unary expression
         else if(unaryExpr(e->left->kind) == 1) {
             expr_print(e->left);
         }
 
-        /* if parens are absolutely required */
+        // if parens are absolutely required, we reach this point and print them
         else {
             printf("(");
             expr_print(e->left);
             printf(")");
         }
     }
+
+    // for array indexing
     if(e->kind == EXPR_ARRIND) {
         expr_print(e->left);
         printf("[");
         expr_print(e->right);
         printf("]");
     }
+
+    // for array brackets (used for multi-dimensional indexing)
     if(e->kind == EXPR_BRACKET) {
         expr_print(e->left);
         printf("]");
@@ -224,6 +255,8 @@ void expr_print(struct expr *e) {
             expr_print(e->right);
         }
     }
+
+    // for array initializer lists
     if(e->kind == EXPR_CURLS) {
         printf("{");
         if(e->left != NULL) {
@@ -231,6 +264,8 @@ void expr_print(struct expr *e) {
         }
         printf("}");
     }
+
+    // for function call arguments and array initializer lists
     if(e->kind == EXPR_ARGS) {
         expr_print(e->left);
         if(e->right != NULL) {
@@ -238,92 +273,130 @@ void expr_print(struct expr *e) {
             expr_print(e->right);
         }
     }
+
+    // for unary increment
     if(e->kind == EXPR_INC) {
         expr_print(e->left);
         printf("++");
     }
+
+    // for unary decrement
     if(e->kind == EXPR_DEC) {
         expr_print(e->left);
         printf("--");
     }
+
+    // for unary not
     if(e->kind == EXPR_NOT) {
         printf("!");
         expr_print(e->left);
     }
+
+    // for unary negation
     if(e->kind == EXPR_NEG) {
         printf("-");
         expr_print(e->left);
     }
+
+    // for exponentiation expressions
     if(e->kind == EXPR_EXPON) {
         expr_print(e->left);
         printf("^");
         expr_print(e->right);
     }
+
+    // for modulo expressions
     if(e->kind == EXPR_MOD) {
         expr_print(e->left);
         printf("%%");
         expr_print(e->right);
     }
+
+    // for division expressions
     if(e->kind == EXPR_DIV) {
         expr_print(e->left);
         printf("/");
         expr_print(e->right);
     }
+
+    // for multiplication expressions
     if(e->kind == EXPR_MULT) {
         expr_print(e->left);
         printf("*");
         expr_print(e->right);
     }
+
+    // for subtraction expressions
     if(e->kind == EXPR_SUB) {
         expr_print(e->left);
         printf("-");
         expr_print(e->right);
     }
+
+    // for addition expressions
     if(e->kind == EXPR_ADD) {
         expr_print(e->left);
         printf("+");
         expr_print(e->right);
     }
+
+    // for not equal expressions
     if(e->kind == EXPR_NEQUAL) {
         expr_print(e->left);
         printf("!=");
         expr_print(e->right);
     }
+
+    // for equal expressions
     if(e->kind == EXPR_EQUAL) {
         expr_print(e->left);
         printf("==");
         expr_print(e->right);
     }
+
+    // for greater than or equal expressions
     if(e->kind == EXPR_GE) {
         expr_print(e->left);
         printf(">=");
         expr_print(e->right);
     }
+
+    // for greater than expressions
     if(e->kind == EXPR_GREATER) {
         expr_print(e->left);
         printf(">");
         expr_print(e->right);
     }
+
+    // for less than or equal expressions
     if(e->kind == EXPR_LE) {
         expr_print(e->left);
         printf("<=");
         expr_print(e->right);
     }
+
+    // for less than expressions
     if(e->kind == EXPR_LESS) {
         expr_print(e->left);
         printf("<");
         expr_print(e->right);
     }
+
+    // for logical and expressions
     if(e->kind == EXPR_AND) {
         expr_print(e->left);
         printf("&&");
         expr_print(e->right);
     }
+
+    // for logical or expressions
     if(e->kind == EXPR_OR) {
         expr_print(e->left);
         printf("||");
         expr_print(e->right);
     }
+
+    // for assignment expressions
     if(e->kind == EXPR_ASSIGN) {
         expr_print(e->left);
         printf("=");
@@ -334,36 +407,37 @@ void expr_print(struct expr *e) {
 // printing function for use by codegen to print to file rather than stdout
 void expr_print_file(struct expr *e) {
 
-    /* for each expression, first consider the left and right sides. NOTE: single groups are not affected here, 
-    they are dealt with in the expr_print_file for 'group' section below, as well as nested groups! */
+    // for each expression, first consider the left and right sides. NOTE: single groups are not affected here, 
+    // they are dealt with in the expr_print_file for 'group' section below, as well as nested groups!
     
-    /* if the left side of an expression is a group, do the following: */
+    // if the left side of an expression is a group, do the following:
     if(e->left != NULL && e->left->kind == EXPR_GROUP) {
         
-        /* if the precedence of the expression within the group is greater than OR EQUAL TO the precedence of the outer expression 
-        (we include equal to because order of ops prioritizes expressions left to right, so no need for parens if left is equal priority!)*/
+        // if the precedence of the expression within the group is greater than OR EQUAL TO the precedence of the outer expression 
+        // (we include equal to because order of ops prioritizes expressions left to right, so no need for parens if left is equal priority!)
         if(precedence(e->left->left) >= precedence(e)) {
 
-            /* we can extract the expression from the group, replacing e->left */
+            // we can extract the expression from the group, replacing e->left
             e->left = e->left->left;
 
         }
     }
 
-    /* if the right side of an expression is a group, do the following: */
+    // if the right side of an expression is a group, do the following:
     if(e->right != NULL && e->right->kind == EXPR_GROUP) {
         
-        /* if the precedence of the expression within the group is greater than the precedence of the outer expression */
+        // if the precedence of the expression within the group is greater than the precedence of the outer expression
         if(precedence(e->right->left) > precedence(e)) {
 
-            /* we can extract the expression from the group, replacing e->right */
+            // we can extract the expression from the group, replacing e->right
             e->right = e->right->left;
             
         }
     }
 
-    /* after expressions have been extracted from groups if necessary, we can print normally */
+    // after expressions have been extracted from groups if necessary, we can print normally
 
+    // for the basic leaf expressions
     if(e->kind == EXPR_NAME) {
         fprintf(fp, "%s", e->name);
     }
@@ -407,6 +481,8 @@ void expr_print_file(struct expr *e) {
         }
         fprintf(fp, "\'");
     }
+
+    // for function call expressions
     if(e->kind == EXPR_FCALL) {
         expr_print_file(e->left);
         fprintf(fp, "(");
@@ -417,6 +493,8 @@ void expr_print_file(struct expr *e) {
         }
         fprintf(fp, ")");
     }
+
+    // for group expressions
     if(e->kind == EXPR_GROUP) {
         
         /* no need for more than one set of parens (((((like this))))) */
@@ -436,12 +514,16 @@ void expr_print_file(struct expr *e) {
             fprintf(fp, ")");
         }
     }
+
+    // for array index expressions
     if(e->kind == EXPR_ARRIND) {
         expr_print_file(e->left);
         fprintf(fp, "[");
         expr_print_file(e->right);
         fprintf(fp, "]");
     }
+
+    // for multi-dimension array indexing
     if(e->kind == EXPR_BRACKET) {
         expr_print_file(e->left);
         fprintf(fp, "]");
@@ -450,6 +532,8 @@ void expr_print_file(struct expr *e) {
             expr_print_file(e->right);
         }
     }
+
+    // for array initializer lists
     if(e->kind == EXPR_CURLS) {
         fprintf(fp, "{");
         if(e->left != NULL) {
@@ -457,6 +541,8 @@ void expr_print_file(struct expr *e) {
         }
         fprintf(fp, "}");
     }
+
+    // for function call and initializer list arguments
     if(e->kind == EXPR_ARGS) {
         expr_print_file(e->left);
         if(e->right != NULL) {
@@ -464,92 +550,130 @@ void expr_print_file(struct expr *e) {
             expr_print_file(e->right);
         }
     }
+
+    // for unary increment
     if(e->kind == EXPR_INC) {
         expr_print_file(e->left);
         fprintf(fp, "++");
     }
+
+    // for unary decrement
     if(e->kind == EXPR_DEC) {
         expr_print_file(e->left);
         fprintf(fp, "--");
     }
+
+    // for unary not
     if(e->kind == EXPR_NOT) {
         fprintf(fp, "!");
         expr_print_file(e->left);
     }
+
+    // for unary negation
     if(e->kind == EXPR_NEG) {
         fprintf(fp, "-");
         expr_print_file(e->left);
     }
+
+    // for exponentiation expressions
     if(e->kind == EXPR_EXPON) {
         expr_print_file(e->left);
         fprintf(fp, "^");
         expr_print_file(e->right);
     }
+
+    // for modulo expressions
     if(e->kind == EXPR_MOD) {
         expr_print_file(e->left);
         fprintf(fp, "%%");
         expr_print_file(e->right);
     }
+
+    // for division expressions
     if(e->kind == EXPR_DIV) {
         expr_print_file(e->left);
         fprintf(fp, "/");
         expr_print_file(e->right);
     }
+
+    // for multiplication expressions
     if(e->kind == EXPR_MULT) {
         expr_print_file(e->left);
         fprintf(fp, "*");
         expr_print_file(e->right);
     }
+
+    // for subtraction expressions
     if(e->kind == EXPR_SUB) {
         expr_print_file(e->left);
         fprintf(fp, "-");
         expr_print_file(e->right);
     }
+
+    // for addition expressions
     if(e->kind == EXPR_ADD) {
         expr_print_file(e->left);
         fprintf(fp, "+");
         expr_print_file(e->right);
     }
+
+    // for not equal expressions
     if(e->kind == EXPR_NEQUAL) {
         expr_print_file(e->left);
         fprintf(fp, "!=");
         expr_print_file(e->right);
     }
+
+    // for equal expressions
     if(e->kind == EXPR_EQUAL) {
         expr_print_file(e->left);
         fprintf(fp, "==");
         expr_print_file(e->right);
     }
+
+    // for greater than or equal expressions
     if(e->kind == EXPR_GE) {
         expr_print_file(e->left);
         fprintf(fp, ">=");
         expr_print_file(e->right);
     }
+
+    // for greater than expressions
     if(e->kind == EXPR_GREATER) {
         expr_print_file(e->left);
         fprintf(fp, ">");
         expr_print_file(e->right);
     }
+    
+    // for less than or equal expressions
     if(e->kind == EXPR_LE) {
         expr_print_file(e->left);
         fprintf(fp, "<=");
         expr_print_file(e->right);
     }
+
+    // for less than expressions
     if(e->kind == EXPR_LESS) {
         expr_print_file(e->left);
         fprintf(fp, "<");
         expr_print_file(e->right);
     }
+
+    // for logical and expressions
     if(e->kind == EXPR_AND) {
         expr_print_file(e->left);
         fprintf(fp, "&&");
         expr_print_file(e->right);
     }
+
+    // for logical or expressions
     if(e->kind == EXPR_OR) {
         expr_print_file(e->left);
         fprintf(fp, "||");
         expr_print_file(e->right);
     }
+
+    // for assignment expressions
     if(e->kind == EXPR_ASSIGN) {
         expr_print_file(e->left);
         fprintf(fp, "=");
@@ -567,11 +691,17 @@ void expr_resolve(struct expr* e) {
 
     // different cases for the expression types
     if(e->kind == EXPR_NAME) {
+        
+        // grab the symbol from the table and assign it to this expression
         e->symbol = scope_lookup(e->name);
+        
+        // if the symbol was not found in the symbol table
         if(e->symbol == NULL) {
             printf("\033[0;31mresolution error\033[0;0m: \"%s\" not found in scope\n", e->name);
             totalResErrors++;
         }
+        
+        // if the symbol was found in the symbol table
         else {
             
             // print proper message depending on scope
@@ -593,7 +723,11 @@ void expr_resolve(struct expr* e) {
                
         }
     }
+    
+    // if the expression is not a variable name (no associated symbol required)
     else {
+        
+        // perform name resolution on its left and right expressions
         expr_resolve(e->left);
         expr_resolve(e->right);
     }
@@ -607,14 +741,12 @@ struct type* expr_typecheck(struct expr* e) {
         return NULL;
     }
 
-    // typecheck the left and right expressions, storing their addresses
-    struct type* lt = expr_typecheck(e->left);
-    struct type* rt = expr_typecheck(e->right);
-
-    // the result to be returned (even if typechecking fails!)
-    struct type* result;
-    struct expr* temp;
-    int totalDerefs = 0;
+    // variables used for the expression switch 
+    struct type* lt = expr_typecheck(e->left);      // typecheck the left expression and store its type
+    struct type* rt = expr_typecheck(e->right);     // typecheck the right expression and store its type
+    struct type* result;                            // the result to be returned (even if typechecking fails, still return valid type to allow continued typechecking!)
+    struct expr* temp;                              // temp expression structure used for traversing certain parts of the AST
+    int totalDerefs = 0;                            // stores the total number of array dereferences; used to ensure proper indexing of arrays
 
     // switch statement for all kinds of expressions
     switch(e->kind) {
@@ -943,7 +1075,7 @@ struct type* expr_typecheck(struct expr* e) {
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
 
-        /* SPECIAL CASES: not as uniform as the ones above */
+        // SPECIAL CASES: not as uniform as the ones above
         // a group expression: simply typecheck the expressions stored within the parens
         case EXPR_GROUP:
             result = type_copy(lt);
@@ -956,6 +1088,8 @@ struct type* expr_typecheck(struct expr* e) {
             if(e->symbol == NULL) {
                 printf("\033[0;31mtypechecking error\033[0;0m: identifier (%s) may not have been declared (defaults to integer for remainder of typechecking)\n", e->name);
                 totalTypeErrors++;
+                
+                // still needs to return a valid type; defaults to integer
                 result = type_create(TYPE_INTEGER, 0, 0, 0);
                 break;
             }
@@ -968,6 +1102,8 @@ struct type* expr_typecheck(struct expr* e) {
         
         // an assignment expression: left and right must be of the same type
         case EXPR_ASSIGN:               
+            
+            // call the helper function to compare types
             if(!type_compare(lt, rt)) {
                 printf("\033[0;31mtypechecking error\033[0;0m: cannot assign different types: ");
                 type_print(lt);
@@ -999,7 +1135,7 @@ struct type* expr_typecheck(struct expr* e) {
             // should only do if the identifier of the call is a function or prototype
             if(lt->kind == TYPE_FUNCTION || lt->kind == TYPE_PROTOTYPE) {
                 
-                // for multiple arguments (2+), send the EXPR_ARGS expression
+                // for multiple arguments (2+), send the EXPR_ARGS expression to check param matching
                 if(e->right != NULL && e->right->left->kind == EXPR_ARGS) {
                     
                     // if the arguments and function parameters do not match, emit an error
@@ -1047,12 +1183,13 @@ struct type* expr_typecheck(struct expr* e) {
                 printf("\033[0;31mtypechecking error\033[0;0m: identifier (%s) is not a function\n", e->left->name);
                 totalTypeErrors++;
                 
-                // result becomes the type of the identifier to allow for continued typecheckin
+                // result becomes the type of the identifier to allow for continued typechecking
                 result = type_copy(lt);
                 break;
             }
         
-        // arguments for a function call; always returns type integer so that freeing works (checked in different function)
+        // arguments for a function call; always returns type integer so that freeing 
+        // memory works (correctness of expression arguments are checked elsewhere when needed!)
         case EXPR_ARGS:
             result = type_create(TYPE_INTEGER, 0, 0, 0);
             break;
@@ -1128,7 +1265,7 @@ struct type* expr_typecheck(struct expr* e) {
                         }
                     }
                     
-                    // important: break here with the result we have; either the desired type or the furthest subtype of the array
+                    // IMPORANT: break here with the result we have; either the desired type or the furthest subtype of the array
                     break;
                 }
 
@@ -1148,12 +1285,14 @@ struct type* expr_typecheck(struct expr* e) {
                 break;
             }
 
-        // array dereference brackets; doesn't matter what it returns, just done so it can be freed later
+        // brackets for array indexing; always returns type boolean so that freeing 
+        // memory works (correctness of array index brackets are checked elsewhere when needed!)
         case EXPR_BRACKET:
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
 
-        // array initializer lists are dealt with in 'decl_typecheck()'. This is here for the switch case
+        // array initializer lists are dealt with in 'decl_typecheck()'. This is here
+        // for the switch case and to make sure that freeing memory works as intended
         case EXPR_CURLS:
             result = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
@@ -1165,26 +1304,25 @@ struct type* expr_typecheck(struct expr* e) {
     type_delete(lt);
     type_delete(rt);
 
-
-
     // returns the result, regardless of typechecking error
     return result;
 }
 
+// function that generates ARM assembly code for an expression (prints to the output file)
 void expr_codegen(struct expr* e) {
 
-    // temp to hold literal string label and info
-    int tempLitLabel;
-    char strBuffer[300];
-    struct expr* tempe;
-    struct expr* tempe2;
-    int paramRegCount;
-    int final;
-    int trueLabel;
-    int doneLabel;
-    int falseLabel;
-    int loopLabel;
-    int fourReg;
+    // variables used by the expression switch                        
+    int tempLitLabel;           // temporary label used for string literals
+    char strBuffer[300];        // buffer used to hold a local string that will be printed at the end of a function
+    struct expr* tempe;         // temporary expression structure used for traversing an expression
+    struct expr* tempe2;        // temporary expression structure used for traversing an expression
+    int paramRegCount;          // stores the number of parameters used; emits an error if more than 6 params are used
+    int final;                  // final label for assembly conditionals
+    int trueLabel;              // true label for assembly conditionals
+    int doneLabel;              // done label for assembly conditionals
+    int falseLabel;             // false label for assembly conditionals
+    int loopLabel;              // loop label for assembly conditionals
+    int fourReg;                // temporary register used to hold literal integer '4'; for array indexing
 
     // if the expression is NULL, we should return
     if(e == NULL) {
@@ -1194,7 +1332,7 @@ void expr_codegen(struct expr* e) {
     // switches all kinds of expressions
     switch(e->kind) {
 
-        // Leaf node: allocate register and load value
+        // leaf node: allocate register and load value
 
         // for variables
         case EXPR_NAME:
@@ -1220,21 +1358,25 @@ void expr_codegen(struct expr* e) {
             fprintf(fp, "\t\tldr\t%s, %s\n", scratch_name(e->reg), symbol_codegen(e->symbol));
         break;
 
+        // for integer literals
         case EXPR_INTLIT:
             e->reg = scratch_alloc();
-            fprintf(fp, "\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            fprintf(fp, "\t\tmov\t%s, %i\n", scratch_name(e->reg), e->literal_value);
         break;
 
+        // for boolean literals
         case EXPR_BOOLLIT:
             e->reg = scratch_alloc();
-            fprintf(fp, "\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            fprintf(fp, "\t\tmov\t%s, %i\n", scratch_name(e->reg), e->literal_value);
         break;
 
+        // for char literals
         case EXPR_CHARLIT:
             e->reg = scratch_alloc();
-            fprintf(fp, "\t\tmov\t%s, #%i\n", scratch_name(e->reg), e->literal_value);
+            fprintf(fp, "\t\tmov\t%s, %i\n", scratch_name(e->reg), e->literal_value);
         break;
 
+        // for string literals
         case EXPR_STRINGLIT:
             e->reg = scratch_alloc();
 
@@ -1257,8 +1399,10 @@ void expr_codegen(struct expr* e) {
 
         break;
 
-        // Interior node: generate children, then add them
+        // interior node: generate children (left and right expressions), then print instruction(s)
+        // binary operations free one register and keep result in the second
 
+        // for addition expressions
         case EXPR_ADD:
             expr_codegen(e->left);
             expr_codegen(e->right);
@@ -1268,6 +1412,7 @@ void expr_codegen(struct expr* e) {
             
         break;
 
+        // for subtraction expressions
         case EXPR_SUB:
             expr_codegen(e->left);
             expr_codegen(e->right);
@@ -1276,6 +1421,7 @@ void expr_codegen(struct expr* e) {
             scratch_free(e->left->reg);
         break;
 
+        // for multiplication expressions
         case EXPR_MULT:
             expr_codegen(e->left);
             expr_codegen(e->right);
@@ -1284,6 +1430,7 @@ void expr_codegen(struct expr* e) {
             scratch_free(e->left->reg);
         break;
 
+        // for division expressions
         case EXPR_DIV:
             expr_codegen(e->left);
             expr_codegen(e->right);
@@ -1292,6 +1439,7 @@ void expr_codegen(struct expr* e) {
             scratch_free(e->left->reg);
         break;
 
+        // for modulo expressions
         case EXPR_MOD:
             expr_codegen(e->left);
             expr_codegen(e->right);
@@ -1309,6 +1457,7 @@ void expr_codegen(struct expr* e) {
             scratch_free(e->right->reg);
         break;
 
+        // for logical and expressions
         case EXPR_AND:
             expr_codegen(e->left);
             expr_codegen(e->right);
@@ -1317,6 +1466,7 @@ void expr_codegen(struct expr* e) {
             scratch_free(e->left->reg);
         break;
 
+        // for logical or expressions
         case EXPR_OR:
             expr_codegen(e->left);
             expr_codegen(e->right);
@@ -1325,9 +1475,12 @@ void expr_codegen(struct expr* e) {
             scratch_free(e->left->reg);
         break;
 
+        // for unary increment
         case EXPR_INC:
             expr_codegen(e->left);
             fprintf(fp, "\t\tadd\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            
+            // if the variable is global, we need the address
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_GLOBAL) {
                 
                 // store the address of the global variable in a free register
@@ -1340,15 +1493,22 @@ void expr_codegen(struct expr* e) {
                 // free the temporary register
                 scratch_free(e->reg);
             }
+
+            // if the variable is local, we need the stack location
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_LOCAL) {
                 fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             }
+
+            // reuse the left register
             e->reg = e->left->reg;
         break;
 
+        // for unary decrement
         case EXPR_DEC:
             expr_codegen(e->left);
             fprintf(fp, "\t\tsub\t%s, %s, 1\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
+            
+            // if the variable is global, we need the address
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_GLOBAL) {
                 
                 // store the address of the global variable in a free register
@@ -1363,29 +1523,37 @@ void expr_codegen(struct expr* e) {
                 
                 fprintf(fp, "\t\tstr\t%s, [%s]\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             }
+
+            // if the variable is local, we need the stack location
             if(e->left->symbol != NULL && e->left->symbol->kind == SYMBOL_LOCAL) {
                 fprintf(fp, "\t\tstr\t%s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->left->symbol));
             }
+
+            // reuse the left register
             e->reg = e->left->reg;
         break;
 
+        // for negation expressions
         case EXPR_NEG:
             expr_codegen(e->left);
             fprintf(fp, "\t\tneg\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
+        // for unary not 
         case EXPR_NOT:
             expr_codegen(e->left);
             fprintf(fp, "\t\tmvn\t%s, %s\n", scratch_name(e->left->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
         break;
 
+        // for group expressions
         case EXPR_GROUP:
             expr_codegen(e->left);
             e->reg = e->left->reg;
         break;
 
+        // for exponentiation expressions
         case EXPR_EXPON:
             
             // generate code to get left and right operands into registers
@@ -1402,13 +1570,14 @@ void expr_codegen(struct expr* e) {
             fprintf(fp, "\t\tmov\t%s, x0\n", scratch_name(e->reg));
             
             // free the register used to fetch the left operand
-            scratch_free(e->right->reg);
+            scratch_free(e->left->reg);
 
         break;
 
+        // for function call expressions
         case EXPR_FCALL:
 
-            // before the function call, we should save the contents of each register x9-x15 (obviously not optimized!)
+            // before the function call, we should save the contents of each register x9-x15 (this is my 'context switch')
             fprintf(fp, "\t\tstr\tx9, [sp, %i]\n",  callStackSize - 8*6);
             fprintf(fp, "\t\tstr\tx10, [sp, %i]\n", callStackSize - 8*5);
             fprintf(fp, "\t\tstr\tx11, [sp, %i]\n", callStackSize - 8*4);
@@ -1489,7 +1658,7 @@ void expr_codegen(struct expr* e) {
                 
             }
 
-            // after the function call, we should restore the contents of each register x9-x15 (obviously not optimized!)
+            // after the function call, we should restore the contents of each register x9-x15 (this is my 'context switch')
             fprintf(fp, "\t\tldr\tx9, [sp, %i]\n",  callStackSize - 8*6);
             fprintf(fp, "\t\tldr\tx10, [sp, %i]\n", callStackSize - 8*5);
             fprintf(fp, "\t\tldr\tx11, [sp, %i]\n", callStackSize - 8*4);
@@ -1501,9 +1670,10 @@ void expr_codegen(struct expr* e) {
             // function call result should be saved to an alternate register (NOT x0) upon return
             e->reg = scratch_alloc();
             fprintf(fp, "\t\tmov\t%s, x0\n", scratch_name(e->reg));
+            
         break;
 
-        // for assigning expressions
+        // for assigning expressions (fun fact: this case takse up almost 400 lines of code, or roughly 1/6 the size of this file!)
         case EXPR_ASSIGN:
 
             // if the left side of an assignment is a literal, emit a codegen error and exit with code 1
@@ -1513,7 +1683,7 @@ void expr_codegen(struct expr* e) {
             }
 
             // for assigning one (1) variable a value
-            // identifiers may either be string, non-string local, or non-string global
+            // identifiers may either be array, string, non-string local, or non-string global
             if(e->left->kind != EXPR_ASSIGN) {
 
                 // if it is an array
@@ -1638,6 +1808,7 @@ void expr_codegen(struct expr* e) {
             }
 
             // for assigning more than one (2+) variable a value
+            // identifiers may either be array, string, non-string local, or non-string global
             if(e->left->kind == EXPR_ASSIGN) {
 
                 // for all but the last assignment
@@ -1891,6 +2062,7 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // for greater than expressions
         case EXPR_GREATER:
 
             // store the left and right expressions in free registers
@@ -1922,6 +2094,7 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // for greater than or equal expressions
         case EXPR_GE:
 
             // store the left and right expressions in free registers
@@ -1953,6 +2126,7 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // for less tha nexpressions
         case EXPR_LESS:
 
             // store the left and right expressions in free registers
@@ -1984,6 +2158,7 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // for less than or equal expressions
         case EXPR_LE:
 
             // store the left and right expressions in free registers
@@ -2015,12 +2190,13 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // for equal expressions
         case EXPR_EQUAL:
 
             // if we are comparing two strings
             if((e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_STRING) || e->left->kind == EXPR_STRINGLIT) {
                 
-                /* need to generate code for a loop that checks strings character by character (see notes for algorithm) */
+                // need to generate code for a loop that checks strings character by character (my personal algorithm)
 
                 // start by getting the addresses for the two strings
                 expr_codegen(e->left);      // r1
@@ -2122,12 +2298,13 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // for not equal expressions
         case EXPR_NEQUAL:
 
             // if we are comparing two strings
             if((e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_STRING) || e->left->kind == EXPR_STRINGLIT) {
                 
-                /* need to generate code for a loop that checks strings character by character (see notes for algorithm) */
+                // need to generate code for a loop that checks strings character by character (my personal algorithm)
 
                 // start by getting the addresses for the two strings
                 expr_codegen(e->left);      // r1
@@ -2227,6 +2404,7 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // for array index expressions
         case EXPR_ARRIND:
             
             // assgin a register for this indexing expression
@@ -2254,6 +2432,8 @@ void expr_codegen(struct expr* e) {
 
         break;
 
+        // no code is generated for the following expression kinds 
+        // (they are handled when needed in the switch cases listed above)
         case EXPR_ARGS:
         case EXPR_CURLS:
         case EXPR_BRACKET:
