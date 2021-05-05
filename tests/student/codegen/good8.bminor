@@ -1,0 +1,23 @@
+// testing equality between strings and chars
+
+
+// global string and char
+g_str : string = "hello world!";
+g_char : char = 'a';
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // local string and char
+    l_str : string = "hello world!";
+    l_char : char = 'a';
+
+    // test for equality between global and local
+    print "Should be true: ", l_str == g_str, "\n";
+    print "Should be true: ", l_char == g_char, "\n";
+
+    // test for inequality between global/literal and local/literal
+    print "Should be true: ", g_str != "helLo world!", "\n";
+    print "Should be true: ", l_char != 'A', "\n";
+
+    return 0;
+}
