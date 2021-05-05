@@ -421,8 +421,9 @@ void decl_codegen(struct decl* d) {
             
             // in case of a global integer
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                fprintf(fp, ".data\n\t.global %s\n%s:\t.word ", d->name, d->name);
+                fprintf(fp, ".data\n\t.global %s\n\t.align 8\n%s:\t.word ", d->name, d->name);
                 if(d->value) expr_print_file(d->value);
+                else fprintf(fp, "0");
                 fprintf(fp, "\n");
             }
 
@@ -440,8 +441,9 @@ void decl_codegen(struct decl* d) {
 
             // in case of a global char
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                fprintf(fp, ".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
+                fprintf(fp, ".data\n\t.global %s\n\t.align 8\n%s:\t.word ", d->name, d->name);
                 if(d->value) fprintf(fp, "%i", d->value->literal_value);
+                else fprintf(fp, "0");
                 fprintf(fp, "\n");
             }
 
@@ -459,8 +461,9 @@ void decl_codegen(struct decl* d) {
 
             // in case of a global boolean
             if(d->symbol->kind == SYMBOL_GLOBAL) {
-                fprintf(fp, ".data\n\t.global %s\n%s:\t.byte ", d->name, d->name);
+                fprintf(fp, ".data\n\t.global %s\n\t.align 8\n%s:\t.word ", d->name, d->name);
                 if(d->value) fprintf(fp, "%i", d->value->literal_value);
+                else fprintf(fp, "0");
                 fprintf(fp, "\n");
             }
 
