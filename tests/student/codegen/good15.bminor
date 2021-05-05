@@ -32,14 +32,14 @@ complex : function void () = {
 // helper1 returns a string
 helper1 : function string () = {
 
-    return "h";
+    return "helper1 works!";
 }
 
 // helper2 calls helper1
 helper2 : function string () = {
 
     // if it can successfully call helper1, we return success
-    if(helper1() == "h") {
+    if(helper1() == "helper1 works!") {
         return "helper2 works!";
     }
     else {
