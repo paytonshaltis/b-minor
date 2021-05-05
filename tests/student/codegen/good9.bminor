@@ -1,0 +1,34 @@
+// testing if and if-else statements
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // some boolean variables used by the if-statements
+    theWorldIsFlat : boolean = 76 > 19 && -99 >= 45;
+    paulDiedIn1966 : boolean = true && true && !false;
+    vaccinesWork : boolean = 56 > 10 && 999 < 1000;
+
+    if(paulDiedIn1966) {
+        // you bet he did
+        print "Success 1 of 4\n";
+    }
+    
+    if(vaccinesWork) {
+        // hell yeah they do
+        print "Success 2 of 4\n";
+    }
+
+    if(false == true) {
+        print "Failure\n";
+    }
+    else {
+        print "Success 3 of 4\n";
+    }
+
+    if(theWorldIsFlat) {
+        print "Failure\n";
+    }
+    else {
+        print "Success 4 of 4\n";
+    }
+}
