@@ -1,0 +1,37 @@
+// testing global, local, and literals working together
+
+
+// some global variables, with and without initial values
+w : integer = -10;
+x : string = "global string";
+y : char;
+z : boolean;
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // assigning values to globals
+    x = "GLOBAL STRING";
+    y = 'g';
+    z = false;
+
+    // print these to check them
+    print x, "\n", y, "\n";
+
+    // some local variables, with and without initial values
+    a : integer = 1;
+    b : string;
+    c : char;
+    d : boolean = !(false && true);
+
+    print "Should be true: ", d, "\n";
+
+    // using globals, locals, and literals together (should be 3)
+    expr : integer = ((w * -1) ^ 2) / (25 - a);
+    print "Should be 3: ", expr, "\n";
+
+    // using globals, locals, and literals together (should be true)
+    bool : boolean = !!(!(z || d) && true);
+    print "Should be false: ", bool, "\n";
+
+    return 0;
+}
