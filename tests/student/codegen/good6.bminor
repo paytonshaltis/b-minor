@@ -1,0 +1,7 @@
+// testing boolean conditional expressions
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    print (!false && true && !!true);
+}
