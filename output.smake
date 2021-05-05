@@ -97,10 +97,7 @@
 		str	x13, [sp, 96]
 		str	x14, [sp, 104]
 		str	x15, [sp, 112]
-		adrp	x9, .LSVAR3
-		add	x9, x9, :lo12:.LSVAR3
-		mov	x0, x9
-		bl	gets
+		bl	getchar
 		ldr	x9, [sp, 64]
 		ldr	x10, [sp, 72]
 		ldr	x11, [sp, 80]
@@ -109,18 +106,31 @@
 		ldr	x14, [sp, 104]
 		ldr	x15, [sp, 112]
 		mov	x9, x0
+		str	x9, [sp, 56]
+		str	x9, [sp, 64]
+		str	x10, [sp, 72]
+		str	x11, [sp, 80]
+		str	x12, [sp, 88]
+		str	x13, [sp, 96]
+		str	x14, [sp, 104]
+		str	x15, [sp, 112]
 		adrp	x9, .LSLIT6
 		add	x9, x9, :lo12:.LSLIT6
 		mov	x0, x9
-		bl	print_string
-		adrp	x9, .LSVAR3
-		add	x9, x9, :lo12:.LSVAR3
-		mov	x0, x9
-		bl	print_string
+		ldr	x9, [sp, 56]
+		mov	x1, x9
 		adrp	x9, .LSLIT7
 		add	x9, x9, :lo12:.LSLIT7
-		mov	x0, x9
-		bl	print_string
+		mov	x2, x9
+		bl	printf
+		ldr	x9, [sp, 64]
+		ldr	x10, [sp, 72]
+		ldr	x11, [sp, 80]
+		ldr	x12, [sp, 88]
+		ldr	x13, [sp, 96]
+		ldr	x14, [sp, 104]
+		ldr	x15, [sp, 112]
+		mov	x9, x0
 		ldp	x29, x30, [sp], #112
 		ret
 	.section	.data
@@ -147,19 +157,15 @@
 	.align 8
 .LSLIT4:
 	.string "\n"
-	.section	.data
-	.align 8
-.LSVAR3:
-	.string "\0"
 	.section	.rodata
 	.align 8
 .LSLIT5:
-	.string "Please enter your name:\n"
+	.string "Please enter a character:\n"
 	.section	.rodata
 	.align 8
 .LSLIT6:
-	.string "Got it! Your name is "
+	.string "Looks like you entered %c!\n%s"
 	.section	.rodata
 	.align 8
 .LSLIT7:
-	.string "!\n"
+	.string "\0"

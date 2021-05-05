@@ -2,9 +2,9 @@
 
 
 // declare the prototypes of the functions we want to use
-printf : function integer(format : string, arg1 : integer, arg2 : string);
-atoi : function integer(arg1 : string);
-gets : function string(arg1 : string);
+printf : function integer (format : string, arg1 : integer, arg2 : string);
+atoi : function integer (arg1 : string);
+getchar : function integer ();
 
 main : function integer (argc : integer, argv : array [] string) = {
 
@@ -18,9 +18,9 @@ main : function integer (argc : integer, argv : array [] string) = {
     print "Using the \'atio()\' function, string ", myString, " converts to ", atoi(myString), "\n";
     return 0;
 
-    // try using the gets function
-    buffer : string;
-    print "Please enter your name:\n";
-    gets(buffer);
-    print "Got it! Your name is ", buffer, "!\n";
+    // try using the getchar function
+    character : integer;
+    print "Please enter a character:\n";
+    character = getchar();
+    printf("Looks like you entered %c!\n%s", character, "\0");
 }
