@@ -1,43 +1,17 @@
-// simple program testing arrays; calculates some basic statistics for a global array 
-// of positive integer test scores, including average, maximum, and minimum scores
+// appreciation
 
-
-// global array of test scores
-scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88}; 
 
 main : function integer (argc : integer, argv : array [] string) = {
 
-	// variables used for calculating test statistics
-	i : integer = 0;
-	total : integer = 0;
-	avg : integer = 0;
-	max : integer = scores[0];
-	min : integer = scores[0];
+    print "Professor DeGood,\n";
+    print "Thank you for a great semester in Compilers! At the beginning of the semester I was skeptical ";
+    print "about this project. It didn't seem like it could be done. Thanks to your support and your enthusiasm ";
+    print "with the subject matter, you made this class worth the long hours I spent coding this project. I have ";
+    print "definitely learned some great skills in this class, and ended up taking away more than I thought I would. ";
+    print "I'm sorry if not everyone could finish their compilers by the end of the semester, but I sure hope that ";
+    print "you enjoy mine. Thanks again for a great semester, and I hope to have you as my professor again!\n\n";
+    print "Enjoy your summer!\n";
+    print "Payton Shaltis\n";
 
-	// looks through each of the test scores
-	for(i = 0; i < 10; i++) {
-		
-		// totals up all of the test scores
-		total = total + scores[i];
-		
-		// updates max if applicable
-		if(scores[i] > max) {
-			max = scores[i];
-		}
-
-		// updates min if applicable
-		if(scores[i] < min) {
-			min = scores[i];
-		}
-	}
-	
-	// compute average using total from above
-	avg = total / 10;
-
-	// print the statistics
-	print "The average test score is ", avg, "\n";
-	print "The maximum test score is ", max, "\n";
-	print "The minimum test score is ", min, "\n";
-	
-	return;
+    return 0;
 }
