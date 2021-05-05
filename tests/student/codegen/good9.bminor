@@ -9,12 +9,10 @@ main : function integer (argc : integer, argv : array [] string) = {
     vaccinesWork : boolean = 56 > 10 && 999 < 1000;
 
     if(paulDiedIn1966) {
-        // you bet he did
         print "Success 1 of 4\n";
     }
     
     if(vaccinesWork) {
-        // hell yeah they do
         print "Success 2 of 4\n";
     }
 

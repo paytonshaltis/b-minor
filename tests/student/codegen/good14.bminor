@@ -1,0 +1,58 @@
+// testing more complicated function calls
+
+
+// function prototypes above the main function, implementations below
+sum : function integer (a : integer, b : integer, c : integer);
+isVowel : function boolean (c : char);
+myName : function string ();
+
+// global variable
+g_num : integer = 34;
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // local variable to be passed as parameter
+    l_num : integer = 33;
+
+    // call function with literal, local, and global (should be 100)
+    print sum(33, l_num, g_num), "\n";
+
+    print "This should be true: ", isVowel('E'), "\nThis should be false: ", isVowel('c'), "\n";
+
+    print "My name is ", myName(), "\n";
+
+    return 0;
+}
+
+// returns the sum of three integers
+sum : function integer (a : integer, b : integer, c : integer) = {
+    
+    // testing local variables in functions
+    result : integer = 0;
+
+    // using parameters as local variables
+    result = a + b + c;
+
+    //returning a value
+    return result;
+}
+
+// returns true if the character is a vowel
+isVowel : function boolean (c : char) = {
+    
+    // testing if-statements and boolean logic in functions
+    if(c == 'a' || c == 'A' || c == 'e' || c == 'E' || c == 'i' || c == 'I' || c == 'o' || c == 'O' || c == 'u' || c == 'U') {
+        return true;
+    }
+}
+
+// returns a string, no parameters required
+myName : function string () = {
+
+    // tests local string
+    strResult : string;
+    strResult = "Payton James Shaltis";
+
+    // returning a string
+    return strResult;
+}
