@@ -1,6 +1,7 @@
-// testing print statements of multiple types both individually as well as on one line
+// testing print statements; multiple types both individually as well as on one line
 
 
+// some global variables to try and print
 str1 : string = "Does";
 str2 : string = "\n";
 division : string = "\n======================\n";
@@ -16,6 +17,6 @@ main : function integer (argc : integer, argv : array[] string) = {
 
     // print them all together, should be the same
     print str1, false && true, 54 + 45, 'c';
+    
     return 0;
-
 }
