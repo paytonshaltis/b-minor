@@ -1,0 +1,23 @@
+// testing basic char functionality in a function
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    // declaring some chars, with and without initial values
+    a : char;
+    b : char = 'g';
+
+    // reassign chars
+    print "b used to be: \'", b,  "\', but now it is \'";
+    b = 'X';
+    print b, "\'\n";
+    
+    // printing char literals and variables
+    c : char = 'C';
+    h : char = 'h'
+    a = 'a';
+    r : char = '\0' 
+    print c, h, a, 'r', r, "\n";
+
+    return 0;
+}
