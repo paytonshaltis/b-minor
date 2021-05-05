@@ -15,7 +15,7 @@ main : function integer (argc : integer, argv : array [] string) = {
     z = false;
 
     // print these to check them
-    print "Should be \"GLOBAL STRING\" and \'g\': ", x, "\n", y, "\n";
+    print "Should be \"GLOBAL STRING\" and \'g\': ", x, " ", y, "\n";
 
     // some local variables, with and without initial values
     a : integer = 1;
