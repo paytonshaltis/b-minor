@@ -14,9 +14,9 @@ main : function integer (argc : integer, argv : array [] string) = {
     
     // printing char literals and variables
     c : char = 'C';
-    h : char = 'h'
+    h : char = 'h';
     a = 'a';
-    r : char = '\0' 
+    r : char = '\0';
     print c, h, a, 'r', r, "\n";
 
     return 0;
