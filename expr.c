@@ -2197,8 +2197,8 @@ void expr_codegen(struct expr* e) {
         // for equal expressions
         case EXPR_EQUAL:
 
-            // if we are comparing two strings
-            if((e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_STRING) || e->left->kind == EXPR_STRINGLIT) {
+            // if we are comparing two strings (either the left identifier is a string variable, a function that returns a string, or a string literal)
+            if((e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_STRING) || (e->left->symbol != NULL && e->left->symbol->type->kind == TYPE_FUNCTION && e->left->symbol->type->subtype->kind == TYPE_STRING) || e->left->kind == EXPR_STRINGLIT) {
                 
                 // need to generate code for a loop that checks strings character by character (my personal algorithm)
 
