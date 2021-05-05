@@ -45,15 +45,14 @@
 		ldr	x14, [sp, 96]
 		ldr	x15, [sp, 104]
 		mov	x9, x0
-		mov	x9, 64
-		str	x9, [sp, 48]
 		adrp	x9, .LSLIT2
 		add	x9, x9, :lo12:.LSLIT2
 		mov	x0, x9
 		bl	print_string
-		ldr	x9, [sp, 48]
+		adrp	x9, .LSVAR2
+		add	x9, x9, :lo12:.LSVAR2
 		mov	x0, x9
-		bl	print_integer
+		bl	print_string
 		adrp	x9, .LSLIT3
 		add	x9, x9, :lo12:.LSLIT3
 		mov	x0, x9
@@ -65,9 +64,10 @@
 		str	x13, [sp, 88]
 		str	x14, [sp, 96]
 		str	x15, [sp, 104]
-		ldr	x9, [sp, 48]
+		adrp	x9, .LSVAR2
+		add	x9, x9, :lo12:.LSVAR2
 		mov	x0, x9
-		bl	sqrt
+		bl	atoi
 		ldr	x9, [sp, 56]
 		ldr	x10, [sp, 64]
 		ldr	x11, [sp, 72]
@@ -96,14 +96,18 @@
 	.align 8
 .LSLIT1:
 	.string "My number is %i, and my name is %s!\n"
+	.section	.data
+	.align 8
+.LSVAR2:
+	.string "157"
 	.section	.rodata
 	.align 8
 .LSLIT2:
-	.string "The square root of "
+	.string "Using the \'atio()\' function, string "
 	.section	.rodata
 	.align 8
 .LSLIT3:
-	.string " is "
+	.string " converts to "
 	.section	.rodata
 	.align 8
 .LSLIT4:

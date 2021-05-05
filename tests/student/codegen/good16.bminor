@@ -3,7 +3,7 @@
 
 // declare the prototypes of the functions we want to use
 printf : function integer(format : string, arg1 : integer, arg2 : string);
-sqrt : function integer(arg1 : integer);
+atoi : function integer(arg1 : string);
 
 main : function integer (argc : integer, argv : array [] string) = {
 
@@ -12,9 +12,8 @@ main : function integer (argc : integer, argv : array [] string) = {
     name : string = "Payton Shaltis";
     printf("My number is %i, and my name is %s!\n", num, name);
 
-    // try using the sqrt function
-    num2 : integer = 64;
-    print "The square root of ", num2, " is ", sqrt(num2), "\n";
-
+    // try using the atoi function
+    myString : string = "157"; 
+    print "Using the \'atio()\' function, string ", myString, " converts to ", atoi(myString), "\n";
     return 0;
 }
