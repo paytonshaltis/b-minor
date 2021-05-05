@@ -3,7 +3,7 @@
 
 // some global variables, with and without initial values
 w : integer = -10;
-x : string = "global string";
+//x : string = "global string";
 y : char;
 z : boolean;
 
