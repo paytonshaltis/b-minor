@@ -3,12 +3,18 @@
 
 // declare the prototypes of the functions we want to use
 printf : function integer(format : string, arg1 : integer, arg2 : string);
+sqrt : function integer(arg1 : integer);
 
 main : function integer (argc : integer, argv : array [] string) = {
 
+    // try using the printf function
     num : integer = -374;
     name : string = "Payton Shaltis";
-    printf("My number is: %i, and my name is: %s!\n", num, name);
+    printf("My number is %i, and my name is %s!\n", num, name);
+
+    // try using the sqrt function
+    num2 : integer = 64;
+    print "The square root of ", num2, " is ", sqrt(num2), "\n";
 
     return 0;
 }

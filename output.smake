@@ -15,40 +15,96 @@
 .text
 	.global main
 	main:
-		stp	x29, x30, [sp, #-88]!
+		stp	x29, x30, [sp, #-104]!
 		str	x0, [sp, 16]
 		str	x1, [sp, 24]
 		mov	x9, 374
 		neg	x9, x9
 		str	x9, [sp, 32]
-		str	x9, [sp, 40]
-		str	x10, [sp, 48]
-		str	x11, [sp, 56]
-		str	x12, [sp, 64]
-		str	x13, [sp, 72]
-		str	x14, [sp, 80]
-		str	x15, [sp, 88]
+		str	x9, [sp, 56]
+		str	x10, [sp, 64]
+		str	x11, [sp, 72]
+		str	x12, [sp, 80]
+		str	x13, [sp, 88]
+		str	x14, [sp, 96]
+		str	x15, [sp, 104]
 		adrp	x9, .LSLIT1
 		add	x9, x9, :lo12:.LSLIT1
 		mov	x0, x9
 		ldr	x9, [sp, 32]
 		mov	x1, x9
+		adrp	x9, .LSVAR1
+		add	x9, x9, :lo12:.LSVAR1
+		mov	x2, x9
 		bl	printf
-		ldr	x9, [sp, 40]
-		ldr	x10, [sp, 48]
-		ldr	x11, [sp, 56]
-		ldr	x12, [sp, 64]
-		ldr	x13, [sp, 72]
-		ldr	x14, [sp, 80]
-		ldr	x15, [sp, 88]
+		ldr	x9, [sp, 56]
+		ldr	x10, [sp, 64]
+		ldr	x11, [sp, 72]
+		ldr	x12, [sp, 80]
+		ldr	x13, [sp, 88]
+		ldr	x14, [sp, 96]
+		ldr	x15, [sp, 104]
 		mov	x9, x0
+		mov	x9, 64
+		str	x9, [sp, 48]
+		adrp	x9, .LSLIT2
+		add	x9, x9, :lo12:.LSLIT2
+		mov	x0, x9
+		bl	print_string
+		ldr	x9, [sp, 48]
+		mov	x0, x9
+		bl	print_integer
+		adrp	x9, .LSLIT3
+		add	x9, x9, :lo12:.LSLIT3
+		mov	x0, x9
+		bl	print_string
+		str	x9, [sp, 56]
+		str	x10, [sp, 64]
+		str	x11, [sp, 72]
+		str	x12, [sp, 80]
+		str	x13, [sp, 88]
+		str	x14, [sp, 96]
+		str	x15, [sp, 104]
+		ldr	x9, [sp, 48]
+		mov	x0, x9
+		bl	sqrt
+		ldr	x9, [sp, 56]
+		ldr	x10, [sp, 64]
+		ldr	x11, [sp, 72]
+		ldr	x12, [sp, 80]
+		ldr	x13, [sp, 88]
+		ldr	x14, [sp, 96]
+		ldr	x15, [sp, 104]
+		mov	x9, x0
+		mov	x0, x9
+		bl	print_integer
+		adrp	x9, .LSLIT4
+		add	x9, x9, :lo12:.LSLIT4
+		mov	x0, x9
+		bl	print_string
 		mov	x9, 0
 		mov	x0, x9
-		ldp	x29, x30, [sp], #88
+		ldp	x29, x30, [sp], #104
 		ret
-		ldp	x29, x30, [sp], #88
+		ldp	x29, x30, [sp], #104
 		ret
+	.section	.data
+	.align 8
+.LSVAR1:
+	.string "Payton Shaltis"
 	.section	.rodata
 	.align 8
 .LSLIT1:
-	.string "My number is: %i"
+	.string "My number is %i, and my name is %s!\n"
+	.section	.rodata
+	.align 8
+.LSLIT2:
+	.string "The square root of "
+	.section	.rodata
+	.align 8
+.LSLIT3:
+	.string " is "
+	.section	.rodata
+	.align 8
+.LSLIT4:
+	.string "\n"
