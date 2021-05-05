@@ -1,0 +1,22 @@
+// testing functions that call other functions
+
+
+// recursive function that calls itself
+recurse : function integer (num : integer) = {
+
+    if(num > 0) {
+        print num, " ";
+        return recurse(num - 1);
+    }
+
+    return 0;
+}
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // calls a recursive function
+    recurse(15);
+    print "\n";
+
+    return 0;
+}
