@@ -1,13 +1,14 @@
-// testing calls to library functions (make sure to link with library.s!)
+// testing printf and other functions from the C standard library (be sure to link library.s!)
 
 
 // declare the prototypes of the functions we want to use
-printf : function integer(format : string, arg1 : integer);
+printf : function integer(format : string, arg1 : integer, arg2 : string);
 
 main : function integer (argc : integer, argv : array [] string) = {
 
     num : integer = -374;
-    printf("My number is: %i", num);
+    name : string = "Payton Shaltis";
+    printf("My number is: %i, and my name is: %s!\n", num, name);
 
     return 0;
 }
