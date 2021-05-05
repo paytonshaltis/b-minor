@@ -12,11 +12,62 @@ recurse : function integer (num : integer) = {
     return 0;
 }
 
+// prototypes for helper functions
+helper1 : function string ();
+helper2 : function string ();
+helper3 : function string ();
+
+// complex function that makes calls to helper functions
+complex : function void () = {
+
+    // try calling helper functions from a complex function
+    print "Let's call helper function 1: ", helper1(), "\n";
+    print "Let's call helper function 2: ", helper2(), "\n";
+    print "Let's call helper function 3: ", helper3(), "\n";
+
+    // note no return needed; void function
+}
+
+// implementation of helper functions 
+// helper1 returns a string
+helper1 : function string () = {
+
+    return "helper1 works!";
+}
+
+// helper2 calls helper1
+helper2 : function string () = {
+
+    // if it can successfully call helper1, we return success
+    if(helper1() == "helper1 works!") {
+        return "helper2 works!";
+    }
+    else {
+        return "something wrong with helper2!";
+    }
+
+}
+
+// helper3 calls helper2 and helper1
+helper3 : function string () = {
+
+    // if it can successfully call helper2 and helper1, we return success
+    if(helper1() == "helper1 works!" && helper2() == "helper2 works!") {
+        return "helper3 works!";
+    }
+    else {
+        return "something wrong with helper3!";
+    }
+}
+
 main : function integer (argc : integer, argv : array [] string) = {
 
     // calls a recursive function
     recurse(15);
     print "\n";
+
+    // calls a function that calls other helper functions
+    complex();
 
     return 0;
 }
