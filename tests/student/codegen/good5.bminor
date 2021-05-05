@@ -26,7 +26,7 @@ main : function integer (argc : integer, argv : array [] string) = {
     print "Should be true: ", d, "\n";
 
     // using globals, locals, and literals together (should be 3)
-    expr : integer = ((w * -1) ^ 2) / (25 - a);
+    expr : integer = ((w * -1) ^ 2);
     print "Should be 3: ", expr, "\n";
 
     // using globals, locals, and literals together (should be true)
