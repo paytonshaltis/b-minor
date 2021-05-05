@@ -5,7 +5,7 @@ g_num2 : integer;
 
 main : function integer (argc : integer, argv : array[] string) = {
 
-    // should print 65 then nothing
+    // should print 65 then 0
     print g_num1, "\n";
     print g_num2, "\n";
 
