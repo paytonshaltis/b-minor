@@ -6,8 +6,8 @@ g_num2 : integer;
 main : function integer (argc : integer, argv : array[] string) = {
 
     // should print 65 then nothing
-    print g_num1;
-    print g_num2;
+    print g_num1, "\n";
+    print g_num2, "\n";
 
     // declaring some local variables
     x : integer = 90;
@@ -18,20 +18,20 @@ main : function integer (argc : integer, argv : array[] string) = {
     y = -y + 5;
 
     // compute the mod of 90 and 20, print it
-    print x % y;
+    print x % y, "\n";
 
     // enter a new scope here
     {
         x : integer = 8;
         y : integer = 16;
-        print x;
-        print y;
+        print x, "\n";
+        print y, "\n";
     }
 
     // should be 10, add this to g_num1
     g_num1 = g_num1 + (x % y);
 
     // print the result of the addition
-    print g_num1;
+    print g_num1, "\n";
 
 }
