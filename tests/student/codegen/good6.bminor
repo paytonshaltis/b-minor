@@ -8,12 +8,12 @@ b2 : boolean = false;
 main : function integer (argc : integer, argv : array [] string) = {
 
     // tests a complex boolean expression within a print statement
-    print "Should be true: ", (!false && true && !!true) == !!false || !!!!true, "\n";
+    print "Should be true: ", (!false && true && !!true) == (!!false || !!!!true), "\n";
 
     // tests a complex boolen expression using local, global, and literals
     b3 : boolean = true;
     b4 : boolean = false;
-    b5 : boolean = !(!b2 && true && !!b1) == !!b4 || !!!!b3;
+    b5 : boolean = !(!b2 && true && !!b1) == (!!b4 || !!!!b3);
     print "Should be false: ", b5, "\n";
 
     return 0;
