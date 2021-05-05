@@ -1,0 +1,13 @@
+// testing calls to library functions (make sure to link with library.s!)
+
+
+// declare the prototypes of the functions we want to use
+printf : function integer(format : string, arg1 : integer);
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    num : integer = -374;
+    printf("My number is: %i", num);
+
+    return 0;
+}
