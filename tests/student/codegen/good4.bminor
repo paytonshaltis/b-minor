@@ -1,0 +1,23 @@
+// testing basic string functionality in a function
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+    
+    // declaring some strings, with and without initial values
+    a : string;
+    b : string = "A long string that we will try to replace with a much shorter one";
+
+    // string declaration with a variable
+    c : string = b;
+
+    // these two should be the same
+    print b, "\n", c, "\n";
+
+    // reassigning a long string with a shorter literal and variable
+    b = c = "much shorter";
+
+    // should now print the same thing again, this time shorter
+    print b, "\n", c, "\n";
+
+    return 0;
+}
