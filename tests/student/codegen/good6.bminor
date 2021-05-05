@@ -3,5 +3,5 @@
 
 main : function integer (argc : integer, argv : array [] string) = {
 
-    print (!false && true && !!true);
+    print "Should be true: ", (!false && true && !!true) == !!false || !!!!true, "\n";
 }
