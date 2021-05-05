@@ -1,0 +1,40 @@
+// testing integer conditional expressions
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // declare some integers to be used
+    w : integer = 150;
+    x : integer = -99;
+    y : integer = 45;
+    z : integer = 87;
+
+    // booleans to store the results
+    res1 : boolean;
+    res2 : boolean;
+    res3 : boolean;
+    res4 : boolean;
+    res5 : boolean;
+    res6 : boolean;
+
+
+    // these should be true
+    res1 = x < -12;
+    res2 = 150 <= w;
+    res3 = z > x;
+
+    // these should be false
+    res4 = x >= y;
+    res5 = (37 == y);
+    res6 = (x != -99);
+
+    // printing the results
+    print "Should all be true:\n", res1, " ", res2, " ", res3, "\n";
+    print "Should all be false:\n", res4, " ", res5, " ", res6, "\n";
+
+
+
+
+
+    return 0;
+}
