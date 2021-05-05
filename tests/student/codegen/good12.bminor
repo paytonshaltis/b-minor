@@ -16,7 +16,7 @@ main : function integer (argc : integer, argv : array[] string) = {
     print division;
 
     // print them all together, should be the same
-    print str1, false && true, 54 + 45, 'c';
+    print str1, false && true, 54 + 45, 'c', "\n";
     
     return 0;
 }
