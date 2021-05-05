@@ -13,8 +13,16 @@ main : function integer (argc : integer, argv : array[] string) = {
     }
     print "\n";
 
+    // try nested for-loops (should print out a right triangle)
+    for(i = 0; i < 10; i++) {
+        for(j = 0; j < 1; j++) {
+            print "#";
+        }
+        print "\n";
+    }
+
     // try loops with missing expressions (should print the same as the top loop)
-    for( ; true; ) {
+    for(i = 0; true; ) {
         
         if(i >= 5) {
             return 0;
@@ -25,14 +33,6 @@ main : function integer (argc : integer, argv : array[] string) = {
         }
     }
     print "\n";
-
-    // try nested for-loops (should print out a right triangle)
-    for(i = 0; i < 10; i++) {
-        for(j = 0; j < 1; j++) {
-            print "#";
-        }
-        print "\n";
-    }
 
     return 0;
 }
