@@ -11,7 +11,6 @@ main : function integer (argc : integer, argv : array[] string) = {
     for(i = 0; i < 5; i++) {
         print i, " ";
     }
-    print "\n";
 
     // try nested for-loops (should print out a right triangle)
     for(i = 0; i < 10; i++) {
