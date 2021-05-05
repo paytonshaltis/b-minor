@@ -1,9 +1,12 @@
-// testing print statements of multiple types both individually as well as on one line
+// functions calls, from zero parameters up to the maximum of 6
 
+
+// global variables to be sent as parameters too
 str2 : string = "two ";
 str4 : string = "four ";
 str6 : string = "six ";
 
+// 7 variations of a function that prints all of its parameters
 print0string : function void () = {
     print "empty\n";
 }
@@ -33,10 +36,13 @@ print6string : function void (str1: string, str2: string, str3: string, str4: st
 }
 
 main : function integer (argc : integer, argv : array [] string) = {
+    
+    // local strings to be used as parameters as well
     str1 : string = "one ";
     str3 : string = "three ";
     str5 : string = "five ";
     
+    // calling each function variation
     print0string();
     print1string(str1);
     print2string(str1, str2);
