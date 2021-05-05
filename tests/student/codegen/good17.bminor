@@ -1,0 +1,31 @@
+// testing multiple assignments in a single statement
+
+
+// global variables to test
+g_int : integer;
+g_char : char;
+g_str : string;
+g_bool : boolean;
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // local variables to test
+    l_int : integer;
+    l_char : char;
+    l_str : string;
+    l_bool : boolean;
+
+    // assign multiple variables to a literal
+    g_int = l_int = 78;
+    g_char = l_char = 'E';
+    g_str = l_str = "My String";
+    g_bool = l_bool = false;
+
+    print "Integers : ", g_int, " ", l_int, "\n";
+    print "Characters : ", g_char, " ", l_char, "\n";
+    print "Strings : ", g_str, " ", l_str, "\n";
+    print "Booleans : ", g_bool, " ", l_bool, "\n";
+
+
+    return 0;
+}
