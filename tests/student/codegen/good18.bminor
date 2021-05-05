@@ -1,0 +1,41 @@
+// testing different scopes within a function (just curly braces)
+
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+    // declare local variables to main
+    loc1 : integer = 1;
+    loc2 : string = "local string 1\n";
+
+    // enter a new scope 
+    {
+        // can still access main's locals
+        print loc1, " ", loc2;
+
+        // redefine the same local variables
+        loc1 : integer = 2;
+        loc2 : string = "string in curly 1\n";
+
+        // print them again
+        print loc1, " ", loc2;
+
+        // enter a new scope 
+        {
+            // can still access curly's locals
+            print loc1, " ", loc2;
+
+            // redefine the same local variables
+            loc1 : integer = 3;
+            loc2 : string = "string in curly 2\n";
+
+            // print them again
+            print loc1, " ", loc2;
+        }
+
+    }
+
+    // back in the main scope, should be able to access main's vars again
+    print loc1, " ", loc2;
+
+    return 0;
+}

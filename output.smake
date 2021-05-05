@@ -12,205 +12,108 @@
 .arch armv8-a
 .file "output.smake"
 
-.data
-	.global g_int
-	.align 8
-g_int:	.word 0
-.data
-	.global g_char
-	.align 8
-g_char:	.word 0
-.data
-	.global g_str
-	.align 8
-g_str:	.string "\0"
-.data
-	.global g_bool
-	.align 8
-g_bool:	.word 0
 .text
 	.global main
 	main:
-		stp	x29, x30, [sp, #-112]!
+		stp	x29, x30, [sp, #-128]!
 		str	x0, [sp, 16]
 		str	x1, [sp, 24]
-		mov	x9, 78
+		mov	x9, 1
 		str	x9, [sp, 32]
 		ldr	x9, [sp, 32]
-		adrp	x10, g_int
-		add	x10, x10, :lo12:g_int
-		str	x9, [x10]
-		mov	x9, 69
-		str	x9, [sp, 40]
-		ldr	x9, [sp, 40]
-		adrp	x10, g_char
-		add	x10, x10, :lo12:g_char
-		str	x9, [x10]
+		mov	x0, x9
+		bl	print_integer
 		adrp	x9, .LSLIT1
 		add	x9, x9, :lo12:.LSLIT1
-		adrp	x10, .LSVAR1
-		add	x10, x10, :lo12:.LSVAR1
-		mov	x11, 0
-	.LSTMT1:
-		ldrb	w0, [x9, x11]
-		strb	w0, [x10, x11]
-		cmp	w0, 0
-		b.eq	.LSTMT2
-		add	x11, x11, 1
-		b	.LSTMT1
-	.LSTMT2:
+		mov	x0, x9
+		bl	print_string
 		adrp	x9, .LSVAR1
 		add	x9, x9, :lo12:.LSVAR1
-		adrp	x10, g_str
-		add	x10, x10, :lo12:g_str
-		mov	x11, 0
-	.LSTMT3:
-		ldrb	w0, [x9, x11]
-		strb	w0, [x10, x11]
-		cmp	w0, 0
-		b.eq	.LSTMT4
-		add	x11, x11, 1
-		b	.LSTMT3
-	.LSTMT4:
-		mov	x9, 0
-		str	x9, [sp, 56]
-		ldr	x9, [sp, 56]
-		adrp	x10, g_bool
-		add	x10, x10, :lo12:g_bool
-		str	x9, [x10]
+		mov	x0, x9
+		bl	print_string
+		mov	x9, 2
+		str	x9, [sp, 48]
+		ldr	x9, [sp, 48]
+		mov	x0, x9
+		bl	print_integer
 		adrp	x9, .LSLIT2
 		add	x9, x9, :lo12:.LSLIT2
 		mov	x0, x9
 		bl	print_string
-		ldr	x9, g_int
+		adrp	x9, .LSVAR2
+		add	x9, x9, :lo12:.LSVAR2
+		mov	x0, x9
+		bl	print_string
+		ldr	x9, [sp, 48]
 		mov	x0, x9
 		bl	print_integer
 		adrp	x9, .LSLIT3
 		add	x9, x9, :lo12:.LSLIT3
 		mov	x0, x9
 		bl	print_string
-		ldr	x9, [sp, 32]
+		adrp	x9, .LSVAR2
+		add	x9, x9, :lo12:.LSVAR2
+		mov	x0, x9
+		bl	print_string
+		mov	x9, 3
+		str	x9, [sp, 64]
+		ldr	x9, [sp, 64]
 		mov	x0, x9
 		bl	print_integer
 		adrp	x9, .LSLIT4
 		add	x9, x9, :lo12:.LSLIT4
 		mov	x0, x9
 		bl	print_string
+		adrp	x9, .LSVAR3
+		add	x9, x9, :lo12:.LSVAR3
+		mov	x0, x9
+		bl	print_string
+		ldr	x9, [sp, 32]
+		mov	x0, x9
+		bl	print_integer
 		adrp	x9, .LSLIT5
 		add	x9, x9, :lo12:.LSLIT5
-		mov	x0, x9
-		bl	print_string
-		ldr	x9, g_char
-		mov	x0, x9
-		bl	print_character
-		adrp	x9, .LSLIT6
-		add	x9, x9, :lo12:.LSLIT6
-		mov	x0, x9
-		bl	print_string
-		ldr	x9, [sp, 40]
-		mov	x0, x9
-		bl	print_character
-		adrp	x9, .LSLIT7
-		add	x9, x9, :lo12:.LSLIT7
-		mov	x0, x9
-		bl	print_string
-		adrp	x9, .LSLIT8
-		add	x9, x9, :lo12:.LSLIT8
-		mov	x0, x9
-		bl	print_string
-		adrp	x9, g_str
-		add	x9, x9, :lo12:g_str
-		mov	x0, x9
-		bl	print_string
-		adrp	x9, .LSLIT9
-		add	x9, x9, :lo12:.LSLIT9
 		mov	x0, x9
 		bl	print_string
 		adrp	x9, .LSVAR1
 		add	x9, x9, :lo12:.LSVAR1
 		mov	x0, x9
 		bl	print_string
-		adrp	x9, .LSLIT10
-		add	x9, x9, :lo12:.LSLIT10
-		mov	x0, x9
-		bl	print_string
-		adrp	x9, .LSLIT11
-		add	x9, x9, :lo12:.LSLIT11
-		mov	x0, x9
-		bl	print_string
-		ldr	x9, g_bool
-		mov	x0, x9
-		bl	print_boolean
-		adrp	x9, .LSLIT12
-		add	x9, x9, :lo12:.LSLIT12
-		mov	x0, x9
-		bl	print_string
-		ldr	x9, [sp, 56]
-		mov	x0, x9
-		bl	print_boolean
-		adrp	x9, .LSLIT13
-		add	x9, x9, :lo12:.LSLIT13
-		mov	x0, x9
-		bl	print_string
 		mov	x9, 0
 		mov	x0, x9
-		ldp	x29, x30, [sp], #112
+		ldp	x29, x30, [sp], #128
 		ret
-		ldp	x29, x30, [sp], #112
+		ldp	x29, x30, [sp], #128
 		ret
 	.section	.data
 	.align 8
 .LSVAR1:
-	.string "\0"
+	.string "local string 1\n"
 	.section	.rodata
 	.align 8
 .LSLIT1:
-	.string "My String"
+	.string " "
+	.section	.data
+	.align 8
+.LSVAR2:
+	.string "string in curly 1\n"
 	.section	.rodata
 	.align 8
 .LSLIT2:
-	.string "Integers : "
+	.string " "
 	.section	.rodata
 	.align 8
 .LSLIT3:
 	.string " "
+	.section	.data
+	.align 8
+.LSVAR3:
+	.string "string in curly 2\n"
 	.section	.rodata
 	.align 8
 .LSLIT4:
-	.string "\n"
+	.string " "
 	.section	.rodata
 	.align 8
 .LSLIT5:
-	.string "Characters : "
-	.section	.rodata
-	.align 8
-.LSLIT6:
 	.string " "
-	.section	.rodata
-	.align 8
-.LSLIT7:
-	.string "\n"
-	.section	.rodata
-	.align 8
-.LSLIT8:
-	.string "Strings : "
-	.section	.rodata
-	.align 8
-.LSLIT9:
-	.string " "
-	.section	.rodata
-	.align 8
-.LSLIT10:
-	.string "\n"
-	.section	.rodata
-	.align 8
-.LSLIT11:
-	.string "Booleans : "
-	.section	.rodata
-	.align 8
-.LSLIT12:
-	.string " "
-	.section	.rodata
-	.align 8
-.LSLIT13:
-	.string "\n"
