@@ -32,9 +32,5 @@ main : function integer (argc : integer, argv : array [] string) = {
     print "Should all be true:\n", res1, " ", res2, " ", res3, "\n";
     print "Should all be false:\n", res4, " ", res5, " ", res6, "\n";
 
-
-
-
-
     return 0;
 }
