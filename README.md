@@ -1,27 +1,26 @@
-# B-Minor
+<div align="center">
 
-## What is B-Minor?
+# 🅱 B-Minor Programming Language
 
-[B-minor](https://www3.nd.edu/~dthain/courses/cse40243/fall2020/bminor.html) is a C-like, strictly-typed, imperative programming language. It is most notably used in undergraduate computer science compiler courses as a semester-long project.
+### [B-minor](https://www3.nd.edu/~dthain/courses/cse40243/fall2020/bminor.html) is a C-like, strictly-typed, imperative programming language. It is most notably used in undergraduate computer science compiler courses as a semester-long project. 
+
+This repository contains my own _personal_ implementation of the language's specifications, completed as partial requirement of TCNJ's CSC-435: Compilers and Interpreters course in the Spring 2021 semester. The project was an individual, semester-long guide through our rigorous study of how programming language specifications are implemented as actual, executable compilers. This implementation targets AArch64 or ARM64 as its target architecture, meaning that any computer from this family of architectures can actually execute the generated machine instructions that result from this compiler!
+
+</div>
 
 ## Table of Contents
 
-1. [About This Implementation](#about-this-implementation)
-2. [Implemented Features](#implemented-features)
-3. [Tools Used](#tools-used)
-4. [Compilation and Usage](#compilation-and-usage)
-5. [Files in this Repository](#files-in-this-repository)
-6. [Implementation Details](#implementation-details)
+1. [Implemented Features](#implemented-features)
+2. [Tools Used](#tools-used)
+3. [Compilation and Usage](#compilation-and-usage)
+4. [Files in this Repository](#files-in-this-repository)
+5. [Implementation Details](#implementation-details)
    - [Lexical Analysis](#step-1-lexical-analysis)
    - [Syntax Analysis](#step-2-syntax-analysis)
    - [Pretty Printing](#step-3-pretty-printing)
    - [Name Resolution and Typechecking](#step-4-name-resolution-and-typechecking)
    - [Code Generation](#step-5-code-generation)
-7. [Example Output](#example-output)
-
-## About This Implementation
-
-This repository contains my own _personal_ implementation of the language's specifications, completed as partial requirement of TCNJ's CSC-435: Compilers and Interpreters course in the Spring 2021 semester. The project was an individual, semester-long guide through our rigorous study of how programming language specifications are implemented as actual, executable compilers. This implementation targets AArch64 or ARM64 as its target architecture, meaning that any computer from this family of architectures can actually execute the generated machine instructions that result from this compiler!
+6. [Example Output](#example-output)
 
 ## Implemented Features
 
