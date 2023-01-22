@@ -165,10 +165,10 @@ After a program has been scanned by the lexical analyzer, and no invalid lexemes
 The parser ensures that the syntax of the input program is valid: for example, this is not a valid B-Minor expression:
 
 ```b-minor
-x: integer + 'e' === foo(1, --);
+x: integer + 'e' == foo(1, --);
 ```
 
-While all of the individual lexemes of this statement are valid (by the way, they are `x`, `:`, `integer`, `+`, `'e'`, `===`, `foo`, `(` `1`, `,`, `--`, `)`, and `;`!), they are not in an order that makes any sense for the language. The parser will catch this error and report it to the user.
+While all of the individual lexemes of this statement are valid (by the way, they are `x`, `:`, `integer`, `+`, `'e'`, `==`, `foo`, `(` `1`, `,`, `--`, `)`, and `;`!), they are not in an order that makes any sense for the language. The parser will catch this error and report it to the user.
 
 The syntax rules for the language are defined in the Bison input file, named `parser.bison`. Just like the scanner, it contains a number of BNF-like rules that contain _terminal_ and _non-terminal_ symbols. The terminal symbols are the tokens that are output by the scanner, and the non-terminal symbols are the rules that describe the structure of the language. For example, take a look at the syntax rule for an `paramslist`, or _parameter list_, in B-Minor:
 
