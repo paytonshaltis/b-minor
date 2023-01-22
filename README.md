@@ -4,7 +4,7 @@
 
 ### [B-minor](https://www3.nd.edu/~dthain/courses/cse40243/fall2020/bminor.html) is a C-like, strictly-typed, imperative programming language. It is most notably used in undergraduate computer science compiler courses as a semester-long project. 
 
-This repository contains my own _personal_ implementation of the language's specifications, completed as partial requirement of TCNJ's CSC-435: Compilers and Interpreters course in the Spring 2021 semester. The project was an individual, semester-long guide through our rigorous study of how programming language specifications are implemented as actual, executable compilers. This implementation targets AArch64 or ARM64 as its target architecture, meaning that any computer from this family of architectures can actually execute the generated machine instructions that result from this compiler!
+This repository contains my own _personal_ implementation of the language's specifications, completed as partial requirement of TCNJ's CSC-425: Compilers and Interpreters course in the Spring 2021 semester. The project was an individual, semester-long guide through our rigorous study of how programming language specifications are implemented as actual, executable compilers. This implementation targets AArch64 or ARM64 as its target architecture, meaning that any computer from this family of architectures can actually execute the generated machine instructions that result from this compiler!
 
 </div>
 
