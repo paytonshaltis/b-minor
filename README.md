@@ -74,19 +74,19 @@ In order to compile this B-Minor compiler, you will need to ensure that you have
 2. Write your B-Minor source code that you would like to use. This source code must use the `.bminor` file extension.
 3. Run the compiler on your source code with the following command. The output file must have the `.s` file extension. The step can be any of the named steps mentioned in the pipeline (`scan`, `parse`, etc.), but to generate the final machine code, you must use the `codegen` step:
 
-```bash
+```
 ./bminor -<step> <source_file>.bminor <output_name>.s
 ```
 
 4. On a machine with an AArch64 or ARM64 processor, you can compile the generated assembly code into an executable binary with the following command. Note that the `library.c` file is required for the `print` function to work properly:
 
-```bash
+```
 gcc -g <source_file>.s library.c -o <output_name>
 ```
 
 5. Finally, you can run your executable binary as you would expect:
 
-```bash
+```
 ./<output_name>
 ```
 
