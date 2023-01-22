@@ -4,6 +4,21 @@
 
 [B-minor](https://www3.nd.edu/~dthain/courses/cse40243/fall2020/bminor.html) is a C-like, strictly-typed, imperative programming language. It is most notably used in undergraduate computer science compiler courses as a semester-long project.
 
+## Table of Contents
+
+1. [About This Implementation](#about-this-implementation)
+2. [Implemented Features](#implemented-features)
+3. [Tools Used](#tools-used)
+4. [Compilation and Usage](#compilation-and-usage)
+5. [Files in this Repository](#files-in-this-repository)
+6. [Implementation Details](#implementation-details)
+   - [Lexical Analysis](#step-1-lexical-analysis)
+   - [Syntax Analysis](#step-2-syntax-analysis)
+   - [Pretty Printing](#step-3-pretty-printing)
+   - [Name Resolution and Typechecking](#step-4-name-resolution-and-typechecking)
+   - [Code Generation](#step-5-code-generation)
+7. [Example Output](#example-output)
+
 ## About This Implementation
 
 This repository contains my own _personal_ implementation of the language's specifications, completed as partial requirement of TCNJ's CSC-435: Compilers and Interpreters course in the Spring 2021 semester. The project was an individual, semester-long guide through our rigorous study of how programming language specifications are implemented as actual, executable compilers. This implementation targets AArch64 or ARM64 as its target architecture, meaning that any computer from this family of architectures can actually execute the generated machine instructions that result from this compiler!
@@ -50,6 +65,30 @@ Though the language's implementation was written mostly from scratch, there were
 - **[Bison](https://www.gnu.org/software/bison/)** - A parser generator for C. This tool was used to create the syntax analyzer for the compiler. The language was described using a context-free grammar in [BNF](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form) so that Bison could then generate the code for the parser.
 - **[Make and Makefile](https://www.gnu.org/software/make/manual/make.html)** - A build automation tool for C. This tool was used to manage compiling program components in the correct order due to a number of dependency concerns between modules of the program.
 - **Git and GitHub** - The VCS and hosting platform used to manage the project's source code.
+
+## Compilation and Usage
+
+In order to compile this B-Minor compiler, you will need to ensure that you have Make, Flex, and Bison installed on your machine.
+
+1. Compile the compiler by running `make` in the root directory of the project. This will generate the executable `bminor` in the root directory.
+2. Write your B-Minor source code that you would like to use. This source code must use the `.bminor` file extension.
+3. Run the compiler on your source code with the following command. The output file must have the `.s` file extension. The step can be any of the named steps mentioned in the pipeline (`scan`, `parse`, etc.), but to generate the final machine code, you must use the `codegen` step:
+
+```bash
+./bminor -<step> <source_file>.bminor <output_name>.s
+```
+
+4. On a machine with an AArch64 or ARM64 processor, you can compile the generated assembly code into an executable binary with the following command. Note that the `library.c` file is required for the `print` function to work properly:
+
+```bash
+gcc -g <source_file>.s library.c -o <output_name>
+```
+
+5. Finally, you can run your executable binary as you would expect:
+
+```bash
+./<output_name>
+```
 
 ## Files in this Repository
 
@@ -211,3 +250,264 @@ Because the target architecture was ARM64 or AArch64, the code generated was in 
 `scratch.c`, `scratch.h`, `label.c`, and `label.h` were a few additional utility files that were written in order to keep track of register allocation and proper assembly labels to use.
 
 In the end, after the machine code was generated, it could be assembled, linked, and executed on the appropriate architecture.
+
+## Example Output
+
+Below is a sample B-Minor program that features a number of complex features of the language. Following it is the output of the compiler, which contains the raw assembly code that was generated.
+
+### _scores.bminor_
+
+```b-minor
+// simple program testing arrays; calculates some basic statistics for a global array
+// of positive integer test scores, including average, maximum, and minimum scores
+
+
+// global array of test scores
+scores : array [10] integer = {97, 87, 83, 99, 77, 80, 72, 100, 92, 88};
+
+main : function integer (argc : integer, argv : array [] string) = {
+
+	// variables used for calculating test statistics
+	i : integer = 0;
+	total : integer = 0;
+	avg : integer = 0;
+	max : integer = scores[0];
+	min : integer = scores[0];
+
+	// looks through each of the test scores
+	for(i = 0; i < 10; i++) {
+
+		// totals up all of the test scores
+		total = total + scores[i];
+
+		// updates max if applicable
+		if(scores[i] > max) {
+			max = scores[i];
+		}
+
+		// updates min if applicable
+		if(scores[i] < min) {
+			min = scores[i];
+		}
+	}
+
+	// compute average using total from above
+	avg = total / 10;
+
+	// print the statistics
+	print "The average test score is ", avg, "\n";
+	print "The maximum test score is ", max, "\n";
+	print "The minimum test score is ", min, "\n";
+
+	return 0;
+}
+```
+
+### _scores.s_ (Result of `./bminor scores.bminor library.c scores.s`)
+
+```s
+#	ARMv8-a assembly code generated by
+#	'B-Minor Compiler' v1.0,
+#	written by:
+#
+#	PAYTON JAMES SHALTIS
+#	COMPLETED MAY 4TH, 2021 for
+#
+#	CSC-425: "Compilers and Interpreters",
+#	Professor John DeGood, Spring 2021 at
+#	The College of New Jersey
+
+.arch armv8-a
+.file "output.s"
+
+.data
+	.global scores
+	.align 3
+scores:
+	.word	97
+	.word	87
+	.word	83
+	.word	99
+	.word	77
+	.word	80
+	.word	72
+	.word	100
+	.word	92
+	.word	88
+.text
+	.global main
+	main:
+		stp	x29, x30, [sp, #-120]!
+		str	x0, [sp, 16]
+		str	x1, [sp, 24]
+		mov	x9, 0
+		str	x9, [sp, 32]
+		mov	x9, 0
+		str	x9, [sp, 40]
+		mov	x9, 0
+		str	x9, [sp, 48]
+		adrp	x9, scores
+		add	x9, x9, :lo12:scores
+		mov	x10, 0
+		mov	x11, 4
+		mul	x10, x10, x11
+		ldr	w0, [x9, x10]
+		mov	x9, x0
+		str	x9, [sp, 56]
+		adrp	x9, scores
+		add	x9, x9, :lo12:scores
+		mov	x10, 0
+		mov	x11, 4
+		mul	x10, x10, x11
+		ldr	w0, [x9, x10]
+		mov	x9, x0
+		str	x9, [sp, 64]
+		mov	x9, 0
+		str	x9, [sp, 32]
+	.LSTMT1:
+		ldr	x9, [sp, 32]
+		mov	x10, 10
+		cmp	x9, x10
+		b.lt	.LCOND1
+		mov	x10, 0
+		b	.LCOND2
+	.LCOND1:
+		mov	x10, 1
+	.LCOND2:
+		cmp	x10, 0
+		b.eq	.LSTMT2
+		ldr	x9, [sp, 40]
+		adrp	x10, scores
+		add	x10, x10, :lo12:scores
+		ldr	x11, [sp, 32]
+		mov	x12, 4
+		mul	x11, x11, x12
+		ldr	w0, [x10, x11]
+		mov	x10, x0
+		add	x10, x9, x10
+		str	x10, [sp, 40]
+		adrp	x9, scores
+		add	x9, x9, :lo12:scores
+		ldr	x10, [sp, 32]
+		mov	x11, 4
+		mul	x10, x10, x11
+		ldr	w0, [x9, x10]
+		mov	x9, x0
+		ldr	x10, [sp, 56]
+		cmp	x9, x10
+		b.gt	.LCOND3
+		mov	x10, 0
+		b	.LCOND4
+	.LCOND3:
+		mov	x10, 1
+	.LCOND4:
+		cmp	x10, 0
+		b.eq	.LSTMT3
+		adrp	x9, scores
+		add	x9, x9, :lo12:scores
+		ldr	x11, [sp, 32]
+		mov	x12, 4
+		mul	x11, x11, x12
+		ldr	w0, [x9, x11]
+		mov	x9, x0
+		str	x9, [sp, 56]
+	.LSTMT3:
+		adrp	x9, scores
+		add	x9, x9, :lo12:scores
+		ldr	x10, [sp, 32]
+		mov	x11, 4
+		mul	x10, x10, x11
+		ldr	w0, [x9, x10]
+		mov	x9, x0
+		ldr	x10, [sp, 64]
+		cmp	x9, x10
+		b.lt	.LCOND5
+		mov	x10, 0
+		b	.LCOND6
+	.LCOND5:
+		mov	x10, 1
+	.LCOND6:
+		cmp	x10, 0
+		b.eq	.LSTMT4
+		adrp	x9, scores
+		add	x9, x9, :lo12:scores
+		ldr	x11, [sp, 32]
+		mov	x12, 4
+		mul	x11, x11, x12
+		ldr	w0, [x9, x11]
+		mov	x9, x0
+		str	x9, [sp, 64]
+	.LSTMT4:
+		ldr	x9, [sp, 32]
+		add	x9, x9, 1
+		str	x9, [sp, 32]
+		b	.LSTMT1
+	.LSTMT2:
+		ldr	x9, [sp, 40]
+		mov	x10, 10
+		sdiv	x10, x9, x10
+		str	x10, [sp, 48]
+		adrp	x9, .LSLIT1
+		add	x9, x9, :lo12:.LSLIT1
+		mov	x0, x9
+		bl	print_string
+		ldr	x9, [sp, 48]
+		mov	x0, x9
+		bl	print_integer
+		adrp	x9, .LSLIT2
+		add	x9, x9, :lo12:.LSLIT2
+		mov	x0, x9
+		bl	print_string
+		adrp	x9, .LSLIT3
+		add	x9, x9, :lo12:.LSLIT3
+		mov	x0, x9
+		bl	print_string
+		ldr	x9, [sp, 56]
+		mov	x0, x9
+		bl	print_integer
+		adrp	x9, .LSLIT4
+		add	x9, x9, :lo12:.LSLIT4
+		mov	x0, x9
+		bl	print_string
+		adrp	x9, .LSLIT5
+		add	x9, x9, :lo12:.LSLIT5
+		mov	x0, x9
+		bl	print_string
+		ldr	x9, [sp, 64]
+		mov	x0, x9
+		bl	print_integer
+		adrp	x9, .LSLIT6
+		add	x9, x9, :lo12:.LSLIT6
+		mov	x0, x9
+		bl	print_string
+		mov	x9, 0
+		mov	x0, x9
+		ldp	x29, x30, [sp], #120
+		ret
+		ldp	x29, x30, [sp], #120
+		ret
+	.section	.rodata
+	.align 8
+.LSLIT1:
+	.string "The average test score is "
+	.section	.rodata
+	.align 8
+.LSLIT2:
+	.string "\n"
+	.section	.rodata
+	.align 8
+.LSLIT3:
+	.string "The maximum test score is "
+	.section	.rodata
+	.align 8
+.LSLIT4:
+	.string "\n"
+	.section	.rodata
+	.align 8
+.LSLIT5:
+	.string "The minimum test score is "
+	.section	.rodata
+	.align 8
+.LSLIT6:
+	.string "\n"
+```
