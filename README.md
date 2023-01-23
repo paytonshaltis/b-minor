@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🅱 B-Minor Programming Language
+# 🅱️ B-Minor Programming Language
 
 ### [B-minor](https://www3.nd.edu/~dthain/courses/cse40243/fall2020/bminor.html) is a C-like, strictly-typed, imperative programming language. It is most notably used in undergraduate computer science compiler courses as a semester-long project. 
 
